@@ -2,7 +2,7 @@
 
 #include "node.h"
 
-//#include <stdio.h>
+#include <stdio.h>
 
 #define isNull(p)   ((p)==NULL)
 #define notNull(p)  (!isNull(p))
@@ -53,7 +53,18 @@ void node_add_next(node_t current_node, node_t next_node) {
 }
 
 
-/*
+void * node_get_data(node_t node) {
+
+  return notNull(node)? node->data : NULL;
+}
+
+node_t node_get_next(node_t node) {
+
+  return notNull(node)? node->next : NULL;
+}
+
+
+
 int main()  {
 
   int number = 10;
@@ -61,19 +72,26 @@ int main()  {
 
   node_t node1 = node_init(value1);
 
-  printf("node1: %p, %p\n", node1->data, node1->next);
+  printf("node1: %p, %p\n", node_get_data(node1), node_get_next(node1));
   
   int rebmun = 20;
   int * value2 = &rebmun;
 
   node_t node2 = node_init(value2);
 
-  printf("node2: %p, %p\n", node2->data, node2->next);
+  printf("node2: %p, %p\n", node_get_data(node2), node_get_next(node2));
 
   node_add_next(node1, node2);
 
-  printf("node1: %p, %p\n", node1->data, node1->next);
 
-  printf("node2: %p, %p\n", node1->next->data, node1->next->next);
+  printf("node1: %p, %p\n", node_get_data(node1), node_get_next(node1));
 
-}*/
+  printf("node2: %p, %p\n", node_get_data(node2), node_get_next(node2));
+
+  int * w = node_get_data(node1);
+  int * v = node_get_data(node2);
+
+  printf("%d\n", *w);
+  printf("%d\n", *v);
+
+}
