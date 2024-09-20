@@ -53,10 +53,33 @@ void node_add_next(node_t current_node, node_t next_node) {
 }
 
 
+
+void node_add_tail(node_t first_node, node_t new_node) {
+
+  if(isNull(first_node))  {
+
+      return;
+  }
+
+  node_t current_node = first_node;
+  node_t next_node;
+
+  while(notNull(next_node = node_get_next(current_node))) {
+
+      current_node = next_node;
+  }
+
+  node_add_next(current_node, new_node);
+}
+
+
+
 void * node_get_data(node_t node) {
 
   return notNull(node)? node->data : NULL;
 }
+
+
 
 node_t node_get_next(node_t node) {
 
@@ -64,7 +87,7 @@ node_t node_get_next(node_t node) {
 }
 
 
-
+/*
 int main()  {
 
   int number = 10;
@@ -94,4 +117,16 @@ int main()  {
   printf("%d\n", *w);
   printf("%d\n", *v);
 
+  
+  int bernum = 30;
+  int * value3 = &bernum;
+
+  node_t node3 = node_init(value3);
+
+  node_add_tail(node1, node3);
+
+  int * z = node_get_data(node_get_next(node_get_next(node1)));
+
+  printf("%d\n", *z);
 }
+*/
