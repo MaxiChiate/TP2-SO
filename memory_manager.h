@@ -3,10 +3,12 @@
 #ifndef MM_MANAGER_H
 #define MM_MANAGER_H
 
+  #define BLOCK_SIZE  10
+
   void mm_init(void * that_start, int that_size);
 
-  void * malloc(size_t size);
+  void * mm_malloc(size_t size);
 
-  void free(void * p);
+  void mm_free(void * p);
 
 #endif

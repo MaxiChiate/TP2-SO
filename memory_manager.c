@@ -1,8 +1,5 @@
 #include <stdio.h>
-
-#define BLOCK_SIZE	10
-
-#define MAX_SIZE BLOCK_SIZE*M
+#include "memory_manager.h"
 
 #define OUT_OF_RANGE_EXCLUSIVE(x,a,b) ((x) < (a) || (x) > (b))
 
@@ -25,12 +22,12 @@ void mm_init(void * that_start, int that_size)	{
 
 	for(int i=0; i<size; i++)	{
 
-		free_ptrs[i] = start + BLOCK_SIZE;
+		free_ptrs[i] = start + i*BLOCK_SIZE;
 	}
 }
 
 
-void * malloc(size_t dim)	{
+void * mm_malloc(size_t dim)	{
 
 /*    Version donde da mas bloques para la dim que piden:
  *
@@ -48,11 +45,13 @@ void * malloc(size_t dim)	{
 		return memory_to_return;
     */
 
-    return (dim > 0 && dim <= BLOCK_SIZE) ? free_ptrs[current++] : NULL;    
+    //return (dim > 0 && dim <= BLOCK_SIZE) ? free_ptrs[current++] : NULL;    
+
+    return free_ptrs[current++];
 }
 
 
-void free(void * p)	{
+void mm_free(void * p)	{
 
 //Checkeo para saber si es una direccion valida:
 
