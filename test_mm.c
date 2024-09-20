@@ -32,11 +32,11 @@ int main(int argc, char * argv[]) {
     return -1;
 
 
+        mm_init(memory, max_memory);
   while (1)   {
     rq = 0;
     total = 0;
  
-        mm_init(memory, max_memory);
 
     // Request as many blocks as we can
     while (rq < MAX_BLOCKS && total < max_memory) {

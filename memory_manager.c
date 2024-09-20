@@ -47,7 +47,7 @@ void * mm_malloc(size_t dim)	{
 
     //return (dim > 0 && dim <= BLOCK_SIZE) ? free_ptrs[current++] : NULL;    
 
-    return free_ptrs[current++];
+    return (current < size && dim != 0) ? free_ptrs[current++] : NULL;
 }
 
 
@@ -55,7 +55,7 @@ void mm_free(void * p)	{
 
 //Checkeo para saber si es una direccion valida:
 
-	if(OUT_OF_RANGE_EXCLUSIVE(p, start, start + size - 1))	{
+	if(OUT_OF_RANGE_EXCLUSIVE(p, start, start + size - 1) || current == 0)	{
 
 		return;
 	}
