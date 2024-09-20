@@ -4,9 +4,6 @@
 
 #include <stdio.h>
 
-#define isNull(p)   ((p)==NULL)
-#define notNull(p)  (!isNull(p))
-
 //#define NODE_ADD_NEXT__INCOMPATIBLE_DATATYPE__ERROR "node_add_next() failed: Incompatible datatype between nodes"
 //#define printError(str) (fprintf(stderr, (str)))
 
@@ -33,7 +30,7 @@ node_t node_init(void * data) {
 
 void node_add_next(node_t current_node, node_t next_node) {
 
-  if(isNull(current_node)) {
+  if(is_null(current_node)) {
   
       return;    
   }
@@ -41,7 +38,7 @@ void node_add_next(node_t current_node, node_t next_node) {
 
   //Must be same datatype, if @node_next is null, just assign it:
   
-  if(notNull(next_node) && (sizeof(current_node->data[0]) != sizeof(next_node->data[0])))  {
+  if(not_null(next_node) && (sizeof(current_node->data[0]) != sizeof(next_node->data[0])))  {
     
 //      printError(NODE_ADD_NEXT__INCOMPATIBLE_DATATYPE__ERROR);
       return;
@@ -56,7 +53,7 @@ void node_add_next(node_t current_node, node_t next_node) {
 
 void node_add_tail(node_t first_node, node_t new_node) {
 
-  if(isNull(first_node))  {
+  if(is_null(first_node))  {
 
       return;
   }
@@ -64,7 +61,7 @@ void node_add_tail(node_t first_node, node_t new_node) {
   node_t current_node = first_node;
   node_t next_node;
 
-  while(notNull(next_node = node_get_next(current_node))) {
+  while(not_null(next_node = node_get_next(current_node))) {
 
       current_node = next_node;
   }
@@ -76,14 +73,14 @@ void node_add_tail(node_t first_node, node_t new_node) {
 
 void * node_get_data(node_t node) {
 
-  return notNull(node)? node->data : NULL;
+  return not_null(node)? node->data : NULL;
 }
 
 
 
 node_t node_get_next(node_t node) {
 
-  return notNull(node)? node->next : NULL;
+  return not_null(node)? node->next : NULL;
 }
 
 
