@@ -32,7 +32,9 @@ void mm_init(void * that_start, int that_size)	{
 
 void * malloc(size_t dim)	{
 
-    int new_blocks = 1 + dim / BLOCK_SIZE;
+/*    Version donde da mas bloques para la dim que piden:
+ *
+ *    int new_blocks = 1 + dim / BLOCK_SIZE;
 
     if(dim == 0 || new_blocks > size - current - 1)  {
 
@@ -44,6 +46,9 @@ void * malloc(size_t dim)	{
     current+=new_blocks;
 
 		return memory_to_return;
+    */
+
+    return (dim > 0 && dim <= BLOCK_SIZE) ? free_ptrs[current++] : NULL;    
 }
 
 
