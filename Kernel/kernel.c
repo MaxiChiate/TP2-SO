@@ -16,8 +16,9 @@ extern uint8_t endOfKernel;
 
 static const uint64_t PageSize = 0x1000;
 
-static void * const sampleCodeModuleAddress = (void*)0x400000;
-static void * const sampleDataModuleAddress = (void*)0x500000;
+static void * const sampleCodeModuleAddress = 	(void*)0x400000;
+static void * const sampleDataModuleAddress = 	(void*)0x500000;
+static void * const memoryHeapAddress = 	(void*)0x600000;
 
 typedef int (*EntryPoint)();
 
@@ -44,7 +45,8 @@ void * initializeKernelBinary()
 
 	void * moduleAddresses[] = {
 		sampleCodeModuleAddress,
-		sampleDataModuleAddress
+		sampleDataModuleAddress,
+		memoryHeapAddress 
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
