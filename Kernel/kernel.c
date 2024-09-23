@@ -7,6 +7,11 @@
 #include <buffer.h>
 #include <colours.h>
 
+//testing mm:
+//
+#include <test_mm.h>
+#include <memory_manager.h>
+
 extern uint8_t text;
 extern uint8_t rodata;
 extern uint8_t data;
@@ -59,7 +64,12 @@ void * initializeKernelBinary()
 int main(){
 
 	load_idt();
-	((EntryPoint)sampleCodeModuleAddress)();
+
+  printCharDefault('?', WHITE, BLACK);  
+
+  mm_init(memoryHeapAddress, MAX_BLOCKS);
+
+//	((EntryPoint)sampleCodeModuleAddress)();
 
 	return 0;
 }
