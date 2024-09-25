@@ -20,4 +20,7 @@
   void * node_get_data(node_t node);
 
   node_t node_get_next(node_t node);
+
+  void node_free(node_t node);
+
 #endif

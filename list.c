@@ -54,6 +54,20 @@ void * list_get_head(list_t my_list) {
 }
 
 
+
+void list_free(list_t my_list)  {
+
+
+    node_t n = my_list->head; 
+    
+    while((n = node_get_next(n)) != NULL) {
+        
+          node_free(n);   
+      }
+
+    free(my_list);
+}
+
 int main()  {
 
 

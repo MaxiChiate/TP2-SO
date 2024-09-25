@@ -84,6 +84,12 @@ node_t node_get_next(node_t node) {
 }
 
 
+
+void node_free(node_t node)  {
+
+    free(node);
+}
+
 /*
 int main()  {
 

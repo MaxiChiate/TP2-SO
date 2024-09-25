@@ -13,4 +13,6 @@
 
   void * list_get_head(list_t my_list);
 
+  void list_free(list_t my_list);
+
 #endif
