@@ -76,6 +76,57 @@ unsigned int insert(bstADT bst, elemType elem) {
     return added;
 }
 
+static tTree findMin(tTree tree) {
+    while (tree->left != NULL) {
+        tree = tree->left;
+    }
+    return tree;
+}
+
+static tTree discardRec(tTree tree, elemType elem, bool * removed) {
+    if (tree == NULL) {
+        return NULL; // No se encontró la clave
+    }
+
+    int c = compareKeys(elem, tree->value);
+    if (c < 0) {
+        tree->left = discardRec(tree->left, elem, removed);
+    } else if (c > 0) {
+        tree->right = discardRec(tree->right, elem, removed);
+    } else {
+        *removed = true; // Se encontró el nodo a eliminar
+        // Caso 1: nodo sin hijos (hoja)
+        if (tree->left == NULL && tree->right == NULL) {
+            free(tree);
+            return NULL;
+        }
+        // Caso 2: nodo con un solo hijo
+        if (tree->left == NULL) {
+            tTree temp = tree->right;
+            free(tree);
+            return temp;
+        } else if (tree->right == NULL) {
+            tTree temp = tree->left;
+            free(tree);
+            return temp;
+        }
+        // Caso 3: nodo con dos hijos
+        tTree temp = findMin(tree->right); // Sucesor inorder
+        tree->elem = temp->elem; // Copio la clave del sucesor
+        tree->right = discardRec(tree->right, temp->elem, removed); // Eliminamos el sucesor
+    }
+    return tree;
+}
+
+bool discardEntry(KVTree bst, elemType elem) {
+    bool removed = false;
+    bst->root = discardRec(bst->root, elem, &removed);
+    if (removed) {
+        bst->size--; // Si se eliminó, decrementamos el tamaño
+    }
+    return removed;
+}
+
 unsigned int height(bstADT bst) {
     return bst->height;
 }
