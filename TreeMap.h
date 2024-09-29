@@ -12,7 +12,7 @@ static int hash(key_t key) {
 /*
  * Reserva memoria para un nuevo árbol binario
  */
-TreeMap newTreeMap();
+TreeMap newTreeMap(int (*compareKeys)(key_t, key_t), int (*compareValues)(value_t, value_t));
 
 /*
  * Retorna true si el mapa está vacío, false si no
@@ -25,17 +25,17 @@ bool mapIsEmpty(TreeMap treeMap);
 int mapSize(TreeMap treeMap);
 
 /*
- * Inserta un keyento en el árbol binario
+ * Inserta un key en el árbol binario
  */
 bool put(TreeMap treeMap, key_t key, value_t value);
 
 /*
- * Borra un keyento del árbol binario
+ * Borra un key del árbol binario
  */
 bool discard(TreeMap treeMap, key_t key);
 
 /*
- * Retorna 1 si  key pertenece al árbol, 0 si no
+ * Retorna 1 si key pertenece al árbol, 0 si no
  */
 bool containsK(TreeMap treeMap, key_t key);
 

@@ -1,6 +1,10 @@
 #ifndef __bstADT_h
 #define __bstADT_h
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
 typedef struct bstCDT * bstADT;
 
 typedef int elemType;
@@ -8,7 +12,7 @@ typedef int elemType;
 /*
  * Reserva memoria para un nuevo árbol binario
  */
-bstADT newBst(void);
+bstADT newBst(int(*compare)(elemType, elemType));
 
 /*
  * Retorna el tamaño del árbol binario
@@ -18,7 +22,12 @@ unsigned int size(bstADT bst);
 /*
  * Inserta un elemento en el árbol binario
  */
-unsigned int insert(bstADT bst, elemType eleme);
+bool insert(bstADT bst, elemType eleme);
+
+/*
+ * Borra un elemento en el árbol binario
+ */
+bool discardEntry(bstADT bst, elemType elem);
 
 /*
  * Retorna la altura del árbol binario
@@ -28,7 +37,7 @@ unsigned int height(bstADT bst);
 /*
  * Retorna 1 si el elemento pertenece al árbol, 0 si no
  */
-unsigned int belongs(bstADT bst, elemType elem);
+bool belongs(bstADT bst, elemType elem);
 
 /*
  * Retorna un vector con los elementos del árbol en orden
@@ -40,9 +49,5 @@ elemType * inOrder(bstADT bst);
  */
 void freeBst(bstADT bst);
 
-/*
- * Imprime todos los elementos del árbol
- */
-void printBst(bstADT bst);
 
 #endif

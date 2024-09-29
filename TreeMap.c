@@ -5,13 +5,15 @@
 typedef struct TreeMapCDT {
     KVTree trees[AMOUNT_TREES];
     size_t size;
+    int (*compareKeys)(key_t, key_t);
+    int (*compareValues)(value_t, value_t);
 } TreeMapCDT;
 
-TreeMap newTreeMap() {
+TreeMap newTreeMap(int (*compareKeys)(key_t, key_t), int (*compareValues)(value_t, value_t)) {
     TreeMap treeMap = calloc(1, sizeof(TreeMapCDT));
     treeMap->size = 0;
     for (int i = 0; i < AMOUNT_TREES; i++) {
-        treeMap->trees[i] = newKVTree();
+        treeMap->trees[i] = newKVTree(compareKeys, compareValues);
     }
     return treeMap;
 }
