@@ -53,6 +53,12 @@ static tTree insertRec(tTree tree, elemType elem, bool * added, int * level, int
 }
 
 bool insert(bstADT bst, elemType elem) {
+
+    if(height(bst) != -1 && sizeof(elem) != sizeof(bst->root))  {
+
+        return false;
+    }
+
     bool added = false;
     int level = -1;
     bst->root = insertRec(bst->root, elem, &added, &level, bst->compare);
@@ -118,6 +124,12 @@ static tTree discardRec(tTree tree, elemType elem, bool *removed, int *newHeight
 }
 
 bool discardEntry(bstADT bst, elemType elem) {
+
+    if(bst != NULL && sizeof(elem) != sizeof(bst->root))  {
+
+        return false;
+    }
+
     bool removed = false;
     int newHeight = 0;
     bst->root = discardRec(bst->root, elem, &removed, &newHeight, bst->compare);
@@ -180,3 +192,4 @@ static void freeBstRec(tTree tree) {
 void freeBst(bstADT bst) {
     freeBstRec(bst->root);
 }
+

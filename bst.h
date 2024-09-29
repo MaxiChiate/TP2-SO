@@ -3,11 +3,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
+#include "bool.h"
 
 typedef struct bstCDT * bstADT;
 
-typedef int elemType;
+typedef void * elemType;
 
 /*
  * Reserva memoria para un nuevo árbol binario
