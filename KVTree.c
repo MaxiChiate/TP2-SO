@@ -13,27 +13,28 @@ typedef struct KVTreeCDT {
     tTree root;
     int height; /*Altura del árbol*/
     size_t size; /*Cantidad de key en el árbol*/
+    int (*compareKeys)(key_t, key_t);
+    int (*compareValues)(value_t, value_t);
 } KVTreeCDT;
 
-KVTree newKVTree(void) {
-    return calloc(1, sizeof(KVTreeCDT));
+KVTree newKVTree(int(*compareKeys)(key_t, key_t), int (*compareValues)(value_t, value_t)) {
+    KVTree kvTree = calloc(1, sizeof(KVTreeCDT));
+    kvTree->height = -1;
+    kvTree->size = 0;
+    kvTree->compareKeys = compareKeys;
+    kvTree->compareValues = compareValues;
+    return kvTree;
 }
 
-static unsigned int KVTreeSize(tTree tree) {
-    if (tree == NULL)
-        return 0;
-    return 1 + KVTreeSize(tree->right) + KVTreeSize(tree->left);
+unsigned int size(KVTree kvTree) {
+    return kvTree->size;
 }
 
-unsigned int size(KVTree bst) {
-    return KVTreeSize(bst->root);
+bool isEmpty(KVTree kvTree) {
+    return size(kvTree) == 0;
 }
 
-bool isEmpty(KVTree bst) {
-    return size(bst) == 0;
-}
-
-static tTree insertRec(tTree tree, key_t key, value_t value, bool * added, int * level) {
+static tTree insertRec(tTree tree, key_t key, value_t value, bool * added, int * level, int(*compareKeys)(key_t, key_t)) {
     int c;
     if (tree == NULL) {
         tNode * node = malloc(sizeof(tNode));
@@ -41,37 +42,31 @@ static tTree insertRec(tTree tree, key_t key, value_t value, bool * added, int *
         node->value = value;
         node->right = NULL;
         node->left = NULL;
-        if (*level == 0) {
-            (*level)++;
-        }
+        (*level)++;
         *added = true;
         return node;
     }
     if ((c = compareKeys(key, tree->key)) < 0) {
-        if (tree->right == NULL) {
-            (*level)++;
-        }
-        tree->left = insertRec(tree->left, key, value, added, level);
+        (*level)++;
+        tree->left = insertRec(tree->left, key, value, added, level, compareKeys);
         return tree;
     }
     if (c > 0) {
-        if (tree->left == NULL) {
-            (*level)++;
-        }
-        tree->right = insertRec(tree->right, key, value, added, level);
+        (*level)++;
+        tree->right = insertRec(tree->right, key, value, added, level, compareKeys);
         return tree;
     }
     return tree;
 }
 
-bool insert(KVTree bst, key_t key, value_t value) {
-    if (containsKey(bst, key)) {
-        fprintf(stderr, "key is already mapped to a value");
-        exit(1);
-    }
+bool insert(KVTree kvTree, key_t key, value_t value) {
     bool added = false;
-    bst->root = insertRec(bst->root, key, value, &added, &(bst->height));
-    bst->size += added;
+    int level = -1;
+    kvTree->root = insertRec(kvTree->root, key, value, &added, &level, kvTree->compareKeys);
+    if (level > kvTree->height) {
+        kvTree->height = level;
+    }
+    kvTree->size += added;
     return added;
 }
 
@@ -82,55 +77,64 @@ static tTree findMin(tTree tree) {
     return tree;
 }
 
-static tTree discardRec(tTree tree, key_t key, bool * removed) {
+static tTree discardRec(tTree tree, key_t key, bool * removed, int * newHeight, int(*compareKeys)(key_t, key_t)) {
     if (tree == NULL) {
+        *newHeight = 0;
         return NULL; // No se encontró la clave
     }
 
+    int leftHeight = 0, rightHeight = 0;
     int c = compareKeys(key, tree->key);
+
     if (c < 0) {
-        tree->left = discardRec(tree->left, key, removed);
+        tree->left = discardRec(tree->left, key, removed, &leftHeight, compareKeys);
     } else if (c > 0) {
-        tree->right = discardRec(tree->right, key, removed);
+        tree->right = discardRec(tree->right, key, removed, &rightHeight, compareKeys);
     } else {
         *removed = true; // Se encontró el nodo a eliminar
         // Caso 1: nodo sin hijos (hoja)
         if (tree->left == NULL && tree->right == NULL) {
             free(tree);
+            *newHeight = 0;
             return NULL;
         }
         // Caso 2: nodo con un solo hijo
         if (tree->left == NULL) {
             tTree temp = tree->right;
             free(tree);
+            *newHeight = rightHeight + 1;
             return temp;
         } else if (tree->right == NULL) {
             tTree temp = tree->left;
             free(tree);
+            *newHeight = leftHeight + 1;
             return temp;
         }
         // Caso 3: nodo con dos hijos
         tTree temp = findMin(tree->right); // Sucesor en inorden
         tree->key = temp->key; // Copiamos la clave del sucesor
-        tree->right = discardRec(tree->right, temp->key, removed); // Eliminamos el sucesor
+        tree->right = discardRec(tree->right, temp->key, removed, &rightHeight, compareKeys); // Eliminamos el sucesor
     }
+    *newHeight = (leftHeight > rightHeight ? leftHeight : rightHeight) + 1;
     return tree;
 }
 
-bool discardEntry(KVTree bst, key_t key) {
+bool discardEntry(KVTree kvTree, key_t key) {
     bool removed = false;
-    bst->root = discardRec(bst->root, key, &removed);
+    int newHeight = 0;
+    kvTree->root = discardRec(kvTree->root, key, &removed, &newHeight, kvTree->compareKeys);
     if (removed) {
-        bst->size--; // Si se eliminó, decrementamos el tamaño
+        kvTree->size--;
+        kvTree->height = newHeight;
     }
     return removed;
 }
 
-unsigned int height(KVTree bst) {
-    return bst->height;
+unsigned int height(KVTree kvTree) {
+    return kvTree->height;
 }
 
-static bool binarySearchKey(tTree tree, key_t key) {
+static bool binarySearchKey(tTree tree, key_t key, int(*compareKeys)(key_t, key_t)) {
     int c;
     if (tree == NULL) {
         return false;
@@ -139,30 +143,30 @@ static bool binarySearchKey(tTree tree, key_t key) {
         return true;
     }
     if (c < 0) {
-        return binarySearchKey(tree->left, key);
+        return binarySearchKey(tree->left, key, compareKeys);
     }
-    return binarySearchKey(tree->right, key);
+    return binarySearchKey(tree->right, key, compareKeys);
 }
 
-static bool searchValue(tTree tree, value_t value) {
+static bool searchValue(tTree tree, value_t value, int(*compareValues)(value_t, value_t)) {
     if (tree == NULL) {
         return false;
     }
     if (!compareValues(tree->value, value)) {
         return true;
     }
-    return searchValue(tree->right, value) || searchValue(tree->left, value);
+    return searchValue(tree->right, value, compareValues) || searchValue(tree->left, value, compareValues);
 }
 
-bool containsKey(KVTree bst, key_t key) {
-    return binarySearchKey(bst->root, key);
+bool containsKey(KVTree kvTree, key_t key) {
+    return binarySearchKey(kvTree->root, key, kvTree->compareKeys);
 }
 
-bool containsValue(KVTree bst, value_t value) {
-    return searchValue(bst->root, value);
+bool containsValue(KVTree kvTree, value_t value) {
+    return searchValue(kvTree->root, value, kvTree->compareValues);
 }
 
-bool replaceRec(tTree tree, key_t key, value_t newValue) {
+bool replaceRec(tTree tree, key_t key, value_t newValue, int(*compareKeys)(key_t, key_t)) {
     int c;
     if (tree == NULL) {
         return false;
@@ -172,16 +176,16 @@ bool replaceRec(tTree tree, key_t key, value_t newValue) {
         return true;
     }
     if (c < 0) {
-        return replaceRec(tree->left, key, newValue);
+        return replaceRec(tree->left, key, newValue, compareKeys);
     }
-    return replaceRec(tree->right, key, newValue);
+    return replaceRec(tree->right, key, newValue, compareKeys);
 }
 
-bool replace(KVTree bst, key_t key, value_t newValue) {
-    return replaceRec(bst->root, key, newValue);
+bool replace(KVTree kvTree, key_t key, value_t newValue) {
+    return replaceRec(kvTree->root, key, newValue, kvTree->compareKeys);
 }
 
-static value_t getRec(tTree tree, key_t key) {
+static value_t getRec(tTree tree, key_t key, int(*compareKeys)(key_t, key_t)) {
     int c;
     if (tree == NULL) {
         return NULL;
@@ -190,13 +194,13 @@ static value_t getRec(tTree tree, key_t key) {
         return tree->value;
     }
     if (c < 0) {
-        return getRec(tree->left, key);
+        return getRec(tree->left, key, compareKeys);
     }
-    return getRec(tree->right, key);
+    return getRec(tree->right, key, compareKeys);
 }
 
-value_t get(KVTree bst, key_t key) {
-    return getRec(bst->root, key);
+value_t get(KVTree kvTree, key_t key) {
+    return getRec(kvTree->root, key, kvTree->compareKeys);
 }
 
 static void keysToArrayRec(tTree tree, key_t * v, int * i) {
@@ -215,19 +219,19 @@ static void valuesToArrayRec(tTree tree, value_t * v, int * i) {
     valuesToArrayRec(tree->right, v, i);
 }
 
-key_t * keySet(KVTree bst) {
-    key_t * ans = malloc(bst->size * sizeof(key_t));
+key_t * keySet(KVTree kvTree) {
+    key_t * ans = malloc(kvTree->size * sizeof(key_t));
     int idx = 0;
 
-    keysToArrayRec(bst->root, ans, &idx);
+    keysToArrayRec(kvTree->root, ans, &idx);
     return ans;
 }
 
-value_t * values(KVTree bst) {
-    value_t * ans = malloc(bst->size * sizeof(value_t));
+value_t * values(KVTree kvTree) {
+    value_t * ans = malloc(kvTree->size * sizeof(value_t));
     int idx = 0;
 
-    valuesToArrayRec(bst->root, ans, &idx);
+    valuesToArrayRec(kvTree->root, ans, &idx);
     return ans;
 }
 

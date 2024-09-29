@@ -13,22 +13,9 @@ typedef int key_t;
 typedef char * value_t;
 
 /*
- * Retorna 0 si e1 es igual a e2, negativo si e1 es menor que e2 o positivo si e1 es mayor que e2
- */
-
-static int compareKeys(key_t key1, key_t key2) {
-    return key1 - key2;
-}
-
-static int compareValues(value_t value1, value_t value2) {
-    return strcmp(value1, value2);
-}
-
-
-/*
  * Reserva memoria para un nuevo árbol binario
  */
-KVTree newKVTree();
+KVTree newKVTree(int(*compareKeys)(key_t, key_t), int (*compareValues)(value_t, value_t));
 
 /*
  * Retorna el tamaño del árbol binario

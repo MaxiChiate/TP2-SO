@@ -24,25 +24,9 @@ bstADT newBst(int(*compare)(elemType, elemType)) {
     return bst;
 }
 
-static unsigned int bstSize(tTree tree) {
-    if (tree == NULL)
-        return 0;
-    return 1 + bstSize(tree->right) + bstSize(tree->left);
-}
-
 unsigned int size(bstADT bst) {
-    return bstSize(bst->root);
+    return bst->size;
 }
-
-// static int calculateHeight(tTree tree) {
-//     if (tree == NULL) {
-//         return -1;
-//     }
-//     int left = calculateHeight(tree->left);
-//     int right = calculateHeight(tree->right);
-
-//     return left > right ? left : right + 1;
-// }
 
 static tTree insertRec(tTree tree, elemType elem, bool * added, int * level, int (*compare)(elemType, elemType)) {
     int c;
