@@ -1,6 +1,10 @@
 #ifndef __bstADT_h
 #define __bstADT_h
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
 typedef struct bstCDT * bstADT;
 
 typedef int elemType;
@@ -19,6 +23,11 @@ unsigned int size(bstADT bst);
  * Inserta un elemento en el árbol binario
  */
 unsigned int insert(bstADT bst, elemType eleme);
+
+/*
+ * Borra un elemento en el árbol binario
+ */
+bool discardEntry(bstADT bst, elemType elem);
 
 /*
  * Retorna la altura del árbol binario

@@ -1,7 +1,4 @@
-#include "bstADT.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
+#include "bst.h"
 
 typedef struct node {
     elemType value;
@@ -26,7 +23,10 @@ static int compare(elemType e1, elemType e2) {
 
 
 bstADT newBst(void) {
-    return calloc(1, sizeof(bstCDT));
+    bstADT bst = calloc(1, sizeof(bstCDT));
+    bst->height = -1;
+    bst->size = 0;
+    return bst;
 }
 
 static unsigned int bstSize(tTree tree) {
@@ -39,6 +39,16 @@ unsigned int size(bstADT bst) {
     return bstSize(bst->root);
 }
 
+// static int calculateHeight(tTree tree) {
+//     if (tree == NULL) {
+//         return -1;
+//     }
+//     int left = calculateHeight(tree->left);
+//     int right = calculateHeight(tree->right);
+
+//     return left > right ? left : right + 1;
+// }
+
 static tTree insertRec(tTree tree, elemType elem, int * added, int * level) {
     int c;
     if (tree == NULL) {
@@ -46,24 +56,15 @@ static tTree insertRec(tTree tree, elemType elem, int * added, int * level) {
         node->value = elem;
         node->right = NULL;
         node->left = NULL;
-        if (*level == 0) {
-            (*level)++;
-        }
         *added = 1;
         return node;
     }
     if ((c = compare(elem, tree->value)) < 0) {
-        if (tree->right == NULL) {
-            (*level)++;
-        }
-        tree->left = insertRec(tree->left, elem, added, level);
+        tree->left = insertRec(tree->left, elem, added, ++level);
         return tree;
     }
     if (c > 0) {
-        if (tree->left == NULL) {
-            (*level)++;
-        }
-        tree->right = insertRec(tree->right, elem, added, level);
+        tree->right = insertRec(tree->right, elem, added, ++level);
         return tree;
     }
     return tree;
@@ -71,7 +72,11 @@ static tTree insertRec(tTree tree, elemType elem, int * added, int * level) {
 
 unsigned int insert(bstADT bst, elemType elem) {
     int added = 0;
-    bst->root = insertRec(bst->root, elem, &added, &(bst->height));
+    int level = 0;
+    bst->root = insertRec(bst->root, elem, &added, &level);
+    if (level > bst->height) {
+        bst->height = level;
+    }
     bst->size += added;
     return added;
 }
@@ -83,16 +88,16 @@ static tTree findMin(tTree tree) {
     return tree;
 }
 
-static tTree discardRec(tTree tree, elemType elem, bool * removed) {
+static tTree discardRec(tTree tree, elemType elem, bool * removed, int * level) {
     if (tree == NULL) {
         return NULL; // No se encontró la clave
     }
 
-    int c = compareKeys(elem, tree->value);
+    int c = compare(elem, tree->value);
     if (c < 0) {
-        tree->left = discardRec(tree->left, elem, removed);
+        tree->left = discardRec(tree->left, elem, removed, ++level);
     } else if (c > 0) {
-        tree->right = discardRec(tree->right, elem, removed);
+        tree->right = discardRec(tree->right, elem, removed, ++level);
     } else {
         *removed = true; // Se encontró el nodo a eliminar
         // Caso 1: nodo sin hijos (hoja)
@@ -112,18 +117,18 @@ static tTree discardRec(tTree tree, elemType elem, bool * removed) {
         }
         // Caso 3: nodo con dos hijos
         tTree temp = findMin(tree->right); // Sucesor inorder
-        tree->elem = temp->elem; // Copio la clave del sucesor
-        tree->right = discardRec(tree->right, temp->elem, removed); // Eliminamos el sucesor
+        tree->value = temp->value; // Copio la clave del sucesor
+        tree->right = discardRec(tree->right, temp->value, removed, ++level); // Eliminamos el sucesor
     }
     return tree;
 }
 
-bool discardEntry(KVTree bst, elemType elem) {
+bool discardEntry(bstADT bst, elemType elem) {
     bool removed = false;
-    bst->root = discardRec(bst->root, elem, &removed);
-    if (removed) {
-        bst->size--; // Si se eliminó, decrementamos el tamaño
-    }
+    int level = 0;
+    bst->root = discardRec(bst->root, elem, &removed, &level);
+    // bst->height = calculateHeight(bst->root);
+    bst->size -= removed;
     return removed;
 }
 
@@ -189,4 +194,35 @@ static void printBstRec(tTree tree) {
 
 void printBst(bstADT bst) {
     printBstRec(bst->root);
+}
+
+int main() {
+    bstADT tree = newBst();
+
+    printf("Height: %d\n", height(tree));
+
+    insert(tree, 5);
+    insert(tree, 4);
+    insert(tree, 6);
+    insert(tree, 8);
+    insert(tree, 10);
+
+    //           5
+    //      4        6
+    //                   8
+    //                     10
+
+    printf("Height: %d\n", height(tree));
+
+    // discardEntry(tree, 5);
+    // discardEntry(tree, 4);
+    // discardEntry(tree, 6);
+    // discardEntry(tree, 8);
+    // discardEntry(tree, 10);
+
+    // printf("Height: %d\n", height(tree));
+
+    freeBst(tree);
+
+    return 0;
 }
