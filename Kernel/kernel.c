@@ -65,9 +65,13 @@ int main(){
 
 	load_idt();
 
-  printCharDefault('?', WHITE, BLACK);  
 
-  mm_init(memoryHeapAddress, MAX_BLOCKS);
+	//mm_init(memoryHeapAddress, MAX_BLOCKS);
+	printCharDefault('?', WHITE, BLACK);
+
+	uint64_t args[4] = {314, MAX_BLOCKS, memoryHeapAddress, 0x00}; 
+	
+	test_mm(3, args);
 
 //	((EntryPoint)sampleCodeModuleAddress)();
 
