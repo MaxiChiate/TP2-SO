@@ -54,6 +54,9 @@ dkms.conf
 # ignore
 .*
 
+# binary
+.bin
+
 # except .gitignore
 !.gitignore
 
