@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/bash	
 NOMBRE=TP2-SO
 
-#sudo docker run -d -v "$PWD":/root --security-opt seccomp:unconfined -ti --name $NOMBRE agodio/itba-so-multi-platform:3.0
-sudo docker run -d -v "$PWD":/root --security-opt seccomp:unconfined -ti --name $NOMBRE agodio/itba-so:1.0
+sudo docker run -d -v "$PWD":/root --security-opt seccomp:unconfined -ti --name $NOMBRE agodio/itba-so-multi-platform:3.0
+#sudo docker run -d -v "$PWD":/root --security-opt seccomp:unconfined -ti --name $NOMBRE agodio/itba-so:1.0
 
 # groupadd -g 1000 -o alex
 # useradd -m -u 1000 -g 1000 -o -s /bin/bash alex
