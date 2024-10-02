@@ -1,11 +1,6 @@
 //node.c
 
-#include "node.h"
-
-#include <stdio.h>
-
-//#define NODE_ADD_NEXT__INCOMPATIBLE_DATATYPE__ERROR "node_add_next() failed: Incompatible datatype between nodes"
-//#define printError(str) (fprintf(stderr, (str)))
+#include <node.h>
 
 struct node {
 
@@ -90,46 +85,4 @@ void node_free(node_t node)  {
     free(node);
 }
 
-/*
-int main()  {
 
-  int number = 10;
-  int * value1 = &number;
-
-  node_t node1 = node_init(value1);
-
-  printf("node1: %p, %p\n", node_get_data(node1), node_get_next(node1));
-  
-  int rebmun = 20;
-  int * value2 = &rebmun;
-
-  node_t node2 = node_init(value2);
-
-  printf("node2: %p, %p\n", node_get_data(node2), node_get_next(node2));
-
-  node_add_next(node1, node2);
-
-
-  printf("node1: %p, %p\n", node_get_data(node1), node_get_next(node1));
-
-  printf("node2: %p, %p\n", node_get_data(node2), node_get_next(node2));
-
-  int * w = node_get_data(node1);
-  int * v = node_get_data(node2);
-
-  printf("%d\n", *w);
-  printf("%d\n", *v);
-
-  
-  int bernum = 30;
-  int * value3 = &bernum;
-
-  node_t node3 = node_init(value3);
-
-  node_add_tail(node1, node3);
-
-  int * z = node_get_data(node_get_next(node_get_next(node1)));
-
-  printf("%d\n", *z);
-}
-*/

@@ -1,7 +1,6 @@
 //lsit.c
 
-#include <stdio.h>
-#include "list.h"
+#include <list.h>
 
 
 struct list {
@@ -66,20 +65,4 @@ void list_free(list_t my_list)  {
       }
 
     free(my_list);
-}
-
-int main()  {
-
-
-  int i = 420;
-  int * p = &i; 
-
-  list_t list = list_init();
-
-  list_add(list, p);
-
-  int * q = list_get_head(list);
-
-  printf("%d\n", *q);
-
 }

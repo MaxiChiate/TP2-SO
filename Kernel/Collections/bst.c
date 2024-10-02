@@ -1,4 +1,4 @@
-#include "bst.h"
+#include <bst.h>
 
 typedef struct node {
     elemType value;
