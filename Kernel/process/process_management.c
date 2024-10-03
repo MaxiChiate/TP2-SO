@@ -16,8 +16,6 @@
 
 typedef enum preocess_state {BLOCKED, READY, RUNNING} process_state_t;
 
-extern loadContext(uint64_tstack_segment, uint64_tstack_pointer, );
-
 typedef struct pcb {
     
     uint64_t align;
