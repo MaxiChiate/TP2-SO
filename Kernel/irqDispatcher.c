@@ -20,7 +20,6 @@ static int_xx interruptions[2] = {&int_20, &int_21};
 
 void irqDispatcher(uint64_t irq) {
 	interruptions[irq]();
-	return;
 }
 
 
