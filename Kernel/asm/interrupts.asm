@@ -66,6 +66,26 @@ SECTION .text
 	pop rax
 %endmacro
 
+%macro pushContext 
+	push rip
+	push ss
+	push rsp
+	push rflags
+	push cs
+	pushState
+%endmacro
+
+%macro popContext 
+	sub rsp, 8      //align 
+	popState
+	pop cs
+	pop rflags
+	pop rsp
+	pop ss	
+	pop rip		// TODO: Ver si importa que se saltea el iretq
+%endmacro
+
+
 saveState:
 	pushState
 	dState
@@ -148,7 +168,23 @@ picSlaveMask:
 
 ;8254 Timer (Timer Tick)
 _irq00Handler:
-	irqHandlerMaster 0		; acá ya llama al contador sumando ticks
+
+	pushContext
+	
+	mov rdi, 0 ; pasaje de parametro 
+	call irqDispatcher
+
+
+	mov rdi, rsp
+;	call schedule
+ 	mov rsp, rax
+
+	; signal pic EOI (End of Interrupt)
+	mov al, 20h
+	out 20h, al
+
+;	popContext
+	iretq	
 
 ;Keyboard
 _irq01Handler:
