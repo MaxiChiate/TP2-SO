@@ -66,25 +66,6 @@ SECTION .text
 	pop rax
 %endmacro
 
-%macro pushContext 
-	push rip
-	push ss
-	push rsp
-	push rflags
-	push cs
-	pushState
-%endmacro
-
-%macro popContext 
-	sub rsp, 8      //align 
-	popState
-	pop cs
-	pop rflags
-	pop rsp
-	pop ss	
-	pop rip		// TODO: Ver si importa que se saltea el iretq
-%endmacro
-
 
 saveState:
 	pushState
@@ -169,11 +150,8 @@ picSlaveMask:
 ;8254 Timer (Timer Tick)
 _irq00Handler:
 
-	pushContext
-	
 	mov rdi, 0 ; pasaje de parametro 
 	call irqDispatcher
-
 
 	mov rdi, rsp
 ;	call schedule
@@ -183,7 +161,6 @@ _irq00Handler:
 	mov al, 20h
 	out 20h, al
 
-;	popContext
 	iretq	
 
 ;Keyboard
