@@ -34,8 +34,8 @@ SECTION .text
 	push rcx
 	push rdx
 	push rbp
-	push rdi
-	push rsi
+	push rdi ;argc	; sp + 0x0A
+	push rsi ;argv[]; sp + 0x09
 	push r8
 	push r9
 	push r10
@@ -44,6 +44,7 @@ SECTION .text
 	push r13
 	push r14
 	push r15
+			;< sp
 %endmacro
 
 
@@ -147,7 +148,7 @@ picSlaveMask:
     retn
 
 
-;8254 Timer (Timer Tick)
+;8254 Timer (Timer Tick) / Also schedule
 _irq00Handler:
 
 	pushState
@@ -165,7 +166,7 @@ _irq00Handler:
 
 	popState
 
-	iretq	
+	iretq
 
 ;Keyboard
 _irq01Handler:

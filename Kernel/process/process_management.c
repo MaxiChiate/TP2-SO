@@ -7,6 +7,7 @@
 #define PROCESS_AMOUNT 64
 #define BEGINNIN_PROCESS_ADDRESS(process_index) (uint64_t) stacks + (process_index+1)*STACK_SPACE -1;
 #define STATE_PUSHED_SIZE 15 //Register pushed amount in pushSate macro
+#define CONTEXT_PUSHED_SIZE 6 
 
 #define GLOBAL_SS       0x0
 #define GLOBAL_RFLAGS   0x202
@@ -25,7 +26,7 @@ typedef struct pcb {
     uint64_t code_segment;
     uint64_t instruction_pointer;
     char * argv[];
-    uint64_t argc;
+    int argc;
     
     uint64_t process_id;
     process_state_t state;
@@ -50,14 +51,14 @@ static void refresh_pcb_from_stackcontext(unsigned int p)   {
 // Address of last parameter in process context:
     int i= pcbs[p]->stack_pointer + sizeof(stacks[0][0])*STATE_PUSHED_SIZE + 1;
     
-        pcbs[p]->align = stacks[p][i++];
-        pcbs[p]->stack_segment = stacks[p][i++];
-        pcbs[p]->stack_pointer = stacks[p][i++];
-        pcbs[p]->register_flags = stacks[p][i++];
-        pcbs[p]->code_segment = stacks[p][i++];
-        pcbs[p]->instruction_pointer = stacks[p][i++];
-        pcbs[p]->process_id = stacks[p][i++];
-        pcbs[p]->state = stacks[p][i++];
+        pcbs[p]->align = stacks[p][i--];     
+        pcbs[p]->stack_segment = stacks[p][i--];
+        pcbs[p]->stack_pointer = stacks[p][i--]; 
+        pcbs[p]->register_flags = stacks[p][i--];
+        pcbs[p]->code_segment = stacks[p][i--];
+        pcbs[p]->instruction_pointer = stacks[p][i--];
+        pcbs[p]->process_id = stacks[p][i--];
+        pcbs[p]->state = stacks[p][i--];
 
 }
 
@@ -66,14 +67,14 @@ static void refresh_stackcontext_from_pcb(unsigned int p)   {
 // Address of last parameter in process context:
     int i= pcbs[p]->stack_pointer + sizeof(stacks[0][0])*STATE_PUSHED_SIZE + 1;
     
-        stacks[p][i++]= pcbs[p]->align;
-        stacks[p][i++]= pcbs[p]->stack_segment;
-        stacks[p][i++]= pcbs[p]->stack_pointer;
-        stacks[p][i++]= pcbs[p]->register_flags;
-        stacks[p][i++]= pcbs[p]->code_segment;
-        stacks[p][i++]= pcbs[p]->instruction_pointer;
-        stacks[p][i++]= pcbs[p]->process_id;
-        stacks[p][i++]= pcbs[p]->state;
+        stacks[p][i--]= pcbs[p]->align;
+        stacks[p][i--]= pcbs[p]->stack_segment;
+        stacks[p][i--]= pcbs[p]->stack_pointer;
+        stacks[p][i--]= pcbs[p]->register_flags;
+        stacks[p][i--]= pcbs[p]->code_segment;
+        stacks[p][i--]= pcbs[p]->instruction_pointer;
+        stacks[p][i--]= pcbs[p]->process_id;
+        stacks[p][i--]= pcbs[p]->state;
 
 }
 
@@ -112,6 +113,9 @@ bool new_process(uint64_t function_address, int argc, char * argv[])  {
     pcbs[new_process_index] = new_pcb;
 
     refresh_stackcontext_from_pcb(new_process_index);
+
+// sp prepared to do popstate:
+    new_pcb->stack_pointer -= (STATE_PUSHED_SIZE + CONTEXT_PUSHED_SIZE) * sizeof(stacks[0][0]);
 
     return true;
 }
