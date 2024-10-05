@@ -11,6 +11,7 @@
 #define GLOBAL_SS       0x0
 #define GLOBAL_RFLAGS   0x202
 #define GLOBAL_CS       0x8
+
 #define INITIAL_ALIGN   0x0
 
 typedef enum preocess_state {BLOCKED, READY, RUNNING} process_state_t;
@@ -85,10 +86,9 @@ uint64_t schedule(uint64_t current_stack_pointer) {
     return pcbs[current_process]->stack_pointer;
 }
 
-//Listo???
-void new_process(uint64_t function_address)  {
+bool new_process(uint64_t function_address)  {
 
-    if(current_amount_process == PROCESS_AMOUNT) return;
+    if(current_amount_process == PROCESS_AMOUNT) return false;
 
     current_amount_process++;
 
@@ -109,6 +109,8 @@ void new_process(uint64_t function_address)  {
     pcbs[new_process_index] = new_pcb;
 
     refresh_stackcontext_from_pcb(new_process_index);
+
+    return true;
 }
 
 bool kill_process(uint64_t sp_to_delete)  {
