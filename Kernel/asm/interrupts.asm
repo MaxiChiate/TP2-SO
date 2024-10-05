@@ -34,8 +34,8 @@ SECTION .text
 	push rcx
 	push rdx
 	push rbp
-	push rdi ;argc	; sp + 0x0A
-	push rsi ;argv[]; sp + 0x09
+	push rdi ;argc	
+	push rsi ;argv[]
 	push r8
 	push r9
 	push r10
