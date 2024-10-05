@@ -1,11 +1,11 @@
-#include <scheduler.h>
+#include <process_management.h>
 
 //TODO: Releer todo y ver si compila. Habiendo configurado GDB.
 
 #define K 1024
 #define STACK_SPACE 4*K
 #define PROCESS_AMOUNT 64
-#define BEGINNIN_CURRENT_PROCESS_ADRESS (stacks + PROCESS_AMOUNT*STACK_SPACE - current_process*STACK_SPACE)
+#define BEGINNIN_PROCESS_ADDRESS(process_index) (uint64_t) stacks + (process_index+1)*STACK_SPACE -1;
 #define STATE_PUSHED_SIZE 15 //Register pushed amount in pushSate macro
 
 #define GLOBAL_SS       0x0
@@ -24,6 +24,9 @@ typedef struct pcb {
     uint64_t register_flags;
     uint64_t code_segment;
     uint64_t instruction_pointer;
+    char * argv[];
+    uint64_t argc;
+    
     uint64_t process_id;
     process_state_t state;
 
@@ -44,7 +47,7 @@ static void next_process()   {
 
 static void refresh_pcb_from_stackcontext(unsigned int p)   {
 
-// Address of last param in process context:
+// Address of last parameter in process context:
     int i= pcbs[p]->stack_pointer + sizeof(stacks[0][0])*STATE_PUSHED_SIZE + 1;
     
         pcbs[p]->align = stacks[p][i++];
@@ -60,7 +63,7 @@ static void refresh_pcb_from_stackcontext(unsigned int p)   {
 
 static void refresh_stackcontext_from_pcb(unsigned int p)   {
 
-// Address of last param in process context:
+// Address of last parameter in process context:
     int i= pcbs[p]->stack_pointer + sizeof(stacks[0][0])*STATE_PUSHED_SIZE + 1;
     
         stacks[p][i++]= pcbs[p]->align;
@@ -86,7 +89,7 @@ uint64_t schedule(uint64_t current_stack_pointer) {
     return pcbs[current_process]->stack_pointer;
 }
 
-bool new_process(uint64_t function_address)  {
+bool new_process(uint64_t function_address, int argc, char * argv[])  {
 
     if(current_amount_process == PROCESS_AMOUNT) return false;
 
@@ -99,7 +102,7 @@ bool new_process(uint64_t function_address)  {
 
         new_pcb->align = INITIAL_ALIGN;
         new_pcb->stack_segment = GLOBAL_SS;
-        new_pcb->stack_pointer = (uint64_t) stacks + new_process_index*STACK_SPACE;
+        new_pcb->stack_pointer =  BEGINNIN_PROCESS_ADDRESS(new_process_index);
         new_pcb->register_flags = GLOBAL_RFLAGS;
         new_pcb->code_segment = GLOBAL_CS;
         new_pcb->instruction_pointer = function_address;
