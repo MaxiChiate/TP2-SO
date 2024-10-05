@@ -2,18 +2,9 @@
 
 //TODO: Releer todo y ver si compila. Habiendo configurado GDB.
 
-#define K 1024
-#define STACK_SPACE 4*K
-#define PROCESS_AMOUNT 64
 #define BEGINNIN_PROCESS_ADDRESS(process_index) (uint64_t) stacks + (process_index+1)*STACK_SPACE -1;
-#define STATE_PUSHED_SIZE 15 //Register pushed amount in pushSate macro
-#define CONTEXT_PUSHED_SIZE 6 
-
-#define GLOBAL_SS       0x0
-#define GLOBAL_RFLAGS   0x202
-#define GLOBAL_CS       0x8
-
-#define INITIAL_ALIGN   0x0
+#define DEFAULT_PARENT_PID 0
+#define INITIAL_PROCESS_ID 1
 
 typedef enum preocess_state {BLOCKED, READY, RUNNING} process_state_t;
 
@@ -30,6 +21,7 @@ typedef struct pcb {
     int argc;      //rsi
     
     uint64_t process_id;
+    uint64_t parent_process_id;
     process_state_t state;
 
 } pcb_t;
@@ -39,7 +31,7 @@ static uint64_t stacks [PROCESS_AMOUNT][STACK_SPACE];
 
 static unsigned int current_process = 0;
 static unsigned int current_amount_process = 0;
-static unsigned int process_id_counter = 1;
+static unsigned int process_id_counter = INITIAL_PROCESS_ID;
 
 
 static void next_process()   {
@@ -95,9 +87,9 @@ uint64_t schedule(uint64_t current_stack_pointer) {
     return pcbs[current_process]->stack_pointer;
 }
 
-bool new_process(uint64_t function_address, int argc, char * argv[])  {
+uint64_t static new_process(uint64_t function_address, int argc, char * argv[])  {
 
-    if(current_amount_process == PROCESS_AMOUNT) return false;
+    if(current_amount_process == PROCESS_AMOUNT) return OVERFLOW;
 
     current_amount_process++;
 
@@ -117,6 +109,7 @@ bool new_process(uint64_t function_address, int argc, char * argv[])  {
         new_pcb->argv = argv
 
         new_pcb->process_id = process_id_counter++;
+        new_pcb->parent_process_id = DEFAULT_PARENT_PID;
         new_pcb->state = READY;
 
     pcbs[new_process_index] = new_pcb;
@@ -126,21 +119,57 @@ bool new_process(uint64_t function_address, int argc, char * argv[])  {
 // sp prepared to do popstate:
     new_pcb->stack_pointer -= (STATE_PUSHED_SIZE + CONTEXT_PUSHED_SIZE) * sizeof(stacks[0][0]);
 
-
-
-    return true;
+    return new_pcb->process_id;
 }
+
+
+uint64_t fork(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[]) {
+    
+    pcbs[new_process(function_address, argc, argv)]->parent_process_id = parent_pid;
+}
+
 
 bool kill_process(uint64_t sp_to_delete)  {
 
-    for(int i=0; i<PROCESS_AMOUNT; i++) {
+    if(sp_to_delete > OVERFLOW)    {
+        
+        for(int i=0; i<PROCESS_AMOUNT; i++) {
 
-        if(pcbs[i]!=NULL && pcbs[i]->stack_pointer == sp_to_delete)  {
+            if(pcbs[i]!=NULL && pcbs[i]->stack_pointer == sp_to_delete)  {
 
-            pcbs[i] = NULL;
-            return true;
+                pcbs[i] = NULL;
+                return true;
+            }
         }
     }
-
     return false;
 }
+
+
+static uint64_t get_sp_by_pid(uint64_t pid) {
+
+    for(int i=0; i<PROCESS_AMOUNT; i++) {
+
+        if(pcbs[i]!=NULL && pcbs[i]->process_id == pid) {
+            return pcbs[i]->stack_pointer;
+        }
+    }
+    return OVERFLOW;
+}
+
+
+bool kill_process_by_pid(uint64_t pid)   {
+    
+    return kill_process(get_sp_by_pid(pid));
+}
+
+
+void spawn_init_process(void)    {
+
+    kill_process_by_pid(INITIAL_PROCESS_ID);
+
+    int argc = 2;    
+    char * argv[argc] = {"_hlt", NULL};
+    new_process(&_hlt(void), argc, argv);
+}
+
