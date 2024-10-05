@@ -3,8 +3,6 @@
 //TODO: Releer todo y ver si compila. Habiendo configurado GDB.
 
 #define BEGINNIN_PROCESS_ADDRESS(process_index) (uint64_t) stacks + (process_index+1)*STACK_SPACE -1;
-#define DEFAULT_PARENT_PID 0
-#define INITIAL_PROCESS_ID 1
 
 typedef enum preocess_state {BLOCKED, READY, RUNNING} process_state_t;
 
