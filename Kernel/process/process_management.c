@@ -25,8 +25,9 @@ typedef struct pcb {
     uint64_t register_flags;
     uint64_t code_segment;
     uint64_t instruction_pointer;
-    char * argv[];
-    int argc;
+    
+    char * argv[]; //rdi
+    int argc;      //rsi
     
     uint64_t process_id;
     process_state_t state;
@@ -60,6 +61,8 @@ static void refresh_pcb_from_stackcontext(unsigned int p)   {
         pcbs[p]->process_id = stacks[p][i--];
         pcbs[p]->state = stacks[p][i--];
 
+        (uint64_t) pcbs[p]->argc = tacks[p][i - 5];
+        (uint64_t) pcbs[p]->argv = tacks[p][i - 6];        
 }
 
 static void refresh_stackcontext_from_pcb(unsigned int p)   {
@@ -76,6 +79,8 @@ static void refresh_stackcontext_from_pcb(unsigned int p)   {
         stacks[p][i--]= pcbs[p]->process_id;
         stacks[p][i--]= pcbs[p]->state;
 
+        stacks[p][i - 5] = (uint64_t) pcbs[p]->argc;
+        stacks[p][i - 6] = (uint64_t) pcbs[p]->argv;
 }
 
 uint64_t schedule(uint64_t current_stack_pointer) {
@@ -107,6 +112,10 @@ bool new_process(uint64_t function_address, int argc, char * argv[])  {
         new_pcb->register_flags = GLOBAL_RFLAGS;
         new_pcb->code_segment = GLOBAL_CS;
         new_pcb->instruction_pointer = function_address;
+
+        new_pcb->argc = argc;
+        new_pcb->argv = argv
+
         new_pcb->process_id = process_id_counter++;
         new_pcb->state = READY;
 
@@ -116,6 +125,8 @@ bool new_process(uint64_t function_address, int argc, char * argv[])  {
 
 // sp prepared to do popstate:
     new_pcb->stack_pointer -= (STATE_PUSHED_SIZE + CONTEXT_PUSHED_SIZE) * sizeof(stacks[0][0]);
+
+
 
     return true;
 }
