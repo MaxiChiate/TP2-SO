@@ -45,6 +45,13 @@ static void next_process()   {
     
 }
 
+
+static unsigned int get_quantum(unsigned int priority)    {
+
+    return quantum[priority % QUANTUM_AMOUNT];
+}
+
+
 static void refresh_pcb_from_stackcontext(unsigned int p)   {
 
 // Address of last parameter in process context:
@@ -184,7 +191,3 @@ uint64_t get_current_pid()  {
     return pcbs[current_process]->process_id;
 }
 
-static int get_quantum(unsigned int priority)    {
-
-    return quantum[priority % QUANTUM_AMOUNT];
-}
