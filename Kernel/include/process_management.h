@@ -25,8 +25,10 @@
 uint64_t schedule(uint64_t current_stack_pointer);
 
 
-
-uint64_t fork(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[])
+/*
+ *  New process, with parent
+ */
+uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[])
 
 /*
  *  Kills a process

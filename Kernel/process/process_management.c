@@ -92,7 +92,7 @@ uint64_t schedule(uint64_t current_stack_pointer) {
     return pcbs[current_process]->stack_pointer;
 }
 
-uint64_t static new_process(uint64_t function_address, int argc, char * argv[])  {
+int static new_process(uint64_t function_address, int argc, char * argv[])  {
 
     if(current_amount_process == PROCESS_AMOUNT) return OVERFLOW;
 
@@ -121,22 +121,24 @@ uint64_t static new_process(uint64_t function_address, int argc, char * argv[]) 
 
     refresh_stackcontext_from_pcb(new_process_index);
 
-// sp prepared to do popstate:
+// sp prepared to do popState:
     new_pcb->stack_pointer -= (STATE_PUSHED_SIZE + CONTEXT_PUSHED_SIZE) * sizeof(stacks[0][0]);
 
-    return new_pcb->process_id;
+    return new_process_index;
 }
 
 
-uint64_t fork(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[]) {
+uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[]) {
     
-    pcbs[new_process(function_address, argc, argv)]->parent_process_id = parent_pid;
+    int new_process_index = new_process(function_address, argc, argv);
+    pcbs[new_process_index]->parent_process_id = parent_pid;
+    return pcbs[new_process_index]->process_id;
 }
 
 
 bool kill_process(uint64_t sp_to_delete)  {
 
-    if(sp_to_delete > OVERFLOW)    {
+    if(sp_to_delete != OVERFLOW)    {
         
         for(int i=0; i<PROCESS_AMOUNT; i++) {
 
