@@ -26,7 +26,7 @@ uint64_t schedule(uint64_t current_stack_pointer);
 
 
 /*
- *  New process, with parent
+ *  New process, with parent. @return: pid of new process.
  */
 uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[])
 
@@ -46,5 +46,7 @@ bool kill_process_by_pid(uint64_t pid);
  */
 void spawn_init_process(void);
 
+
+uint64_t get_current_pid();
 
 #endif //__process__management#endif //__process__management

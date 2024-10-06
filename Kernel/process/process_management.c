@@ -180,3 +180,8 @@ void spawn_init_process(void)    {
     new_process(&_hlt(void), argc, argv);
 }
 
+
+uint64_t get_current_pid()  {
+
+    return pcbs[current_process]->process_id;
+}
