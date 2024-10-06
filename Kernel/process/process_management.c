@@ -39,7 +39,7 @@ static void next_process()   {
         do  {
             
             current_process = (current_process+1) % PROCESS_AMOUNT;
-        }   while(pcbs[current_process]==NULL);
+        }   while(pcbs[current_process] == NULL || pcbs[current_process]->state != READY);
     }
     
 }
@@ -84,10 +84,7 @@ uint64_t schedule(uint64_t current_stack_pointer) {
 
     refresh_pcb_from_stackcontext(current_process);
 
-    do  {
-        
-        next_process();
-    }   while(pcbs[current_process]->state != READY);
+    next_process();
     
     return pcbs[current_process]->stack_pointer;
 }
