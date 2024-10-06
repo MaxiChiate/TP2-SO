@@ -34,7 +34,14 @@ static unsigned int process_id_counter = INITIAL_PROCESS_ID;
 
 static void next_process()   {
     
-    current_process = (current_process+1) % PROCESS_AMOUNT;
+    if(current_amount_process > 0)  {
+
+        do  {
+            
+            current_process = (current_process+1) % PROCESS_AMOUNT;
+        }   while(pcbs[current_process]==NULL);
+    }
+    
 }
 
 static void refresh_pcb_from_stackcontext(unsigned int p)   {
