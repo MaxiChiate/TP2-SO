@@ -23,6 +23,9 @@ typedef struct pcb {
     uint64_t parent_process_id;
     process_state_t state;
 
+    unsigned int start_time;
+    unsigned int quantum;
+
 } pcb_t;
 
 static pcb_t * pcbs [PROCESS_AMOUNT];
@@ -88,16 +91,22 @@ static void refresh_stackcontext_from_pcb(unsigned int p)   {
         stacks[p][i - 6] = (uint64_t) pcbs[p]->argv;
 }
 
+
 uint64_t schedule(uint64_t current_stack_pointer) {
 
     refresh_pcb_from_stackcontext(current_process);
 
-    next_process();
+    if(pcbs[current_process]->start_time == 0 || 
+        alarmAtTicks(pcbs[current_process]->quantum + pcbs[current_process]->start_time))   {
+        
+        next_process();
+    }
     
     return pcbs[current_process]->stack_pointer;
 }
 
-int static new_process(uint64_t function_address, int argc, char * argv[])  {
+
+int static new_process(uint64_t function_address, int argc, char * argv[], unsigned int priority)  {
 
     if(current_amount_process == PROCESS_AMOUNT) return OVERFLOW;
 
@@ -122,6 +131,9 @@ int static new_process(uint64_t function_address, int argc, char * argv[])  {
         new_pcb->parent_process_id = DEFAULT_PARENT_PID;
         new_pcb->state = READY;
 
+        new_pcb->start_time = 0x00;
+        new_pcb->quantum = get_quantum(priority);
+
     pcbs[new_process_index] = new_pcb;
 
     refresh_stackcontext_from_pcb(new_process_index);
@@ -133,7 +145,7 @@ int static new_process(uint64_t function_address, int argc, char * argv[])  {
 }
 
 
-uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[]) {
+uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[], , unsigned int priority) {
     
     int new_process_index = new_process(function_address, argc, argv);
     pcbs[new_process_index]->parent_process_id = parent_pid;
