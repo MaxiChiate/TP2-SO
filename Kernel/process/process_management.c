@@ -1,4 +1,5 @@
 #include <process_management.h>
+#include <time.h>
 
 //TODO: Releer todo y ver si compila. Habiendo configurado GDB.
 
@@ -181,4 +182,9 @@ void spawn_init_process(void)    {
 uint64_t get_current_pid()  {
 
     return pcbs[current_process]->process_id;
+}
+
+static int get_quantum(unsigned int priority)    {
+
+    return quantum[priority % QUANTUM_AMOUNT];
 }
