@@ -196,8 +196,6 @@ bool kill_process_by_pid(uint64_t pid)   {
 
 void spawn_init_process(void)    {
 
-    kill_process_by_pid(INITIAL_PROCESS_ID);
-
     int argc = 2;    
     char * argv[argc] = {"_hlt", NULL};
     new_process(&_hlt(void), argc, argv);
