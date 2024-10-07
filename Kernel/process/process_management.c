@@ -23,7 +23,6 @@ typedef struct pcb {
     uint64_t parent_process_id;
     process_state_t state;
 
-    unsigned int start_time;
     unsigned int quantum;
 
 } pcb_t;
@@ -34,6 +33,13 @@ static uint64_t stacks [PROCESS_AMOUNT][STACK_SPACE];
 static unsigned int current_process = 0;
 static unsigned int current_amount_process = 0;
 static unsigned int process_id_counter = INITIAL_PROCESS_ID;
+static unsigned int started_at = 0;
+
+
+static void chronometer() {
+
+    started_at = ticks_elapsed();
+}
 
 
 static void next_process()   {
@@ -44,6 +50,8 @@ static void next_process()   {
             
             current_process = (current_process+1) % PROCESS_AMOUNT;
         }   while(pcbs[current_process] == NULL || pcbs[current_process]->state != READY);
+
+        chronometer();
     }
     
 }
@@ -96,8 +104,7 @@ uint64_t schedule(uint64_t current_stack_pointer) {
 
     refresh_pcb_from_stackcontext(current_process);
 
-    if(pcbs[current_process]->start_time == 0 || 
-        alarmAtTicks(pcbs[current_process]->quantum + pcbs[current_process]->start_time))   {
+    if(alarmAtTicks(pcbs[current_process]->quantum + started_at))   {
         
         next_process();
     }
@@ -131,7 +138,6 @@ int static new_process(uint64_t function_address, int argc, char * argv[], unsig
         new_pcb->parent_process_id = DEFAULT_PARENT_PID;
         new_pcb->state = READY;
 
-        new_pcb->start_time = 0x00;
         new_pcb->quantum = get_quantum(priority);
 
     pcbs[new_process_index] = new_pcb;
@@ -145,7 +151,7 @@ int static new_process(uint64_t function_address, int argc, char * argv[], unsig
 }
 
 
-uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[], , unsigned int priority) {
+uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[], unsigned int priority) {
     
     int new_process_index = new_process(function_address, argc, argv);
     pcbs[new_process_index]->parent_process_id = parent_pid;
