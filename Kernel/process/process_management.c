@@ -5,6 +5,7 @@
 
 #define BEGINNIN_PROCESS_ADDRESS(process_index) (uint64_t) stacks + (process_index+1)*STACK_SPACE -1
 #define IN_RANGE(i) ((i) > 0 && (i) < PROCESS_AMOUNT)
+#define VALID_FD(fd) ((fd) >= 0 || (fd) < MAX_FDS)
 
 #define OVERFLOW ( (uint64_t) (-1))
 
@@ -32,7 +33,8 @@ typedef struct file_descriptor {
 
 file_descriptor_t fds[MAX_FDS];
 
-void init_file_descriptors() {
+// Inicializa los file descriptors
+static void init_file_descriptors() {
     for (int i = 0; i < MAX_FDS; i++) {
         fds[i].is_open = false;
     }
@@ -425,7 +427,7 @@ bool waitpid(unsigned int pid) {
 
 // fildes2 = dup(fildes)
 int dup(file_descriptor_t old_fd) {
-    if (fd < 0 || fd >= MAX_FDS || !fds[old_fd].is_open) {
+    if (!VALID_FD(old_fd) || !fds[old_fd].is_open) {
         return -1;
     }
 
@@ -471,7 +473,7 @@ int pipe(int fd[FILDES_AMOUNT]) {
 
 
 int close(file_descriptor_t fd) {
-    if (fd < 0 || fd >= MAX_FDS || !fds[fd].is_open) {
+    if (!VALID_FD(fd) || !fds[fd].is_open) {
         return -1;
     }
 
