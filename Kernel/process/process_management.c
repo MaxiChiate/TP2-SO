@@ -108,7 +108,13 @@ uint64_t schedule(uint64_t current_stack_pointer) {
 
     if(alarmAtTicks(pcbs[current_process]->quantum + started_at))   {
         
+        if(pcbs[current_process]->state != BLOCKED) {   // Si no se bloqueó lo dejamos en ready (estaba en RUNNING)
+
+            pcbs[current_process]->state = READY;
+        }
+
         next_process();
+        pcbs[current_process]->state = RUNNING;
     }
     
     return pcbs[current_process]->stack_pointer;
