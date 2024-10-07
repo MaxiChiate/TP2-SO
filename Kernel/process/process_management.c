@@ -209,3 +209,8 @@ uint64_t get_current_pid()  {
     return pcbs[current_process]->process_id;
 }
 
+
+void give_up_cpu()  {
+
+    next_process();
+}

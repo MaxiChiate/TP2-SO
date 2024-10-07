@@ -50,4 +50,7 @@ void spawn_init_process(void);
 
 uint64_t get_current_pid();
 
+
+void give_up_cpu();
+
 #endif //__process__management#endif //__process__management
