@@ -157,7 +157,7 @@ _irq00Handler:
 	call irqDispatcher
 
 	mov rdi, rsp
-	call schedule
+	call schedule	; antes del EOI, no hay que desactivar el timer tick
  	mov rsp, rax
 
 	; signal pic EOI (End of Interrupt)
