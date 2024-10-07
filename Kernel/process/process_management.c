@@ -8,7 +8,35 @@
 
 #define OVERFLOW ( (uint64_t) (-1))
 
-typedef enum preocess_state {BLOCKED, READY, RUNNING} process_state_t;
+#define PIPE_BUFFER_SIZE 1024
+#define MAX_PIPES 256
+#define MAX_FDS 256
+
+// Nuevo estado para la implementación de waitpid
+typedef enum preocess_state {BLOCKED, READY, RUNNING, TERMINATED} process_state_t;
+
+// Posible implementación inicial para los pipes
+typedef struct pipe {
+    char buffer[PIPE_BUFFER_SIZE];
+    int read_pos;
+    int write_pos;
+    bool is_open;
+} pipe_t;
+
+pipe_t pipes_table[MAX_PIPES];
+
+typedef struct file_descriptor {
+    bool is_open;
+    int file_pointer;
+} file_descriptor_t
+
+file_descriptor_t fds[MAX_FDS];
+
+void init_file_descriptors() {
+    for (int i = 0; i < MAX_FDS; i++) {
+        fds[i].is_open = false;
+    }
+}
 
 typedef struct pcb {
     
@@ -22,7 +50,7 @@ typedef struct pcb {
     char * argv[]; //rdi
     int argc;      //rsi
     
-    uint64_t process_id;
+    pid_t process_id;
     uint64_t parent_process_id;
     process_state_t state;
 
@@ -34,8 +62,8 @@ static pcb_t * pcbs [PROCESS_AMOUNT];
 static uint64_t stacks [PROCESS_AMOUNT][STACK_SPACE];
 
 static unsigned int current_process = 0;
+static pid_t process_id_counter = INITIAL_PROCESS_ID;
 static unsigned int current_amount_process = 0;
-static unsigned int process_id_counter = INITIAL_PROCESS_ID;
 static unsigned int started_at = 0;
 
 
@@ -160,6 +188,46 @@ int static new_process(uint64_t function_address, int argc, char * argv[], unsig
     return new_process_index;
 }
 
+// Implementación alternativa de new_process usando el estado TERMINATED
+int static new_process2(uint64_t function_address, int argc, char * argv[], unsigned int priority)  {
+
+    if(current_amount_process == PROCESS_AMOUNT) {
+        return OVERFLOW;
+    }
+
+    current_amount_process++;
+
+    int new_process_index = 0;
+    while(pcbs[new_process_index]->state == TERMINATED); 
+
+    pcb_t * new_pcb;
+
+        new_pcb->align = INITIAL_ALIGN;
+        new_pcb->stack_segment = GLOBAL_SS;
+        new_pcb->stack_pointer =  BEGINNIN_PROCESS_ADDRESS(new_process_index);
+        new_pcb->register_flags = GLOBAL_RFLAGS;
+        new_pcb->code_segment = GLOBAL_CS;
+        new_pcb->instruction_pointer = function_address;
+
+        new_pcb->argc = argc;
+        new_pcb->argv = argv
+
+        new_pcb->process_id = process_id_counter++;
+        new_pcb->parent_process_id = DEFAULT_PARENT_PID;
+        new_pcb->state = READY;
+
+        new_pcb->quantum = get_quantum(priority);
+
+    pcbs[new_process_index] = new_pcb;
+
+    refresh_stackcontext_from_pcb(new_process_index);
+
+// sp prepared to do popState:
+    new_pcb->stack_pointer -= (STATE_PUSHED_SIZE + CONTEXT_PUSHED_SIZE) * sizeof(stacks[0][0]);
+
+    return new_process_index;
+}
+
 
 uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[], unsigned int priority) {
     
@@ -205,6 +273,17 @@ static bool kill_process(int p) {
     return false;
 }
 
+// Implementación alternativa de kill_process usando el estado TERMINATED
+static bool kill_process2(int pid) {
+    if (!IN_RANGE(pid)) {
+        return false;
+    }
+    int process_index = get_index_by_pid(pid);
+    pcbs[process_index]->state = TERMINATED;
+
+    return true;
+}
+
 
 bool kill_process_by_sp(uint64_t sp_to_delete)  {
 
@@ -226,7 +305,7 @@ void spawn_init_process(void)    {
 }
 
 
-uint64_t get_current_pid()  {
+pid_t get_current_pid()  {
 
     return pcbs[current_process]->process_id;
 }
@@ -328,4 +407,75 @@ void wait()     {
 
         i++;
     }
+}
+
+// Espera a que el proceso de process id = pid tenga estado TERMINATED
+bool waitpid(unsigned int pid) {
+   if (!IN_RANGE(pid)) {
+        return false;
+    }
+    
+    int process_index = get_index_by_pid(pid);
+
+    while (pcbs[process_index]->state != TERMINATED);
+    return true;    
+}
+
+
+
+// fildes2 = dup(fildes)
+int dup(file_descriptor_t old_fd) {
+    if (fd < 0 || fd >= MAX_FDS || !fds[old_fd].is_open) {
+        return -1;
+    }
+
+    for (int new_fd = 0; new_fd < MAX_FDS; new_fd++) {
+        if (!fds[new_fd].is_open) {
+            fds[new_fd] = fds[old_fd];
+            fds[new_fd].is_open = true;
+            return new_fd;
+        }
+    }
+    // No hay descriptores libres
+    return -1;
+}
+
+static int find_free_pipe_index() {
+    for (int i = 0; i < MAX_PIPES; i++) {
+        if (!pipes_table[i].is_open) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+
+int pipe(int fd[FILDES_AMOUNT]) {
+
+    for (int i = 0; i < MAX_FDS; i++) {
+        if (!pipes_table[i].is_open) {
+            pipes[i].read_pos = 0;
+            pipes[i].write_pos = 0;
+            pipes[i].is_open = true;
+        }
+
+        // Devuelve dos descriptores, uno para lectura y otro para escritura.
+        fd[0] = i;
+        fd[1] = i + 1;
+
+        return 0;
+    }
+
+    return -1;
+}
+
+
+int close(file_descriptor_t fd) {
+    if (fd < 0 || fd >= MAX_FDS || !fds[fd].is_open) {
+        return -1;
+    }
+
+    fds[fd].is_open = false;
+    return 1;
+
 }

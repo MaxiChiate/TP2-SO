@@ -20,9 +20,14 @@
 #define DEFAULT_PARENT_PID 0
 #define INITIAL_PROCESS_ID 1
 
-#define QUANTUM_AMOUNT 3 
+#define QUANTUM_AMOUNT 3
+
+#define FILDES_AMOUNT 2
+
 // Complete with ticks as quantum, each position represents the priority status.
 static unsigned int quantum[QUANTUM_AMOUNT] = {0b0001, 0b0010, 0b0100};
+
+typedef uint64_t pid_t;
 
 /*
  *  Decides which process will run next
@@ -51,22 +56,54 @@ bool kill_process_by_pid(uint64_t pid);
  */
 void spawn_init_process(void);
 
+/*
+ *  Creates a new init process, it will kill the old process with INITIAL_PROCESS_ID
+ */
+pid_t get_current_pid();
 
-uint64_t get_current_pid();
-
-
+/*
+ * Gives up the cpu
+ */
 void give_up_cpu();
 
-
+/*
+ * Blocks a process
+ */
 bool block_process(uint64_t pid);
 
-
+/*
+ * Unblocks a process
+ */
 bool unblock_process(uint64_t pid);
 
-
+/*
+ *  Changess a process' priority
+ */
 bool change_process_priority(uint64_t pid, int prio);
 
-
+/*
+ * Waits for a process to finish
+ */
 void wait();
 
-#endif //__process__management#endif //__process__management
+/*
+ * Waits for the process whose id is pid to finish
+ */
+bool waitpid(unsigned int pid);
+
+/*
+ * Duplicates an existing object descriptor and returns its value to the calling process
+ */
+int dup(file_descriptor_t old_fd);
+
+/*
+ * Redirects a process' input and output file descriptors
+ */
+int pipe(int fd[FILDES_AMOUNT]);
+
+/*
+ * Closes a file descriptor
+ */
+int close(file_descriptor_t fd);
+
+#endif //__process__management
