@@ -5,6 +5,8 @@
 
 #define BEGINNIN_PROCESS_ADDRESS(process_index) (uint64_t) stacks + (process_index+1)*STACK_SPACE -1;
 
+#define OVERFLOW ( (uint64_t) (-1))
+
 typedef enum preocess_state {BLOCKED, READY, RUNNING} process_state_t;
 
 typedef struct pcb {
