@@ -53,6 +53,13 @@ static void next_process()   {
             current_process = (current_process+1) % PROCESS_AMOUNT;
         }   while(pcbs[current_process] == NULL || pcbs[current_process]->state != READY);
 
+        if(is_blocked(current_process)) {   // Si no se bloqueó lo dejamos en ready (estaba en RUNNING)
+
+            unblock_process_by_index(current_process);
+        }
+
+        run_process_by_index(current_process);
+        
         chronometer();
     }
     
@@ -108,13 +115,7 @@ uint64_t schedule(uint64_t current_stack_pointer) {
 
     if(alarmAtTicks(pcbs[current_process]->quantum + started_at))   {
         
-        if(pcbs[current_process]->state != BLOCKED) {   // Si no se bloqueó lo dejamos en ready (estaba en RUNNING)
-
-            pcbs[current_process]->state = READY;
-        }
-
         next_process();
-        pcbs[current_process]->state = RUNNING;
     }
     
     return pcbs[current_process]->stack_pointer;
@@ -184,6 +185,19 @@ bool kill_process(uint64_t sp_to_delete)  {
 }
 
 
+static int get_index_by_pid(uint64_t pid)   {
+
+    for(int i=0; i<PROCESS_AMOUNT; i++) {
+
+        if(pcbs[i]!=NULL && pcbs[i]->process_id == pid) {
+    
+            return i;
+        }
+    }
+    return -1;
+}
+
+
 static uint64_t get_sp_by_pid(uint64_t pid) {
 
     for(int i=0; i<PROCESS_AMOUNT; i++) {
@@ -219,4 +233,65 @@ uint64_t get_current_pid()  {
 void give_up_cpu()  {
 
     next_process();
+}
+
+//Based on: Tanenbaum, Modern Operating Systems 4e, 2015 Prentice-Hall. Figure 2-2.
+
+static bool can_change_state(process_state_t old, process_state_t new)  {
+
+    switch (old)    {
+        
+        case RUNNING:   return new != RUNNING;
+        
+        case BLOCKED:   return new == READY;
+
+        case READY:     return new == RUNNING;
+
+        default:        return false;
+    }   
+}
+
+
+static bool change_state_process(int p, process_state_t state)    {
+
+    if( p<PROCESS_AMOUNT && p>0 && can_change_state(pcbs[p]->state, state)) {
+
+        pcbs[p]->state = state;
+        return true;
+    }
+
+    return false;
+}
+
+
+inline static bool block_process_by_index(int p)  {
+
+    return change_state_process(p, BLOCKED);
+}
+
+inline static bool unblock_process_by_index(int p)  {
+
+    return change_state_process(p, READY);
+}
+
+inline static bool run_process_by_index(int p)  {
+
+    return change_state_process(p, RUNNING);
+}
+
+inline static bool is_blocked(int p)    {
+
+    return p<PROCESS_AMOUNT && p>0 && pcbs[p]->state==BLOCKED;
+}
+
+
+bool block_process(uint64_t pid)    {
+    
+    return block_process_by_index(get_index_by_pid(pid));
+}
+
+
+bool unblock_process(uint64_t pid)    {
+    
+    return unblock_process_by_index(get_index_by_pid(pid));
 }

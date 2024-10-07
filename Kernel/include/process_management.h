@@ -53,4 +53,11 @@ uint64_t get_current_pid();
 
 void give_up_cpu();
 
+
+bool block_process(uint64_t pid);
+
+
+bool unblock_process(uint64_t pid);
+
+
 #endif //__process__management#endif //__process__management
