@@ -59,7 +59,7 @@ static void next_process()   {
         }
 
         run_process_by_index(current_process);
-        
+
         chronometer();
     }
     
@@ -168,20 +168,16 @@ uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc
 }
 
 
-bool kill_process(uint64_t sp_to_delete)  {
+static int get_index_by_sp(uint64_t sp) {
 
-    if(sp_to_delete != OVERFLOW)    {
-        
-        for(int i=0; i<PROCESS_AMOUNT; i++) {
+    for(int i=0; i<PROCESS_AMOUNT; i++) {
 
-            if(pcbs[i]!=NULL && pcbs[i]->stack_pointer == sp_to_delete)  {
-
-                pcbs[i] = NULL;
-                return true;
-            }
+        if(pcbs[i]!=NULL && pcbs[i]->stack_pointer == sp) {
+    
+            return i;
         }
     }
-    return false;
+    return -1;
 }
 
 
@@ -197,22 +193,27 @@ static int get_index_by_pid(uint64_t pid)   {
     return -1;
 }
 
+static bool kill_process(int p) {
 
-static uint64_t get_sp_by_pid(uint64_t pid) {
+    if(p<PROCESS_AMOUNT && p>0)     {
 
-    for(int i=0; i<PROCESS_AMOUNT; i++) {
-
-        if(pcbs[i]!=NULL && pcbs[i]->process_id == pid) {
-            return pcbs[i]->stack_pointer;
-        }
+        pcbs[p] = NULL;
+        return true;
     }
-    return OVERFLOW;
+
+    return false;
+}
+
+
+bool kill_process_by_sp(uint64_t sp_to_delete)  {
+
+    return kill_process(get_index_by_sp(sp_to_delete));
 }
 
 
 bool kill_process_by_pid(uint64_t pid)   {
     
-    return kill_process(get_sp_by_pid(pid));
+    return kill_process(get_index_by_pid(pid));
 }
 
 
