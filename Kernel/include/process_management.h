@@ -4,6 +4,10 @@
 #include <interrupts.h>
 #include <stdbool.h>
 
+#define K 1024
+#define STACK_SPACE 4*K
+#define PROCESS_AMOUNT 64
+
 #define STATE_PUSHED_SIZE 15 //Register pushed amount in pushSate macro
 #define CONTEXT_PUSHED_SIZE 6
 
@@ -59,5 +63,10 @@ bool block_process(uint64_t pid);
 
 bool unblock_process(uint64_t pid);
 
+
+bool change_process_priority(uint64_t pid, int prio);
+
+
+void wait();
 
 #endif //__process__management#endif //__process__management

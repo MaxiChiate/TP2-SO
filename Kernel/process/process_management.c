@@ -3,7 +3,8 @@
 
 //TODO: Releer todo y ver si compila. Habiendo configurado GDB.
 
-#define BEGINNIN_PROCESS_ADDRESS(process_index) (uint64_t) stacks + (process_index+1)*STACK_SPACE -1;
+#define BEGINNIN_PROCESS_ADDRESS(process_index) (uint64_t) stacks + (process_index+1)*STACK_SPACE -1
+#define IN_RANGE(i) ((i) > 0 && (i) < PROCESS_AMOUNT)
 
 #define OVERFLOW ( (uint64_t) (-1))
 
@@ -195,7 +196,7 @@ static int get_index_by_pid(uint64_t pid)   {
 
 static bool kill_process(int p) {
 
-    if(p<PROCESS_AMOUNT && p>0)     {
+    if(IN_RANGE(p))     {
 
         pcbs[p] = NULL;
         return true;
@@ -230,7 +231,7 @@ uint64_t get_current_pid()  {
     return pcbs[current_process]->process_id;
 }
 
-
+//INCOMPLETO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FALTA LLAMAR AL TIMER TICK DE NUEVO
 void give_up_cpu()  {
 
     next_process();
@@ -255,7 +256,7 @@ static bool can_change_state(process_state_t old, process_state_t new)  {
 
 static bool change_state_process(int p, process_state_t state)    {
 
-    if( p<PROCESS_AMOUNT && p>0 && can_change_state(pcbs[p]->state, state)) {
+    if( IN_RANGE(p) && can_change_state(pcbs[p]->state, state)) {
 
         pcbs[p]->state = state;
         return true;
@@ -282,7 +283,7 @@ inline static bool run_process_by_index(int p)  {
 
 inline static bool is_blocked(int p)    {
 
-    return p<PROCESS_AMOUNT && p>0 && pcbs[p]->state==BLOCKED;
+    return IN_RANGE(p) && pcbs[p]->state==BLOCKED;
 }
 
 
@@ -295,4 +296,36 @@ bool block_process(uint64_t pid)    {
 bool unblock_process(uint64_t pid)    {
     
     return unblock_process_by_index(get_index_by_pid(pid));
+}
+
+
+bool change_process_priority(uint64_t pid, int prio)  {
+
+    int index = get_index_by_pid(pid);
+
+    if(prio > 0 && prio < QUANTUM_AMOUNT)     {
+
+        pcbs[index]->quantum = get_quantum(prio);
+        return true;
+    }
+
+    return false;
+}
+
+
+void wait()     {
+
+    int i = 0;
+
+    while(i<PROCESS_AMOUNT) {
+
+        if(pcbs[current_process] != NULL && 
+            pcbs[current_process]->parent_process_id == pcbs[current_process]->process_id)  {
+
+                i= (-1);
+                give_up_cpu();
+        }
+
+        i++;
+    }
 }
