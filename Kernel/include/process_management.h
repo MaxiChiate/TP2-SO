@@ -20,20 +20,22 @@
 #define DEFAULT_PARENT_PID 0
 #define INITIAL_PROCESS_ID 1
 
-#define QUANTUM_AMOUNT 3
-
 #define FILDES_AMOUNT 2
 
 // Complete with ticks as quantum, each position represents the priority status.
+
+#define QUANTUM_AMOUNT 3
 static unsigned int quantum[QUANTUM_AMOUNT] = {0b0001, 0b0010, 0b0100};
 
 typedef uint64_t pid_t;
+
+
+void scheduler_init()
 
 /*
  *  Decides which process will run next
  */
 uint64_t schedule(uint64_t current_stack_pointer);
-
 
 /*
  *  New process, with parent. @return: pid of new process.
@@ -50,19 +52,13 @@ bool kill_process_by_sp(uint64_t sp_to_delete);
  */
 bool kill_process_by_pid(uint64_t pid);
 
-
 /*
- *  Creates a new init process, it will kill the old process with INITIAL_PROCESS_ID
- */
-void spawn_init_process(void);
-
-/*
- *  Creates a new init process, it will kill the old process with INITIAL_PROCESS_ID
+ *  Return pid of current process.
  */
 pid_t get_current_pid();
 
 /*
- * Gives up the cpu
+ * Current process gives up the cpu.
  */
 void give_up_cpu();
 
@@ -89,6 +85,6 @@ void wait();
 /*
  * Waits for the process whose id is pid to finish
  */
-bool waitpid(unsigned int pid);
+void waitpid(unsigned int pid);
 
 #endif //__process__management
