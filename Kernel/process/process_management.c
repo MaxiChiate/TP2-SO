@@ -9,36 +9,9 @@
 
 #define OVERFLOW ( (uint64_t) (-1))
 
-#define PIPE_BUFFER_SIZE 1024
-#define MAX_PIPES 256
-#define MAX_FDS 256
 
 // Nuevo estado para la implementación de waitpid
 typedef enum preocess_state {BLOCKED, READY, RUNNING, TERMINATED} process_state_t;
-
-// Posible implementación inicial para los pipes
-typedef struct pipe {
-    char buffer[PIPE_BUFFER_SIZE];
-    int read_pos;
-    int write_pos;
-    bool is_open;
-} pipe_t;
-
-pipe_t pipes_table[MAX_PIPES];
-
-typedef struct file_descriptor {
-    bool is_open;
-    int file_pointer;
-} file_descriptor_t
-
-file_descriptor_t fds[MAX_FDS];
-
-// Inicializa los file descriptors
-static void init_file_descriptors() {
-    for (int i = 0; i < MAX_FDS; i++) {
-        fds[i].is_open = false;
-    }
-}
 
 typedef struct pcb {
     
@@ -160,7 +133,7 @@ int static new_process(uint64_t function_address, int argc, char * argv[], unsig
     current_amount_process++;
 
     int new_process_index = 0;
-    while(pcbs[new_process_index++] != NULL); 
+    while(pcbs[new_process_index++] != NULL);
 
     pcb_t * new_pcb;
 
@@ -420,64 +393,5 @@ bool waitpid(unsigned int pid) {
     int process_index = get_index_by_pid(pid);
 
     while (pcbs[process_index]->state != TERMINATED);
-    return true;    
-}
-
-
-
-// fildes2 = dup(fildes)
-int dup(file_descriptor_t old_fd) {
-    if (!VALID_FD(old_fd) || !fds[old_fd].is_open) {
-        return -1;
-    }
-
-    for (int new_fd = 0; new_fd < MAX_FDS; new_fd++) {
-        if (!fds[new_fd].is_open) {
-            fds[new_fd] = fds[old_fd];
-            fds[new_fd].is_open = true;
-            return new_fd;
-        }
-    }
-    // No hay descriptores libres
-    return -1;
-}
-
-static int find_free_pipe_index() {
-    for (int i = 0; i < MAX_PIPES; i++) {
-        if (!pipes_table[i].is_open) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-
-int pipe(int fd[FILDES_AMOUNT]) {
-
-    for (int i = 0; i < MAX_FDS; i++) {
-        if (!pipes_table[i].is_open) {
-            pipes[i].read_pos = 0;
-            pipes[i].write_pos = 0;
-            pipes[i].is_open = true;
-        }
-
-        // Devuelve dos descriptores, uno para lectura y otro para escritura.
-        fd[0] = i;
-        fd[1] = i + 1;
-
-        return 0;
-    }
-
-    return -1;
-}
-
-
-int close(file_descriptor_t fd) {
-    if (!VALID_FD(fd) || !fds[fd].is_open) {
-        return -1;
-    }
-
-    fds[fd].is_open = false;
-    return 1;
-
+    return true;
 }

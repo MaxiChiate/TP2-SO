@@ -91,19 +91,4 @@ void wait();
  */
 bool waitpid(unsigned int pid);
 
-/*
- * Duplicates an existing object descriptor and returns its value to the calling process
- */
-int dup(file_descriptor_t old_fd);
-
-/*
- * Redirects a process' input and output file descriptors
- */
-int pipe(int fd[FILDES_AMOUNT]);
-
-/*
- * Closes a file descriptor
- */
-int close(file_descriptor_t fd);
-
 #endif //__process__management
