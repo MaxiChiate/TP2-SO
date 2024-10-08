@@ -11,6 +11,7 @@ pipe_t pipes_table[MAX_PIPES];
 
 typedef struct file_descriptor {
     int value;
+    bool is_open;
 } file_descriptor_t
 
 static file_descriptor_t fds[MAX_FDS];
@@ -35,7 +36,6 @@ static void init_file_system() {
         file_table[i].filename = NULL;
         file_table[i].is_open = false;
         file_table[i].fd.is_open = false;
-        file_table[i].fd.file_pointer = 0;
     }
 }
 
