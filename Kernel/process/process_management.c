@@ -6,6 +6,8 @@
 #define BEGINNIN_PROCESS_ADDRESS(process_index) (uint64_t) stacks + (process_index+1)*STACK_SPACE -1
 #define IN_RANGE(i) ((i) > 0 && (i) < PROCESS_AMOUNT)
 #define VALID_FD(fd) ((fd) >= 0 || (fd) < MAX_FDS)
+#define IS_ALIVE(p) (pcbs[(p)] == NULL)
+#define NOT_ALIVE(p) (!IS_ALIVE(p))
 
 #define OVERFLOW ( (uint64_t) (-1))
 
@@ -55,7 +57,7 @@ static void next_process()   {
         do  {
             
             current_process = (current_process+1) % PROCESS_AMOUNT;
-        }   while(pcbs[current_process] == NULL || pcbs[current_process]->state != READY);
+        }   while(IS_ALIVE(current_process) || pcbs[current_process]->state != READY);
 
         if(is_blocked(current_process)) {   // Si no se bloqueó lo dejamos en ready (estaba en RUNNING)
 
@@ -133,7 +135,7 @@ int static new_process(uint64_t function_address, int argc, char * argv[], unsig
     current_amount_process++;
 
     int new_process_index = 0;
-    while(pcbs[new_process_index++] != NULL);
+    while(NOT_ALIVE(new_process_index++));
 
     pcb_t * new_pcb;
 
@@ -216,7 +218,7 @@ static int get_index_by_sp(uint64_t sp) {
 
     for(int i=0; i<PROCESS_AMOUNT; i++) {
 
-        if(pcbs[i]!=NULL && pcbs[i]->stack_pointer == sp) {
+        if(NOT_ALIVE(i) && pcbs[i]->stack_pointer == sp) {
     
             return i;
         }
@@ -229,7 +231,7 @@ static int get_index_by_pid(uint64_t pid)   {
 
     for(int i=0; i<PROCESS_AMOUNT; i++) {
 
-        if(pcbs[i]!=NULL && pcbs[i]->process_id == pid) {
+        if(NOT_ALIVE(i) && pcbs[i]->process_id == pid) {
     
             return i;
         }
