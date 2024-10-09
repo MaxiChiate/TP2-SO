@@ -10,3 +10,5 @@ Run the script with the following flags:
 - `-r` : Run mode (compiles and runs the project normally).
 - `-w` : Warnings mode (compiles and displays only warnings).
 - `-e` : Error mode (compiles and display only errors).
+- `-a` : All mode (compiles and display both warnings and errors).
+
