@@ -43,6 +43,19 @@ run() {
 }
 
 
+# Define colors
+RED='\033[31m'
+YELLOW='\033[33m'
+GREEN='\033[32m'
+RESET='\033[0m'
+
+
+# Function to color "error" and "warning" in the output
+color_output() {
+    awk '{ gsub(/[Ee][Rr][Rr][Oo][Rr]/, "'${RED}'&'${RESET}'"); gsub(/[Ww][Aa][Rr][Nn][Ii][Nn][Gg]/, "'${YELLOW}'&'${RESET}'"); print }'
+}
+
+
 # Main script:
 
 
@@ -57,24 +70,25 @@ else
   case "$1" in
     -w)
         echo "Compiling and only showing warnings..."
-        WARNINGS=$(compile | egrep "warning")
-        echo "$WARNINGS"
-        echo "Number of warnings: $(echo "$WARNINGS" | wc -l)"
+        WARNINGS=$(compile | egrep -i "warning" | color_output)
+        echo -e "$WARNINGS"
+        echo -e "${YELLOW}Number of warnings: $(echo "$WARNINGS" | wc -l)${RESET}"
         ;;
 
     -e)
         echo "Compiling and only showing errors..."
-        ERRORS=$(compile | egrep "error")
-        echo "$ERRORS"
-        echo "Number of errors: $(echo "$ERRORS" | wc -l)"
+        ERRORS=$(compile | egrep -i "error" | color_output)
+        echo -e "$ERRORS"
+        echo -e "${RED}Number of errors: $(echo "$ERRORS" | wc -l)${RESET}"
         ;;
 
     -a)
         echo "Compiling and only showing errors and warnings..."
-        OUTPUT=$(compile | egrep "error|warning")
-        echo "$OUTPUT"
-        echo "Number of warnings: $(echo "$OUTPUT" | egrep "warning" | wc -l)"
-        echo "Number of errors: $(echo "$OUTPUT" | egrep "error" | wc -l)"
+        OUTPUT=$(compile | egrep -i "error|warning" | color_output)
+        echo -e "$OUTPUT"
+        echo -e "${YELLOW}Number of warnings: $(echo "$OUTPUT" | egrep -i "warning" | wc -l)${RESET}"
+    echo -e "${RED}Number of errors: $(echo "$OUTPUT" | egrep -i "error" | wc -l)${RESET}"
+
         ;;
 
     -r)
