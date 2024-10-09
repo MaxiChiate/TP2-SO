@@ -5,6 +5,7 @@
 #include <colours.h>
 #include <systemCalls.h>
 #include <buffer.h>
+#include <stringPrinter.h>
 
 
 
