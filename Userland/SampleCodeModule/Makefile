@@ -10,11 +10,11 @@ all: $(MODULE)
 
 $(MODULE): $(OBJECTS)  $(OBJECTS_ASM)
 	$(LD) $(LDFLAGS) -T sampleCodeModule.ld $(OBJECTS) $(OBJECTS_ASM) -o ../$(MODULE)
-	#$(GCC) $(GCCFLAGS) -I./include -w -T sampleCodeModule.ld -Wl,--oformat=elf64-x86-64 _loader.c $(SOURCES) $(OBJECTS_ASM) -o ../0000-sampleCodeModule.elf
+	#$(GCC) $(GCCFLAGS) -I./include -T sampleCodeModule.ld -Wl,--oformat=elf64-x86-64 _loader.c $(SOURCES) $(OBJECTS_ASM) -o ../0000-sampleCodeModule.elf
 
 
 %.o: %.c
-	$(GCC) $(GCCFLAGS) -w -Iinclude -c $< -o $@
+	$(GCC) $(GCCFLAGS) -Iinclude -c $< -o $@
 
 
 %.o : %.asm
