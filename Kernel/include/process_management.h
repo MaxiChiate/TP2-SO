@@ -20,8 +20,6 @@
 #define DEFAULT_PARENT_PID 0
 #define INITIAL_PROCESS_ID 1
 
-#define FILDES_AMOUNT 2
-
 // Complete with ticks as quantum, each position represents the priority status.
 
 #define QUANTUM_AMOUNT 3

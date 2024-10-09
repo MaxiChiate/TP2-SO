@@ -5,11 +5,12 @@
 #define MAX_PIPES 256
 #define MAX_FDS 256
 #define MAX_FILES 256
+#define FILDES_AMOUNT 2
 
 /*
  * Duplicates an existing object descriptor and returns its value to the calling process
  */
-int dup(file_descriptor_t old_fd);
+int dup(int old_fd_id);
 
 /*
  * Redirects a process' input and output file descriptors
@@ -17,9 +18,9 @@ int dup(file_descriptor_t old_fd);
 int pipe(int fd[FILDES_AMOUNT]);
 
 /*
- * Closes a file descriptor
+ * Closes a file whose file descriptor is fd_id
  */
-int close(file_descriptor_t fd);
+int close(int fd_id);
 
 /*
  * Opens a file
