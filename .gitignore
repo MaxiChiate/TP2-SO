@@ -37,6 +37,9 @@
 *.hex
 *.bin
 *.sys
+*.img
+*.qcow2
+*.vmdk
 
 # Debug files
 *.dSYM/
