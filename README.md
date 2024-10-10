@@ -12,3 +12,6 @@ Run the script with the following flags:
 - `-e` : Error mode (compiles and display only errors).
 - `-a` : All mode (compiles and display both warnings and errors).
 
+## Problems
+
+If there is any problem while running `mk_file.sh`, try: `./solve mk_file.sh` or `sed -i -e 's/\r$//' mk_file.sh`
