@@ -4,12 +4,6 @@ GLOBAL picMasterMask
 GLOBAL picSlaveMask
 GLOBAL haltcpu
 GLOBAL _hlt
-
-
-GLOBAL register_saviour
-
-
-
 GLOBAL _irq00Handler
 GLOBAL _irq01Handler
 GLOBAL _irq02Handler
@@ -66,11 +60,6 @@ SECTION .text
 	pop rax
 %endmacro
 
-saveState:
-	pushState
-	dState
-	popState
-	ret
 
 %macro irqHandlerMaster 1
 	pushState
@@ -90,13 +79,7 @@ saveState:
 
 
 %macro exceptionHandler 1
-    mov [raxAux], rax
-    mov rax, [rsp]
-    mov [register_array+128], rax
-    mov rax, [raxAux]
 
-	call register_saviour
-	mov rsi, rax
 	mov rdi, %1 ; pasaje de parametro
 
 	call exceptionDispatcher
@@ -235,43 +218,7 @@ haltcpu:
 	cli
 	hlt
 	ret
-;;guarda los registros de uso general en un arreglo, devuelvo el puntero por rax
-register_saviour:
-    pushState
-    mov [register_array], rax
-    mov rax, [rsp+8]
-    mov [register_array+8], rax
-    mov rax, [rsp+16]
-    mov [register_array+16], rax
-    mov rax, [rsp+24]
-    mov [register_array+24], rax
-    mov rax, [rsp+32]
-    mov [register_array+32], rax
-    mov rax, [rsp+40]
-    mov [register_array+40], rax
-    mov rax, [rsp+48]
-    mov [register_array+48], rax
-    mov rax, [rsp+56]
-    mov [register_array+56], rax
-    mov rax, [rsp+64]
-    mov [register_array+64], rax
-    mov rax, [rsp+72]
-    mov [register_array+72], rax
-    mov rax, [rsp+80]
-    mov [register_array+80], rax
-    mov rax, [rsp+88]
-    mov [register_array+88], rax
-    mov rax, [rsp+96]
-    mov [register_array+96], rax
-    mov rax, [rsp+104]
-    mov [register_array+104], rax
-    mov rax, [rsp+112]
-    mov [register_array+112], rax
-    mov rax, rsp
-    mov [register_array+120], rax
-    popState
-    mov rax, register_array
-    ret
+
 
 ;Zero Division Exception
 _exception0Handler:
@@ -282,12 +229,6 @@ _exception0Handler:
 _exception6Handler:
     exceptionHandler 6
 
-
-SECTION .bss
-	aux: resq 1
-	register_array resq 17
-	ripSave resq 1
-	raxAux resq 1
 
 SECTION .rodata
     userland equ 0x400000

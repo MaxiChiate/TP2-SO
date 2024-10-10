@@ -4,7 +4,6 @@
 
 int caps=0;
 int shift=0;
-int registerScreenOn=0;
 
 static char kbd_US [81][2] =   {
         {0,0},  {'|',0}, {'1','!'}, {'2','"'}, {'3','#'},{'4','$'}, {'5','%'}, {'6','&'}, {'7','/'}, {'8','('}, {'9',')'}, {'0','='}, {'\'','\?'},{0,0}, {'\b','\b'},
@@ -19,12 +18,7 @@ static char kbd_US [81][2] =   {
 
 char map(unsigned char c)  {
     char letter=kbd_US[c][0];
-    if (letter=='\a'){                 //con esto se llama a los registros
-        return '\a';
-    }
-    if (kbd_US[c-128][0]=='\a'){        //c-128 me dice si se soltó f1 para los registros
-        return '\r';
-    }
+
     if (letter=='S') {     //me fijo si tengo el shift, c-128 sirve para ver si se soltó
         shift = 1;
         return '\0';

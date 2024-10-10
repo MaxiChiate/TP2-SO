@@ -7,10 +7,6 @@ void printText(char* string, int fgcolor, int bgcolor, int charSize);
 void printTextDefault(char* string, int fgcolor, int bgcolor);
 //imprime caracteres tamaño estándar con color de fuente y de fondo enviados por parametros
 void printCharDefault(char c,int fgcolor, int bgcolor);
-//inicializa la impresión de registros (prepara la pantalla)
-void registerPrintInit();
-//función que imprime los registros
-void printRegisterDefault(char* string);
 //imprime salto de línea
 void printNewline();
 //imprime un tab
