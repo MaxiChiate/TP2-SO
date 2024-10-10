@@ -186,7 +186,7 @@ char font8x8_basic[128][8] = {
 };  //https://github.com/dhepper/font8x8/blob/master/README
 
 void fillScreen(uint32_t hexColor) {
-    uint8_t *framebuffer = (uint8_t *) VBE_mode_info->framebuffer;
+    uint8_t *framebuffer = (uint8_t *) ( (uintptr_t) VBE_mode_info->framebuffer);
     //itero sobre el framebuffer
     for (int y = 0; y < VBE_mode_info->height; y++) {
         for (int x = 0; x < VBE_mode_info->width; x++) {
@@ -199,7 +199,7 @@ void fillScreen(uint32_t hexColor) {
     }
 }
 void putPixel(uint32_t hexColor, uint64_t x, uint64_t y) {
-    uint8_t *framebuffer = (uint8_t *) VBE_mode_info->framebuffer;
+    uint8_t *framebuffer = (uint8_t *) ( (uintptr_t) VBE_mode_info->framebuffer);
     uint64_t offset = (x * ((VBE_mode_info->bpp) / 8)) + (y * VBE_mode_info->pitch);
     framebuffer[offset] = (hexColor) & 0xFF;
     framebuffer[offset + 1] = (hexColor >> 8) & 0xFF;
