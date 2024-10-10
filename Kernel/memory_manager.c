@@ -10,14 +10,14 @@ static int current;
 static int size;
 
 
-void mm_init(void * that_start, int that_size)	{
+void mm_init(void * start_given, int size_requested)	{
 
-  void * heap_assigned[that_size];
+  void * heap_assigned[size_requested];
 
   free_ptrs = (void **) heap_assigned;
   
-	start = (void *) that_start;
-	size = that_size;	
+	start = (void *) start_given;
+	size = size_requested;	
 	current = 0;
 
 	for(int i=0; i<size; i++)	{

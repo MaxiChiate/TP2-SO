@@ -69,7 +69,7 @@ int main(){
 	//mm_init(memoryHeapAddress, MAX_BLOCKS);
 	printCharDefault('?', WHITE, BLACK);
 
-	uint64_t args[4] = {314, MAX_BLOCKS, memoryHeapAddress, 0x00}; 
+	uint64_t args[4] = {314, MAX_BLOCKS, (uint64_t)memoryHeapAddress, 0x00}; 
 	
 	test_mm(3, args);
 

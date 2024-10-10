@@ -11,7 +11,7 @@
 
   #define BLOCK_SIZE  10
 
-  void mm_init(void * that_start, int that_size);
+  void mm_init(void * start_given, int size_requested);
 
   void * mm_malloc(size_t size);
 

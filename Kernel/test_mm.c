@@ -7,7 +7,7 @@ typedef struct MM_rq {
   uint32_t size;
 } mm_rq;
 
-uint64_t test_mm(uint64_t argc, uint64_t *argv[]) {
+uint64_t test_mm(uint64_t argc, uint64_t *argv) {
 
   mm_rq mm_rqs[MAX_BLOCKS];
 
@@ -23,7 +23,7 @@ uint64_t test_mm(uint64_t argc, uint64_t *argv[]) {
         || (start_memory = argv[2]) <= 0)
     return -1;
 
-  mm_init(start_memory, max_memory);
+  mm_init((void*)start_memory, max_memory);
 
   while (1)   {
     rq = 0;
