@@ -10,8 +10,6 @@
 static int characterColor=WHITE;
 
 extern void haltcpu();
-void coloredSquareDrawer(int x, int y, char color);
-void appleDraw(int x, int y);
 
 char sysWrite(unsigned int fd, unsigned int count)	{
 
@@ -72,27 +70,6 @@ void sysKillBuffer()	{
 	cleanBuffer();
 }
 
-void sysDraw( int model, int x, int y, char color)	{
-    if (!getSnakeStatus()) {
-        nowSnakeIsOn();
-    }
-	if(	model == HEAD_LEFT || model == HEAD_RIGHT ||
-		model == HEAD_UP || model == HEAD_DOWN	)	{
-		
-		snakeHeadDrawer(model, x, y, color);
-		return;
-	}
-	if(model == SQUARE)	{
-		coloredSquareDrawer(x, y, color);
-		return;
-	}
-	if(model == APPLE)	{
-		appleDraw(x,y);
-		return;
-	}
-
-}
-
 void sysClear()	{
 	fillScreen(BLACK);
     resetPosition();
@@ -127,10 +104,10 @@ void playSong(int i){
         case JINGLEBELLS:
             playJingleBells();
             return;
-        case EAT_APPLE:
+        case BEEP:
             beep();
             return;
-        case SNAKE_DIED:
+        case MARIO:
             playMario();
             return;
     }

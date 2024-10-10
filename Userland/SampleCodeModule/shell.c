@@ -1,6 +1,4 @@
 #include <userlib.h>
-#include <snake.h>
-#include <frontSnake.h>
 #include <shell.h>
 #include <colours.h>
 
@@ -93,23 +91,6 @@ void time(){
     time_getter();
 }
 
-void snake(){
-
-    if (strEquals("1", argument))   {
-        startSnake(1);
-        initShell();
-    }
-        
-    else if (argument[0]=='2' && argument[1]=='\0')  {
-        startSnake(2);
-        initShell();
-    }
-        
-    else print("Arguments are necessary or the argument written is not defined");
-
-
-
-}
 void textSize(){
    if (strEquals("smaller", argument)){
        make_text_smaller();

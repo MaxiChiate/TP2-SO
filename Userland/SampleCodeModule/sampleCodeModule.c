@@ -1,7 +1,6 @@
 #include <userlib.h>
 #include <shell.h>
-#include <snake.h>
-#include <frontSnake.h>
+
 int main() {
     initShell();
     char buffer[254] = {'\0'};

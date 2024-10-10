@@ -19,6 +19,6 @@ void playTetris();
 //pone la canción de jingle bells
 void playJingleBells();
 
-//pone death song de mario para el snake
+//pone death song de mario.
 void playMario();
 #endif

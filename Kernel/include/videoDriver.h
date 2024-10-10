@@ -43,11 +43,5 @@ void cleanLastLine();
 void setCharWidth(unsigned int size);
 //vuelve a la posición 0 de la pantalla
 void resetPosition();
-//dibuja la cabeza de la serpiente durante el snake
-void snakeHeadDrawer(int direction, int initPosY, int initPosX, char color);
-//dibuja el cuerpo de la serpiente durante el snake
-void snakeBodyDrawer(int initPosY, int initPosX, int size);
-//imprime un pixel en una determinada posición, con un tamaño y color que se envía como argumento
-void drawPixel(int y, int x, int size, char * draw, int colour);
 
 #endif
