@@ -2,8 +2,11 @@
 
 NOMBRE=TP2-SO
 
-# Function to compile the project
-compile() {
+
+# Function to create container
+
+container() {
+
     # Check if a container with the same name exists
     if [ "$(docker ps -aq -f name=$NOMBRE)" ]; then
         echo "Removing existing container $NOMBRE."
@@ -13,8 +16,14 @@ compile() {
     # Create a new container
     echo "Creating a new container $NOMBRE."
     sudo docker run -d -v "$PWD":/root --security-opt seccomp:unconfined -ti --name $NOMBRE agodio/itba-so-multi-platform:3.0
+}
+
+# Function to compile the project
+compile() {
+
 
     # Start the compilation process
+
     docker start $NOMBRE
     docker exec -it $NOMBRE make clean -C/root/Toolchain
     docker exec -it $NOMBRE make clean -C/root/
@@ -59,49 +68,52 @@ color_output() {
 # Main script:
 
 
+container
+
 if  [ $# -eq 0 ]
 then
       
-        echo "Compiling..."
+        echo -e "${YELLOW}Compiling...${RESET}"
         compile
 
 else
 
   case "$1" in
     -w)
-        echo "Compiling and only showing warnings..."
+        echo -e "${YELLOW}Compiling and only showing warnings...${RESET}"
         WARNINGS=$(compile | egrep -i "warning" | color_output)
         echo -e "$WARNINGS"
         echo -e "${YELLOW}Number of warnings: $(echo "$WARNINGS" | wc -l)${RESET}"
         ;;
 
     -e)
-        echo "Compiling and only showing errors..."
+        echo "${YELLOW}Compiling and only showing errors...${RESET}"
         ERRORS=$(compile | egrep -i "error" | color_output)
         echo -e "$ERRORS"
-        echo -e "${RED}Number of errors: $(echo "$ERRORS" | wc -l)${RESET}"
+        echo -e "${RED}Number of (possible) errors: $(echo "$ERRORS" | wc -l)${RESET}"
         ;;
 
     -a)
-        echo "Compiling and only showing errors and warnings..."
+        echo -e "${YELLOW}Compiling and only showing errors and warnings...${RESET}"
         OUTPUT=$(compile | egrep -i "error|warning" | color_output)
         echo -e "$OUTPUT"
         echo -e "${YELLOW}Number of warnings: $(echo "$OUTPUT" | egrep -i "warning" | wc -l)${RESET}"
-    echo -e "${RED}Number of errors: $(echo "$OUTPUT" | egrep -i "error" | wc -l)${RESET}"
+        echo -e "${RED}Number of (possible) errors: $(echo "$OUTPUT" | egrep -i "error" | wc -l)${RESET}"
 
         ;;
 
     -r)
-        echo "Compiling and running the project..."
-        compile
+        compile > /dev/null
+        echo "Running project..."
         run
         ;;
     -d)
-        echo "Compiling and running in debug mode..."
-        compile
+        compile 
+        echo "Running debug mode..."
         run "-d"
         ;;
     *)
+        echo "${RED}ERROR.${RESET}"
         echo "Usage: $0 [-w for warnings] [-r to run] [-d for debug mode]"
         ;;
   esac
