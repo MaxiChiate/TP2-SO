@@ -89,7 +89,7 @@ SECTION .text
 
 	mov byte [rsp+8], 0x08
 	mov byte [rsp+32], 0x00
-	mov byte [rsp+16], 0x202	
+	mov word [rsp+16], 0x202	
 
     mov rax, userland
     mov [rsp], rax
