@@ -82,9 +82,6 @@ static int get_index_by_pid(uint64_t pid);
 
 static bool kill_process(int p);
 
-static void spawn_init_process(void);
-
-
 /*-------------------------------------------------------------------------------------------------------------------*/
 
 
@@ -214,20 +211,8 @@ void waitpid(unsigned int pid) {
     }
 }
 
-// BolivianOS
-char ** process_status()   {
-
-    char ** ans = mm_malloc(50);
-    char ** template = {"name:", "pid:", "priority:", "sp:", "bp", "foreground"};
-
-    for(int i=0; i<PROCESS_AMOUNT; i++) {
-
-        for()
-
-        if(i%BLOCK_SIZE) {
-
-        }
-    }
+void * process_status()   {
+    ;
 }
 
 
