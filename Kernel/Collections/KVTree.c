@@ -1,4 +1,4 @@
-#include <KVTree.h>
+#include <collections/KVTree.h>
 
 typedef struct node {
     key_t key;
@@ -18,7 +18,7 @@ typedef struct KVTreeCDT {
 } KVTreeCDT;
 
 KVTree newKVTree(int(*compareKeys)(key_t, key_t), int (*compareValues)(value_t, value_t)) {
-    KVTree kvTree = calloc(1, sizeof(KVTreeCDT));
+    KVTree kvTree = mm_malloc(sizeof(KVTreeCDT));
     kvTree->height = -1;
     kvTree->size = 0;
     kvTree->compareKeys = compareKeys;
@@ -26,18 +26,18 @@ KVTree newKVTree(int(*compareKeys)(key_t, key_t), int (*compareValues)(value_t, 
     return kvTree;
 }
 
-unsigned int size(KVTree kvTree) {
+unsigned int KVTreeSize(KVTree kvTree) {
     return kvTree->size;
 }
 
 bool isEmpty(KVTree kvTree) {
-    return size(kvTree) == 0;
+    return KVTreeSize(kvTree) == 0;
 }
 
 static tTree insertRec(tTree tree, key_t key, value_t value, bool * added, int * level, int(*compareKeys)(key_t, key_t)) {
     int c;
     if (tree == NULL) {
-        tNode * node = malloc(sizeof(tNode));
+        tNode * node = mm_malloc(sizeof(tNode));
         node->key = key;
         node->value = value;
         node->right = NULL;
@@ -94,19 +94,19 @@ static tTree discardRec(tTree tree, key_t key, bool * removed, int * newHeight, 
         *removed = true; // Se encontró el nodo a eliminar
         // Caso 1: nodo sin hijos (hoja)
         if (tree->left == NULL && tree->right == NULL) {
-            free(tree);
+            mm_free(tree);
             *newHeight = 0;
             return NULL;
         }
         // Caso 2: nodo con un solo hijo
         if (tree->left == NULL) {
             tTree temp = tree->right;
-            free(tree);
+            mm_free(tree);
             *newHeight = rightHeight + 1;
             return temp;
         } else if (tree->right == NULL) {
             tTree temp = tree->left;
-            free(tree);
+            mm_free(tree);
             *newHeight = leftHeight + 1;
             return temp;
         }
@@ -220,7 +220,7 @@ static void valuesToArrayRec(tTree tree, value_t * v, int * i) {
 }
 
 key_t * keySet(KVTree kvTree) {
-    key_t * ans = malloc(kvTree->size * sizeof(key_t));
+    key_t * ans = mm_malloc(kvTree->size * sizeof(key_t));
     int idx = 0;
 
     keysToArrayRec(kvTree->root, ans, &idx);
@@ -228,7 +228,7 @@ key_t * keySet(KVTree kvTree) {
 }
 
 value_t * values(KVTree kvTree) {
-    value_t * ans = malloc(kvTree->size * sizeof(value_t));
+    value_t * ans = mm_malloc(kvTree->size * sizeof(value_t));
     int idx = 0;
 
     valuesToArrayRec(kvTree->root, ans, &idx);
@@ -240,13 +240,14 @@ static void freeKVTreeRec(tTree tree) {
         return;
     freeKVTreeRec(tree->right);
     freeKVTreeRec(tree->left);
-    free(tree);
+    mm_free(tree);
 }
 
 void freeKVTree(KVTree bst) {
     freeKVTreeRec(bst->root);
 }
 
+/*
 static void printKVTreeRec(tTree tree) {
     if (tree == NULL || tree->right == NULL || tree->left == NULL)
         return;
@@ -260,3 +261,4 @@ static void printKVTreeRec(tTree tree) {
 void printKVTree(KVTree bst) {
     printKVTreeRec(bst->root);
 }
+*/

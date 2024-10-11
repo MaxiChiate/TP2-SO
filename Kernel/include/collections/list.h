@@ -3,7 +3,8 @@
 #ifndef LIST_H
 #define LIST_H
 
-  #include "node.h"
+  #include <memory_manager.h>
+  #include <collections/node.h>
 
   typedef struct list * list_t;  
 

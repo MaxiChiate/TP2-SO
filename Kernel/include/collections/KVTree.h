@@ -1,10 +1,8 @@
 #ifndef __KVTree_h
 #define __KVTree_h
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
+#include <memory_manager.h>
+#include <bool.h>
 
 
 typedef struct KVTreeCDT * KVTree;
@@ -20,7 +18,7 @@ KVTree newKVTree(int(*compareKeys)(key_t, key_t), int (*compareValues)(value_t, 
 /*
  * Retorna el tamaño del árbol binario
  */
-unsigned int size(KVTree bst);
+unsigned int KVTreeSize(KVTree bst);
 
 /*
  * Retorna true si árbol está vacío, false si no
@@ -79,9 +77,9 @@ key_t * keySet(KVTree bst);
  */
 void freeKVTree(KVTree bst);
 
-/*
- * Imprime todos los keyentos del árbol
- */
-void printKVTree(KVTree bst);
+// /*
+//  * Imprime todos los keyentos del árbol
+//  */
+// void printKVTree(KVTree bst);
 
 #endif

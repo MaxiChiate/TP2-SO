@@ -1,6 +1,6 @@
 //node.c
 
-#include <node.h>
+#include <collections/node.h>
 
 struct node {
 
@@ -13,7 +13,7 @@ struct node {
 
 node_t node_init(void * data) {
 
-  node_t to_return = malloc(sizeof(to_return[0]));
+  node_t to_return = mm_malloc(sizeof(to_return[0]));
 
   to_return->data = data;
   to_return->next = NULL;
@@ -82,7 +82,7 @@ node_t node_get_next(node_t node) {
 
 void node_free(node_t node)  {
 
-    free(node);
+    mm_free(node);
 }
 
 

@@ -1,6 +1,6 @@
 //lsit.c
 
-#include <list.h>
+#include <collections/list.h>
 
 
 struct list {
@@ -13,7 +13,7 @@ struct list {
 
 list_t list_init()  {
 
-  list_t to_return = malloc(sizeof(to_return[0]));
+  list_t to_return = mm_malloc(sizeof(to_return[0]));
 
   to_return->head = NULL;
   to_return->size = 0;
@@ -54,7 +54,7 @@ void * list_get_head(list_t my_list) {
 
 
 
-void list_free(list_t my_list)  {
+void list_mm_free(list_t my_list)  {
 
 
     node_t n = my_list->head; 
@@ -64,5 +64,5 @@ void list_free(list_t my_list)  {
           node_free(n);   
       }
 
-    free(my_list);
+    mm_free(my_list);
 }
