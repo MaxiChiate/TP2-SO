@@ -1,10 +1,9 @@
-#include <memory_manager.h>
 #include <process/process_management.h>
-#include <time.h>
+
 
 //TODO: Releer todo y ver si compila. Habiendo configurado GDB.
 
-#define BEGINNIN_PROCESS_ADDRESS(process_index) (uint64_t) stacks + (process_index+1)*STACK_SPACE -1
+#define BEGINNIN_PROCESS_ADDRESS(process_index) (uint64_t*) (stacks + (process_index + 1) * STACK_SPACE - 1)
 #define IN_RANGE(i) ((i) > 0 && (i) < PROCESS_AMOUNT)
 #define VALID_FD(fd) ((fd) >= 0 || (fd) < MAX_FDS)
 
@@ -34,6 +33,8 @@ typedef struct pcb {
     pid_t process_id;
     pid_t parent_process_id;
     process_state_t state;
+
+    unsigned long canary;
 
     unsigned int quantum;
 
@@ -211,11 +212,6 @@ void waitpid(unsigned int pid) {
     }
 }
 
-void * process_status()   {
-    ;
-}
-
-
 //Based on: Tanenbaum, Modern Operating Systems 4e, 2015 Prentice-Hall. Figure 2-2.
 
 static bool can_change_state(process_state_t old, process_state_t new)  {
@@ -314,38 +310,43 @@ static unsigned int get_quantum(unsigned int priority)    {
 
 static void refresh_pcb_from_stackcontext(unsigned int p)   {
 
-// Address of last parameter in process context:
-    int i= pcbs[p].stack_pointer + sizeof(stacks[0][0])*STATE_PUSHED_SIZE + 1;
+    uint64_t * stack= BEGINNIN_PROCESS_ADDRESS(p);
+    int i=STACK_SPACE;
     
-        pcbs[p].align = stacks[p][i--];     
-        pcbs[p].stack_segment = stacks[p][i--];
-        pcbs[p].stack_pointer = stacks[p][i--]; 
-        pcbs[p].register_flags = stacks[p][i--];
-        pcbs[p].code_segment = stacks[p][i--];
-        pcbs[p].instruction_pointer = stacks[p][i--];
-        pcbs[p].process_id = stacks[p][i--];
-        pcbs[p].state = stacks[p][i--];
+        if(stack[--i] != pcbs[p].canary || stack[0] != pcbs[p].canary)  {
 
-        (uint64_t) pcbs[p].argc = tacks[p][i - 5];
-        (uint64_t) pcbs[p].argv = tacks[p][i - 6];        
+            killOS();
+        }
+
+        pcbs[p].align = stack[--i];     
+        pcbs[p].stack_segment = stack[--i];  
+        pcbs[p].stack_pointer = stack[--i];   
+        pcbs[p].register_flags = stack[--i];
+        pcbs[p].code_segment = stack[--i];
+        pcbs[p].instruction_pointer = stack[--i];
+
+        pcbs[p].argc = (int)    stack[i - 6];
+        pcbs[p].argv = (char**) stack[i - 7];
 }
 
 static void refresh_stackcontext_from_pcb(unsigned int p)   {
 
-// Address of last parameter in process context:
-    int i= pcbs[p].stack_pointer + sizeof(stacks[0][0])*STATE_PUSHED_SIZE + 1;
-    
-        stacks[p][i--]= pcbs[p].align;
-        stacks[p][i--]= pcbs[p].stack_segment;
-        stacks[p][i--]= pcbs[p].stack_pointer;
-        stacks[p][i--]= pcbs[p].register_flags;
-        stacks[p][i--]= pcbs[p].code_segment;
-        stacks[p][i--]= pcbs[p].instruction_pointer;
-        stacks[p][i--]= pcbs[p].process_id;
-        stacks[p][i--]= pcbs[p].state;
+        uint64_t stack= BEGINNIN_PROCESS_ADDRESS(p);
+        int i=STACK_SPACE;
 
-        stacks[p][i - 5] = (uint64_t) pcbs[p].argc;
-        stacks[p][i - 6] = (uint64_t) pcbs[p].argv;
+        stack[--i] = pcbs[p].canary;
+
+        stack[--i] = pcbs[p].align;
+        stack[--i] = pcbs[p].stack_segment;
+        stack[--i] = pcbs[p].stack_pointer;
+        stack[--i] = pcbs[p].register_flags;
+        stack[--i] = pcbs[p].code_segment;
+        stack[--i] = pcbs[p].instruction_pointer;
+
+        stack[i - 6] = (uint64_t) pcbs[p].argc;
+        stack[i - 7] = (uint64_t) pcbs[p].argv;
+
+        stack[0] = pcbs[p].canary;
 }
 
 static int new_process(uint64_t function_address, int argc, char * argv[], unsigned int priority)  {
@@ -370,6 +371,7 @@ static int new_process(uint64_t function_address, int argc, char * argv[], unsig
         new_pcb.process_id = process_id_counter++;
         new_pcb.parent_process_id = DEFAULT_PARENT_PID;
         new_pcb.state = READY;
+        new_pcb.canary = rand();
 
         new_pcb.quantum = get_quantum(priority);
 

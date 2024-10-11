@@ -2,7 +2,10 @@
 #define __process__management
 
 #include <interrupts.h>
-#include <stdbool.h>
+#include <bool.h>
+#include <time.h>
+#include <memory_manager.h>
+#include <systemCalls.h>
 
 #define K 1024
 #define STACK_SPACE 4*K

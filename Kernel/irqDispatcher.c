@@ -41,8 +41,8 @@ void int_21() {
 void int_80(int id, unsigned int rbx,  char * rcx, unsigned int rdx, char rsi, unsigned int rdi){
 	
 	switch(id)	{
-        case SYSTEM_EXIT_ID : {
-            exitProgram();
+        case SYSTEM_KILLOS_ID : {
+            killOS();
             break;
         }
 		case SYSTEM_WRITE_ID :	{

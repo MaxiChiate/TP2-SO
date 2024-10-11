@@ -91,7 +91,7 @@ void changeColor(unsigned int fgcolor){
     changeColors(fgcolor);
 }
 
-void exitProgram(){
+void killOS(){
     fillScreen(BLACK);
     haltcpu();          //queda trabado acá y no puede hacer nada más
 
@@ -115,28 +115,32 @@ void playSong(int i){
 
 static unsigned long seed = 0x5A5A5A5A;
 
-unsigned long rand()	{
+unsigned long rand() {
+    unsigned long ans = 1103515245;
 
-	unsigned long ans = 1103515245;
+    char * currentTime = getTime();
+    
+    // Ensure currentTime is a valid string with at least 19 characters.
+    if (strlen(currentTime) >= 19) {
+        ans *= currentTime[1] * currentTime[0] +
+               currentTime[3] * currentTime[4] +
+               currentTime[6] * currentTime[7] +
+               currentTime[9] * currentTime[10] +
+               currentTime[12] * currentTime[13] +
+               currentTime[15] * currentTime[16] * currentTime[17] * currentTime[18];
+    } else {
 
-	char * currentTime = getTime();
+        ans *= ticks_elapsed();
+    }
 
-	ans *= currentTime[1] * currentTime[0] + 
-		currentTime[3] * currentTime[4] + 
-		currentTime[6] * currentTime[7] + 
-		currentTime[9] * currentTime[10] + 
-		currentTime[12] * currentTime[13] +
-		currentTime[15] * currentTime[16] * currentTime[17] * currentTime[18];
+    ans += ((unsigned long) currentTime) << 11;
 
-	ans += ((unsigned long) currentTime) << 11;
+    seed = seed * ans;
+    ans = ans ^ seed;
 
-	seed = seed * ans;
-	ans = ans ^ seed;
+    ans *= ticks_elapsed();
 
-	ans *= ticks_elapsed();
-
-	for(int w = 0; w<10000; w++);
-
-	return ans & 0x7fffffff;
-
+    // Return a 31-bit positive number
+    return ans & 0x7fffffff;
 }
+

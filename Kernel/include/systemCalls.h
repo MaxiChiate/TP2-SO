@@ -2,7 +2,7 @@
 #define _SYSCALLS_H
 
 // Sys_Id en rax:
-#define SYSTEM_EXIT_ID                  0x01
+#define SYSTEM_KILLOS_ID                0x01
 #define SYSTEM_READ_ID                  0x03
 #define SYSTEM_WRITE_ID                 0x04
 #define SYSTEM_TIME_ID                  0x98
@@ -35,7 +35,7 @@
     void sysClear();
 
 // Deja el programa detenido indefinidamente
-    void exitProgram();
+    void killOS();
 
 //Imprime el horario en pantalla
     void timeManager();
