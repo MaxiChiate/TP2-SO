@@ -3,10 +3,9 @@
 
 //TODO: Releer todo y ver si compila. Habiendo configurado GDB.
 
-#define BEGINNIN_PROCESS_ADDRESS(process_index) (uint64_t*) (stacks + (process_index + 1) * STACK_SPACE - 1)
+#define BEGINNIN_PROCESS_ADDRESS(process_index) ((uint64_t*) (stacks + (process_index + 1) * STACK_SPACE - 1))
 #define IN_RANGE(i) ((i) > 0 && (i) < PROCESS_AMOUNT)
 #define VALID_FD(fd) ((fd) >= 0 || (fd) < MAX_FDS)
-
 #define OVERFLOW ( (uint64_t) (-1))
 
 // Complete with ticks as quantum, each position represents the priority status.
@@ -36,11 +35,11 @@ typedef struct pcb {
     unsigned int quantum;
 
     int argc;      //rsi
-    char * argv[]; //rdi
+    char ** argv; //rdi
 } pcb_t;
 
-static pcb_t pcbs [PROCESS_AMOUNT];
-static uint64_t stacks [PROCESS_AMOUNT][STACK_SPACE];
+static pcb_t pcbs[PROCESS_AMOUNT];
+static uint64_t stacks[PROCESS_AMOUNT][STACK_SPACE];
 
 /*-------------------------------------------------------------------------------------------------------*/
 static unsigned int current_process = 0;
@@ -59,13 +58,10 @@ static void chronometer();
 static bool is_blocked(int p);
 static bool is_alive(int p);
 static bool not_alive(int p);
-static bool is_dead(int p);
-static bool not_dead(int p);
 static bool is_ready(int p);
 static bool not_ready(int p);
 
 static bool not_alive(int p);
-static bool terminate(int p);
 
 static void next_process();
     
@@ -329,7 +325,7 @@ static void refresh_pcb_from_stackcontext(unsigned int p)   {
 
 static void refresh_stackcontext_from_pcb(unsigned int p)   {
 
-        uint64_t stack= BEGINNIN_PROCESS_ADDRESS(p);
+        uint64_t * stack = BEGINNIN_PROCESS_ADDRESS(p);
         int i=STACK_SPACE;
 
         stack[--i] = pcbs[p].canary;
@@ -347,14 +343,14 @@ static void refresh_stackcontext_from_pcb(unsigned int p)   {
         stack[0] = pcbs[p].canary;
 }
 
-static int new_process(uint64_t function_address, int argc, char * argv[], unsigned int priority)  {
+static int new_process(uint64_t function_address, int argc, char ** argv, unsigned int priority)  {
 
     current_amount_process++;
 
     int new_process_index = 0;
     while(is_alive(new_process_index++));
 
-    pcb_t new_pcb {
+    pcb_t new_pcb = {
 
         .align = INITIAL_ALIGN,
         .stack_segment = GLOBAL_SS,
@@ -373,7 +369,7 @@ static int new_process(uint64_t function_address, int argc, char * argv[], unsig
         .canary = rand(),
 
         .quantum = get_quantum(priority),
-    }
+    };
 
     pcbs[new_process_index] = new_pcb;
 
