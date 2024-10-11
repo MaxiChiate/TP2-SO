@@ -35,6 +35,11 @@
 *.i*86
 *.x86_64
 *.hex
+*.bin
+*.sys
+*.img
+*.qcow2
+*.vmdk
 
 # Debug files
 *.dSYM/
@@ -50,9 +55,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-
-# binary
-*.bin
 
 # ignore
 .*

@@ -186,7 +186,7 @@ char font8x8_basic[128][8] = {
 };  //https://github.com/dhepper/font8x8/blob/master/README
 
 void fillScreen(uint32_t hexColor) {
-    uint8_t *framebuffer = (uint8_t *) VBE_mode_info->framebuffer;
+    uint8_t *framebuffer = (uint8_t *) ( (uintptr_t) VBE_mode_info->framebuffer);
     //itero sobre el framebuffer
     for (int y = 0; y < VBE_mode_info->height; y++) {
         for (int x = 0; x < VBE_mode_info->width; x++) {
@@ -199,7 +199,7 @@ void fillScreen(uint32_t hexColor) {
     }
 }
 void putPixel(uint32_t hexColor, uint64_t x, uint64_t y) {
-    uint8_t *framebuffer = (uint8_t *) VBE_mode_info->framebuffer;
+    uint8_t *framebuffer = (uint8_t *) ( (uintptr_t) VBE_mode_info->framebuffer);
     uint64_t offset = (x * ((VBE_mode_info->bpp) / 8)) + (y * VBE_mode_info->pitch);
     framebuffer[offset] = (hexColor) & 0xFF;
     framebuffer[offset + 1] = (hexColor >> 8) & 0xFF;
@@ -285,69 +285,4 @@ void printCursor(){
 void resetPosition(){
     currentPosition=0;
 }
-
-
-
-static char snakeHeadDown   [8]={0x7E, 0xFF, 0xDB, 0xDB, 0xFF, 0x7E, 0x3C, 0x18};
-static char snakeHeadUp     [8]={0x18, 0x3C, 0x7E, 0xFF, 0xDB, 0xDB, 0xFF, 0x7E};
-static char snakeHeadLeft   [8]={0x78, 0xFC, 0xCE, 0xFF, 0xFF, 0xCE, 0xFC, 0x78};
-static char snakeHeadRight  [8]={0x1E, 0x3F, 0x73, 0xFF, 0xFF, 0x73, 0x3F, 0x1E};
-static char snakeBody       [8]={0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-static char apple           [8]={0x00, 0x7E, 0xFF, 0xFF, 0xFF, 0xFF, 0x7E, 0x3C};
-
-#define PIXELSIZE 16
-#define cordsNormalize(x,y) {(x)=PIXELSIZE*(x)+VBE_mode_info->width/2;(y)=PIXELSIZE*(y+6);}
-
-void snakeHeadDrawer(int direction, int x, int y, char color)   {
-    cordsNormalize(x,y);
-
-    unsigned long toFill;
-
-    switch (color)  {
-
-        case 0:     toFill = RED;       break;
-        case 1:     toFill = GREEN;     break;
-        case 2:     toFill = YELLOW;    break;
-        case 4:     toFill = WHITE;     break;
-
-        default:    toFill = BLUE;     break;
-    }
-
-    switch (direction) {
-/*LEFT*/    case 0: render(snakeHeadLeft,  toFill, BLACK, y, x, PIXELSIZE); break;
-/*RIGHT*/   case 1: render(snakeHeadRight, toFill, BLACK, y, x, PIXELSIZE); break;
-/*UP*/      case 2: render(snakeHeadUp,    toFill, BLACK, y, x, PIXELSIZE); break;
-/*DOWN*/    case 3: render(snakeHeadDown,  toFill, BLACK, y, x, PIXELSIZE); break;
-            default: break;
-    }
-}
-
-void coloredSquareDrawer(int x, int y, char color){
-
-    unsigned long toFill;
-
-    switch (color)  {
-
-        case 0:     {toFill = RED;       break;}
-        case 1:     {toFill = GREEN;     break;}
-        case 2:     {toFill = YELLOW;    break;}
-        case 3:     {toFill = WHITE;     break;}
-        case 4:     {toFill = BLACK;     break;}
-
-        default:    {toFill = GREEN;     break;}
-    }
-
-    cordsNormalize(x,y);
-    render(snakeBody, toFill, BLACK, y, x, PIXELSIZE);
-}
-
-
-void appleDraw(int x, int y){
-
-    cordsNormalize(x,y);
-    render(apple, RED, BLACK, y, x, PIXELSIZE);
-}
-
-
-
 

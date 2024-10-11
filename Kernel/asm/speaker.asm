@@ -11,7 +11,7 @@ play_sound:
         push rdx
         mov al, 0xB6            ; Cargar 0xB6 en AL
         out 0x43, al            ; Escribir AL en el port 0x43 (PIT command) indica que se van a enviar 2 datos al port 0x42
-        mov ax, 1193180         ; Cargar 1193180 en AX
+        mov eax, 1193180         ; Cargar 1193180 en AX
         mov rdx, 0
         div di                  ; Dividir EAX por la frecuencia
         mov dl, al              ; Guardo el bit bajo de rax

@@ -15,14 +15,6 @@
 
     char getAndPrintChar();
 
-    void draw(int model, int x, int y, char color);
-
-    void drawBLackSquare(unsigned int x, unsigned int y);
-    void drawGreenSquare(unsigned int x, unsigned int y);
-    void drawRedSquare(unsigned int x, unsigned int y);
-    void drawYellowSquare(unsigned int x, unsigned int y);
-    void drawWhiteSquare(unsigned int x, unsigned int y);
-
     void clear();
 
     void exit_shell();
