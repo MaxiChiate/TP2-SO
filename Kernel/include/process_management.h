@@ -20,11 +20,6 @@
 #define DEFAULT_PARENT_PID 0
 #define INITIAL_PROCESS_ID 1
 
-// Complete with ticks as quantum, each position represents the priority status.
-
-#define QUANTUM_AMOUNT 3
-static unsigned int quantum[QUANTUM_AMOUNT] = {0b0001, 0b0010, 0b0100};
-
 typedef uint64_t pid_t;
 
 

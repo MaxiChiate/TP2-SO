@@ -9,6 +9,10 @@
 
 #define OVERFLOW ( (uint64_t) (-1))
 
+// Complete with ticks as quantum, each position represents the priority status.
+
+#define QUANTUM_AMOUNT 3
+static unsigned int quantum[QUANTUM_AMOUNT] = {0b0001, 0b0010, 0b0100};
 
 // Nuevo estado para la implementación de waitpid
 typedef enum preocess_state {BLOCKED, READY, RUNNING, TERMINATED} process_state_t;
