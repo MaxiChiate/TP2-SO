@@ -3,7 +3,7 @@
 
 //TODO: Releer todo y ver si compila. Habiendo configurado GDB.
 
-#define BEGINNIN_PROCESS_ADDRESS(process_index) ((uint64_t*) (stacks + (process_index + 1) * STACK_SPACE - 1))
+#define BEGINNIN_PROCESS_ADDRESS(process_index) ((uint64_t) stacks + (process_index + 1) * STACK_SPACE - 1)
 #define IN_RANGE(i) ((i) > 0 && (i) < PROCESS_AMOUNT)
 #define VALID_FD(fd) ((fd) >= 0 || (fd) < MAX_FDS)
 #define OVERFLOW ( (uint64_t) (-1))
@@ -304,7 +304,7 @@ static unsigned int get_quantum(unsigned int priority)    {
 
 static void refresh_pcb_from_stackcontext(unsigned int p)   {
 
-    uint64_t * stack= BEGINNIN_PROCESS_ADDRESS(p);
+    uint64_t * stack= (uint64_t *) BEGINNIN_PROCESS_ADDRESS(p);
     int i=STACK_SPACE;
     
         if(stack[--i] != pcbs[p].canary || stack[0] != pcbs[p].canary)  {
@@ -325,7 +325,7 @@ static void refresh_pcb_from_stackcontext(unsigned int p)   {
 
 static void refresh_stackcontext_from_pcb(unsigned int p)   {
 
-        uint64_t * stack = BEGINNIN_PROCESS_ADDRESS(p);
+        uint64_t * stack = (uint64_t *) BEGINNIN_PROCESS_ADDRESS(p);
         int i=STACK_SPACE;
 
         stack[--i] = pcbs[p].canary;
