@@ -15,6 +15,7 @@ GLOBAL _irq60Handler
 GLOBAL _exception0Handler
 GLOBAL _exception6Handler
 
+EXTERN schedule
 EXTERN irqDispatcher
 EXTERN int_80
 EXTERN exceptionDispatcher

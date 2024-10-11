@@ -9,4 +9,4 @@ ASMFLAGS=-felf64
 LDFLAGS=--warn-common -z max-page-size=0x1000
 
 # Manually specify subdirectories for source files and headers
-SUBDIRS = . asm collections  # Add all subdirectories here
+SUBDIRS = . asm collections process  # Add all subdirectories here

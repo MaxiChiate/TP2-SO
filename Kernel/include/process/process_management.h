@@ -26,7 +26,7 @@
 typedef uint64_t pid_t;
 
 
-void scheduler_init(uint64_t init_address, int argc, char * argv[])
+void scheduler_init(uint64_t init_address, int argc, char * argv[]);
 
 /*
  *  Decides which process will run next
@@ -36,8 +36,7 @@ uint64_t schedule(uint64_t current_stack_pointer);
 /*
  *  New process, with parent. @return: pid of new process.
  */
-uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[])
-
+uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[], unsigned int priority);
 /*
  *  Kills a process according to its stack pointer.
  */

@@ -26,9 +26,6 @@ typedef struct pcb {
     uint64_t register_flags;
     uint64_t code_segment;
     uint64_t instruction_pointer;
-
-    char * argv[]; //rdi
-    int argc;      //rsi
     
     pid_t process_id;
     pid_t parent_process_id;
@@ -38,13 +35,14 @@ typedef struct pcb {
 
     unsigned int quantum;
 
+    int argc;      //rsi
+    char * argv[]; //rdi
 } pcb_t;
 
 static pcb_t pcbs [PROCESS_AMOUNT];
 static uint64_t stacks [PROCESS_AMOUNT][STACK_SPACE];
 
-/*-------------------------------------------------------------------------------------------------------------------*/
-
+/*-------------------------------------------------------------------------------------------------------*/
 static unsigned int current_process = 0;
 static pid_t process_id_counter = INITIAL_PROCESS_ID;
 static unsigned int current_amount_process = 0;
@@ -73,8 +71,8 @@ static void next_process();
     
 static unsigned int get_quantum(unsigned int priority);
 
-void refresh_pcb_from_stackcontext(unsigned int p);
-void refresh_stackcontext_from_pcb(unsigned int p);
+static void refresh_pcb_from_stackcontext(unsigned int p);
+static void refresh_stackcontext_from_pcb(unsigned int p);
 
 int static new_process(uint64_t function_address, int argc, char * argv[], unsigned int priority);
 
@@ -94,7 +92,7 @@ void scheduler_init(uint64_t init_address, int argc, char * argv[])   {
         pcbs[i].state = TERMINATED;
     }
 
-    new_process(init_address, argc, argv);
+    new_process(init_address, argc, argv, QUANTUM_AMOUNT-1);
 }
 
 
@@ -119,7 +117,7 @@ uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc
 
     if(current_amount_process == PROCESS_AMOUNT) return OVERFLOW;
     
-    int new_process_index = new_process(function_address, argc, argv);
+    int new_process_index = new_process(function_address, argc, argv, priority);
     pcbs[new_process_index].parent_process_id = parent_pid;
     return pcbs[new_process_index].process_id;
 }
@@ -356,24 +354,26 @@ static int new_process(uint64_t function_address, int argc, char * argv[], unsig
     int new_process_index = 0;
     while(is_alive(new_process_index++));
 
-    pcb_t * new_pcb;
+    pcb_t new_pcb {
 
-        new_pcb.align = INITIAL_ALIGN;
-        new_pcb.stack_segment = GLOBAL_SS;
-        new_pcb.stack_pointer =  BEGINNIN_PROCESS_ADDRESS(new_process_index);
-        new_pcb.register_flags = GLOBAL_RFLAGS;
-        new_pcb.code_segment = GLOBAL_CS;
-        new_pcb.instruction_pointer = function_address;
+        .align = INITIAL_ALIGN,
+        .stack_segment = GLOBAL_SS,
+        .stack_pointer =  BEGINNIN_PROCESS_ADDRESS(new_process_index),
+        .register_flags = GLOBAL_RFLAGS,
+        .code_segment = GLOBAL_CS,
+        .instruction_pointer = function_address,
 
-        new_pcb.argc = argc;
-        new_pcb.argv = argv
+        .argc = argc,
+        .argv = argv,
 
-        new_pcb.process_id = process_id_counter++;
-        new_pcb.parent_process_id = DEFAULT_PARENT_PID;
-        new_pcb.state = READY;
-        new_pcb.canary = rand();
+        .process_id = process_id_counter++,
+        .parent_process_id = DEFAULT_PARENT_PID,
+        .state = READY,
+        
+        .canary = rand(),
 
-        new_pcb.quantum = get_quantum(priority);
+        .quantum = get_quantum(priority),
+    }
 
     pcbs[new_process_index] = new_pcb;
 

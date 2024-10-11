@@ -6,7 +6,7 @@
 #include <stringPrinter.h>
 #include <buffer.h>
 #include <colours.h>
-#include <process_management.h>
+#include <process/process_management.h>
 
 //testing mm:
 //
@@ -24,7 +24,7 @@ static const uint64_t PageSize = 0x1000;
 
 static void * const sampleCodeModuleAddress = 	(void*)0x400000;
 static void * const sampleDataModuleAddress = 	(void*)0x500000;
-static void * const memoryHeapAddress = 	(void*)0x600000;
+static void * const memoryHeapAddress =   		(void*)0x600000;
 
 #define HEAP_SIZE 1048576
 
@@ -69,8 +69,10 @@ int main() {
 	load_idt();
 	mm_init(memoryHeapAddress, HEAP_SIZE);
 
+
 	int argc = 1;
 	char * argv[2] = {"shell", NULL};
-
 	scheduler_init((uint64_t) sampleCodeModuleAddress, argc, argv);
+
+	return 0;
 }

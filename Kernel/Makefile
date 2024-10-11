@@ -3,10 +3,10 @@ include Makefile.inc
 KERNEL=kernel.bin
 
 # Include paths for the compiler
-INCLUDE_PATHS = -I./include -I./include/collections -I./include/asm
+INCLUDE_PATHS = -I./include -I./include/collections -I./include/asm -I./include/process
 
 # Manually specify subdirectories for source files (hardcoded)
-SOURCES = $(wildcard ./*.c) $(wildcard asm/*.c) $(wildcard collections/*.c)
+SOURCES = $(wildcard ./*.c) $(wildcard asm/*.c) $(wildcard collections/*.c) $(wildcard process/*.c)
 SOURCES_ASM = $(wildcard asm/*.asm) $(wildcard collections/*.asm)
 
 

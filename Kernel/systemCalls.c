@@ -113,6 +113,7 @@ void playSong(int i){
     }
 }
 
+
 static unsigned long seed = 0x5A5A5A5A;
 
 unsigned long rand() {
@@ -120,18 +121,12 @@ unsigned long rand() {
 
     char * currentTime = getTime();
     
-    // Ensure currentTime is a valid string with at least 19 characters.
-    if (strlen(currentTime) >= 19) {
         ans *= currentTime[1] * currentTime[0] +
                currentTime[3] * currentTime[4] +
                currentTime[6] * currentTime[7] +
                currentTime[9] * currentTime[10] +
                currentTime[12] * currentTime[13] +
                currentTime[15] * currentTime[16] * currentTime[17] * currentTime[18];
-    } else {
-
-        ans *= ticks_elapsed();
-    }
 
     ans += ((unsigned long) currentTime) << 11;
 
