@@ -2,20 +2,30 @@
 
 NOMBRE=TP2-SO
 
-
 # Function to create container
 
 container() {
 
-    # Check if a container with the same name exists
-    if [ "$(docker ps -aq -f name=$NOMBRE)" ]; then
-        echo "Removing existing container $NOMBRE."
-        docker rm -f $NOMBRE
+        if ! command -v docker &>/dev/null
+    then
+        echo -e "${RED}Docker is not installed or not in the PATH.${RESET}"
+        exit 1
     fi
 
-    # Create a new container
-    echo "Creating a new container $NOMBRE."
-    sudo docker run -d -v "$PWD":/root --security-opt seccomp:unconfined -ti --name $NOMBRE agodio/itba-so-multi-platform:3.0
+    # Check if the container exists
+    if [ "$(docker ps -a --filter "name=$NOMBRE" --format "{{.Names}}" | wc -l)" -ne 0 ]; then
+        # Check if the container is stopped and start it if necessary
+        if [ "$(docker inspect -f '{{.State.Running}}' $NOMBRE)" == "false" ]; then
+            echo -e "${YELLOW}Starting existing container $NOMBRE...${RESET}"
+            docker start $NOMBRE
+        else
+            echo -e "${YELLOW}Container $NOMBRE is already running.${RESET}"
+        fi
+    else
+        # Create a new container if it doesn't exist
+        echo "${YELLOW}Creating a new container $NOMBRE...${RESET}"
+        sudo docker run -d -v "$PWD":/root --security-opt seccomp:unconfined -ti --name $NOMBRE agodio/itba-so-multi-platform:3.0
+    fi
 }
 
 # Function to compile the project
@@ -83,37 +93,79 @@ else
         echo -e "${YELLOW}Compiling and only showing warnings...${RESET}"
         WARNINGS=$(compile | egrep -i "warning" | color_output)
         echo -e "$WARNINGS"
-        echo -e "${YELLOW}Number of warnings: $(echo "$WARNINGS" | wc -l)${RESET}"
+
+        warn_count=$(echo "$WARNINGS" | wc -l)
+
+        if [ $warn_count -eq 0 ]
+        then 
+          
+            echo -e "${GREEN}No warnings found!${RESET}"
+
+        else
+
+            echo -e "${YELLOW}Number of warnings: $warn_count${RESET}"
+        fi
         ;;
 
     -e)
-        echo "${YELLOW}Compiling and only showing errors...${RESET}"
+        echo -e "${YELLOW}Compiling and only showing errors...${RESET}"
         ERRORS=$(compile | egrep -i "error" | color_output)
         echo -e "$ERRORS"
-        echo -e "${RED}Number of (possible) errors: $(echo "$ERRORS" | wc -l)${RESET}"
+        
+        err_count=$(echo "$ERRORS" | wc -l)
+        
+        if [ $err_count -eq 0 ]
+        then 
+          
+            echo -e "${GREEN}No errors found!${RESET}"
+
+        else
+
+            echo -e "${RED}Number of (possible) errors: $err_count${RESET}"
+        fi
         ;;
 
     -a)
         echo -e "${YELLOW}Compiling and only showing errors and warnings...${RESET}"
         OUTPUT=$(compile | egrep -i "error|warning" | color_output)
         echo -e "$OUTPUT"
-        echo -e "${YELLOW}Number of warnings: $(echo "$OUTPUT" | egrep -i "warning" | wc -l)${RESET}"
-        echo -e "${RED}Number of (possible) errors: $(echo "$OUTPUT" | egrep -i "error" | wc -l)${RESET}"
 
+        err_count=$(echo "$OUTPUT" | egrep -i "error" | wc -l)
+        warn_count=$(echo "$OUTPUT" | egrep -i "warning" | wc -l)
+        
+        if [ $err_count -eq 0 ]
+        then 
+          
+            echo -e "${GREEN}No errors found!${RESET}"
+
+        else
+
+            echo -e "${RED}Number of (possible) errors: $err_count${RESET}"
+        fi
+
+        if [ $warn_count -eq 0 ]
+        then 
+          
+            echo -e "${GREEN}No warnings found!${RESET}"
+
+        else
+
+            echo -e "${YELLOW}Number of warnings: $warn_count${RESET}"
+        fi
         ;;
 
     -r)
-        compile > /dev/null
-        echo "Running project..."
+        compile &> /dev/null || { echo "${RED}Compilation failed!${RESET}"; exit 1; }
+        echo -e "${YELLOW}Running project...${RESET}"
         run
         ;;
     -d)
-        compile 
-        echo "Running debug mode..."
+        compile &> /dev/null || { echo "${RED}Compilation failed!${RESET}"; exit 1; }
+        echo -e "${YELLOW}Running debug mode...${RESET}"
         run "-d"
         ;;
     *)
-        echo "${RED}ERROR.${RESET}"
+        echo -e "${RED}ERROR.${RESET}"
         echo "Usage: $0 [-w for warnings] [-r to run] [-d for debug mode]"
         ;;
   esac
