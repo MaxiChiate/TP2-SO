@@ -1,4 +1,4 @@
-#include <bst.h>
+#include <collections/bst.h>
 
 typedef struct node {
     elemType value;
@@ -17,21 +17,21 @@ typedef struct bstCDT {
 
 
 bstADT newBst(int(*compare)(elemType, elemType)) {
-    bstADT bst = calloc(1, sizeof(bstCDT));
+    bstADT bst = mm_malloc(sizeof(bstCDT));
     bst->height = -1;
     bst->size = 0;
     bst->compare = compare;
     return bst;
 }
 
-unsigned int size(bstADT bst) {
+unsigned int bstSize(bstADT bst) {
     return bst->size;
 }
 
 static tTree insertRec(tTree tree, elemType elem, bool * added, int * level, int (*compare)(elemType, elemType)) {
     int c;
     if (tree == NULL) {
-        tNode * node = malloc(sizeof(tNode));
+        tNode * node = mm_malloc(sizeof(tNode));
         node->value = elem;
         node->right = NULL;
         node->left = NULL;
@@ -52,9 +52,9 @@ static tTree insertRec(tTree tree, elemType elem, bool * added, int * level, int
     return tree;
 }
 
-bool insert(bstADT bst, elemType elem) {
+bool bstInsert(bstADT bst, elemType elem) {
 
-    if(height(bst) != -1 && sizeof(elem) != sizeof(bst->root))  {
+    if(bstHeight(bst) != -1 && sizeof(elem) != sizeof(bst->root))  {
 
         return false;
     }
@@ -94,7 +94,7 @@ static tTree discardRec(tTree tree, elemType elem, bool *removed, int *newHeight
 
         // Caso 1: nodo sin hijos
         if (tree->left == NULL && tree->right == NULL) {
-            free(tree);
+            mm_free(tree);
             *newHeight = 0;
             return NULL;
         }
@@ -102,12 +102,12 @@ static tTree discardRec(tTree tree, elemType elem, bool *removed, int *newHeight
         // Caso 2: un hijo
         if (tree->left == NULL) {
             tTree temp = tree->right;
-            free(tree);
+            mm_free(tree);
             *newHeight = rightHeight + 1;
             return temp;
         } else if (tree->right == NULL) {
             tTree temp = tree->left;
-            free(tree);
+            mm_free(tree);
             *newHeight = leftHeight + 1;
             return temp;
         }
@@ -123,7 +123,7 @@ static tTree discardRec(tTree tree, elemType elem, bool *removed, int *newHeight
     return tree;
 }
 
-bool discardEntry(bstADT bst, elemType elem) {
+bool bstDiscardEntry(bstADT bst, elemType elem) {
 
     if(bst != NULL && sizeof(elem) != sizeof(bst->root))  {
 
@@ -143,7 +143,7 @@ bool discardEntry(bstADT bst, elemType elem) {
 }
 
 
-unsigned int height(bstADT bst) {
+unsigned int bstHeight(bstADT bst) {
     return bst->height;
 }
 
@@ -174,7 +174,7 @@ static void treeToArrayRec(tTree tree, elemType * v, int * i) {
 }
 
 elemType * inOrder(bstADT bst) {
-    elemType * ans = malloc(bst->size * sizeof(elemType));
+    elemType * ans = mm_malloc(bst->size * sizeof(elemType));
     int idx = 0;
 
     treeToArrayRec(bst->root, ans, &idx);
@@ -186,7 +186,7 @@ static void freeBstRec(tTree tree) {
         return;
     freeBstRec(tree->right);
     freeBstRec(tree->left);
-    free(tree);
+    mm_free(tree);
 }
 
 void freeBst(bstADT bst) {

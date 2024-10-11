@@ -1,4 +1,4 @@
-#include <TreeMap.h>
+#include <collections/TreeMap.h>
 
 #define AMOUNT_TREES 10
 
@@ -10,7 +10,7 @@ typedef struct TreeMapCDT {
 } TreeMapCDT;
 
 TreeMap newTreeMap(int (*compareKeys)(key_t, key_t), int (*compareValues)(value_t, value_t)) {
-    TreeMap treeMap = calloc(1, sizeof(TreeMapCDT));
+    TreeMap treeMap = mm_malloc(sizeof(TreeMapCDT));
     treeMap->size = 0;
     for (int i = 0; i < AMOUNT_TREES; i++) {
         treeMap->trees[i] = newKVTree(compareKeys, compareValues);
@@ -77,10 +77,10 @@ bool replaceValue(TreeMap treeMap, key_t key, value_t newValue) {
 
 key_t * keys(TreeMap treeMap) {
     int toReturnIdx = 0;
-    key_t * toReturn = malloc(sizeof(key_t) * treeMap->size);
+    key_t * toReturn = mm_malloc(sizeof(key_t) * treeMap->size);
     for (int i = 0; i < AMOUNT_TREES; i++) {
         key_t * partialKeys = keySet(treeMap->trees[i]);
-        int partialSize = size(treeMap->trees[i]);
+        int partialSize = KVTreeSize(treeMap->trees[i]);
         for (int j = 0; j < partialSize; j++) {
             toReturn[toReturnIdx++] = partialKeys[j];
         }
@@ -90,10 +90,10 @@ key_t * keys(TreeMap treeMap) {
 
 value_t * valueSet(TreeMap treeMap) {
     int toReturnIdx = 0;
-    value_t * toReturn = malloc(sizeof(key_t) * treeMap->size);
+    value_t * toReturn = mm_malloc(sizeof(key_t) * treeMap->size);
     for (int i = 0; i < AMOUNT_TREES; i++) {
         value_t * partialValues = values(treeMap->trees[i]);
-        int partialSize = size(treeMap->trees[i]);
+        int partialSize = KVTreeSize(treeMap->trees[i]);
         for (int j = 0; j < partialSize; ) {
             toReturn[toReturnIdx++] = partialValues[j++];
         }

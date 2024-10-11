@@ -7,3 +7,6 @@ GCCFLAGS=-g -m64 -fno-exceptions -fno-asynchronous-unwind-tables -mno-mmx -mno-s
 ARFLAGS=rvs
 ASMFLAGS=-felf64
 LDFLAGS=--warn-common -z max-page-size=0x1000
+
+# Manually specify subdirectories for source files and headers
+SUBDIRS = . asm collections  # Add all subdirectories here

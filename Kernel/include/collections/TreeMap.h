@@ -1,7 +1,8 @@
 #ifndef __TreeMap_h
 #define __TreeMap_h
 
-#include "KVTree.h"
+#include <memory_manager.h>
+#include <collections/KVTree.h>
 
 typedef struct TreeMapCDT * TreeMap;
 

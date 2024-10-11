@@ -3,9 +3,8 @@
 #ifndef NODE_H
 #define NODE_H
 
+  #include <memory_manager.h>
 
-  #include <stdlib.h>
-  
   #define is_null(p)   ((p)==NULL)
   #define not_null(p)  (!is_null(p))
 
