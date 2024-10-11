@@ -1,5 +1,5 @@
 #include <memory_manager.h>
-#include <process_management.h>
+#include <process/process_management.h>
 #include <time.h>
 
 //TODO: Releer todo y ver si compila. Habiendo configurado GDB.
