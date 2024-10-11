@@ -18,11 +18,11 @@
     
     typedef void (*shellFunctions)(void);
 
-    static shellFunctions menuFunctions[AVAILABLE_FUNCTIONS]={&help, &time, &textSize,&colorChanging, &exitProgram, &clear, &tetrisSong, &jingleBellsSong, &div0, &invalidOpcode};
+    shellFunctions menuFunctions[AVAILABLE_FUNCTIONS]={&help, &time, &textSize,&colorChanging, &exitProgram, &clear, &tetrisSong, &jingleBellsSong, &div0, &invalidOpcode};
 
-    static char* menuNames[AVAILABLE_FUNCTIONS+1]= {"help", "time", "size", "color", "exit", "clear","tetris", "jinglebells", "div0", "invalidopcode", 0};
+    char* menuNames[AVAILABLE_FUNCTIONS+1]= {"help", "time", "size", "color", "exit", "clear","tetris", "jinglebells", "div0", "invalidopcode", 0};
 
-    static char* menuDescriptions[AVAILABLE_FUNCTIONS]={
+    char* menuDescriptions[AVAILABLE_FUNCTIONS]={
                             "Gives information about the available commands to execute",
                             "Prints the RTC's time on the screen",
                             "Changes font size unless minimum/maximum size has been reached. Use argument 'small' or 'bigger'",
