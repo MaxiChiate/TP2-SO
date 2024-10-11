@@ -23,7 +23,7 @@
 typedef uint64_t pid_t;
 
 
-void scheduler_init()
+void scheduler_init(uint64_t init_address, int argc, char * argv[])
 
 /*
  *  Decides which process will run next

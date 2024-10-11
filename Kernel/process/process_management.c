@@ -1,3 +1,4 @@
+#include <memory_manager.h>
 #include <process_management.h>
 #include <time.h>
 
@@ -22,10 +23,11 @@ typedef struct pcb {
     uint64_t align;
     uint64_t stack_segment;
     uint64_t stack_pointer;
+    uint64_t base_pointer;
     uint64_t register_flags;
     uint64_t code_segment;
     uint64_t instruction_pointer;
-    
+
     char * argv[]; //rdi
     int argc;      //rsi
     
@@ -87,19 +89,21 @@ static void spawn_init_process(void);
 
 
 
-void scheduler_init()   {
+void scheduler_init(uint64_t init_address, int argc, char * argv[])   {
 
     for (int i  = 0; i < PROCESS_AMOUNT; i++) {
 
         pcbs[i].state = TERMINATED;
     }
 
-    spawn_init_process();
+    new_process(init_address, argc, argv);
 }
 
 
 
 uint64_t schedule(uint64_t current_stack_pointer) {
+
+    if(current_amount_process == 0)  return current_stack_pointer;
 
     refresh_pcb_from_stackcontext(current_process);
 
@@ -210,6 +214,21 @@ void waitpid(unsigned int pid) {
     }
 }
 
+// BolivianOS
+char ** process_status()   {
+
+    char ** ans = mm_malloc(50);
+    char ** template = {"name:", "pid:", "priority:", "sp:", "bp", "foreground"};
+
+    for(int i=0; i<PROCESS_AMOUNT; i++) {
+
+        for()
+
+        if(i%BLOCK_SIZE) {
+
+        }
+    }
+}
 
 
 //Based on: Tanenbaum, Modern Operating Systems 4e, 2015 Prentice-Hall. Figure 2-2.
@@ -406,11 +425,4 @@ static int get_index_by_pid(uint64_t pid)   {
 static bool kill_process(int p) {
 
     return IN_RANGE(p) ? terminate_process_by_index(p) : false;
-}
-
-static void spawn_init_process(void)    {
-
-    int argc = 2;    
-    char * argv[argc] = {"_hlt", NULL};
-    new_process(&_hlt(void), argc, argv);
 }

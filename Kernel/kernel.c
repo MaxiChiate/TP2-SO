@@ -6,6 +6,7 @@
 #include <stringPrinter.h>
 #include <buffer.h>
 #include <colours.h>
+#include <process_management.h>
 
 //testing mm:
 //
@@ -25,7 +26,9 @@ static void * const sampleCodeModuleAddress = 	(void*)0x400000;
 static void * const sampleDataModuleAddress = 	(void*)0x500000;
 static void * const memoryHeapAddress = 	(void*)0x600000;
 
-typedef int (*EntryPoint)();
+#define HEAP_SIZE 1048576
+
+typedef int (*EntryPoint)(); 
 
 
 void clearBSS(void * bssAddress, uint64_t bssSize)
@@ -61,19 +64,13 @@ void * initializeKernelBinary()
 	return getStackBase();
 }
 
-int main(){
+int main() {
 
 	load_idt();
+	mm_init(memoryHeapAddress, HEAP_SIZE);
 
+	int argc = 1;
+	char * argv[2] = {"shell", NULL};
 
-	//mm_init(memoryHeapAddress, MAX_BLOCKS);
-	printCharDefault('?', WHITE, BLACK);
-
-	uint64_t args[4] = {314, MAX_BLOCKS, (uint64_t)memoryHeapAddress, 0x00}; 
-	
-	test_mm(3, args);
-
-//	((EntryPoint)sampleCodeModuleAddress)();
-
-	return 0;
+	scheduler_init((uint64_t) sampleCodeModuleAddress, argc, argv);
 }
