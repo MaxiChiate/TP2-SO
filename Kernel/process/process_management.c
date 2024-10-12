@@ -5,7 +5,6 @@
 #define BEGINNIN_PROCESS_ADDRESS(process_index) ((uint64_t) stacks + (process_index + 1) * STACK_SPACE - 1)
 #define IN_RANGE(i) ((i) > 0 && (i) < PROCESS_AMOUNT)
 #define VALID_FD(fd) ((fd) >= 0 || (fd) < MAX_FDS)
-#define OVERFLOW ( (uint64_t) (-1))
 
 // Complete with ticks as quantum, each position represents the priority status.
 
@@ -40,6 +39,7 @@ typedef struct pcb {
 
 static pcb_t pcbs[PROCESS_AMOUNT];
 static uint64_t stacks[PROCESS_AMOUNT][STACK_SPACE];
+static bool scheduler_on = false;
 
 /*-------------------------------------------------------------------------------------------------------*/
 static unsigned int current_process = 0;
@@ -89,6 +89,8 @@ void scheduler_init(uint64_t init_address, int argc, char * argv[])   {
         pcbs[i].state = TERMINATED;
     }
 
+    scheduler_on = true;
+
     new_process(init_address, argc, argv, QUANTUM_AMOUNT-1, true);
 }
 
@@ -96,7 +98,9 @@ void scheduler_init(uint64_t init_address, int argc, char * argv[])   {
 
 uint64_t schedule(uint64_t current_stack_pointer) {
 
-    if(current_amount_process == 0)  return current_stack_pointer;
+    if(!scheduler_on)   return current_stack_pointer;
+
+    if(current_amount_process == 0) return -1;
 
     refresh_pcb_from_stackcontext(current_process);
 
@@ -112,7 +116,7 @@ uint64_t schedule(uint64_t current_stack_pointer) {
 
 uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground) {
 
-    if(current_amount_process == PROCESS_AMOUNT) return OVERFLOW;
+    if(current_amount_process == PROCESS_AMOUNT) return -1;
     
     int new_process_index = new_process(function_address, argc, argv, priority, foreground);
     pcbs[new_process_index].parent_process_id = parent_pid;
@@ -137,7 +141,7 @@ bool kill_process_by_pid(uint64_t pid)   {
 
 uint64_t get_current_pid()  {
 
-    return pcbs[current_process].process_id;
+    return current_amount_process == 0 ? -1 : pcbs[current_process].process_id;
 }
 
 

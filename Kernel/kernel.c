@@ -66,9 +66,9 @@ void * initializeKernelBinary()
 
 int main() {
 
-	load_idt();
 	mm_init(memoryHeapAddress, HEAP_SIZE);
 
+	load_idt();
 
 	int argc = 1;
 	char * argv[2] = {"shell", NULL};
