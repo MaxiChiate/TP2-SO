@@ -7,10 +7,6 @@
 #include <buffer.h>
 #include <colours.h>
 #include <process/process_management.h>
-
-//testing mm:
-//
-#include <test_mm.h>
 #include <memory_manager.h>
 
 extern uint8_t text;

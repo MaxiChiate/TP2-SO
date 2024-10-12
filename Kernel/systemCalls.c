@@ -80,39 +80,12 @@ void timeManager(){
     char* time=getTime();
     printTextDefault(time, characterColor, BLACK);
 }
-void makeTextBigger(){
-    biggerText();
-}
-void makeTextSmaller(){
-    smallerText();
-}
-void changeColor(unsigned int fgcolor){
-    characterColor=fgcolor;
-    changeColors(fgcolor);
-}
 
 void killOS(){
     fillScreen(BLACK);
     haltcpu();          //queda trabado acá y no puede hacer nada más
 
 }
-void playSong(int i){
-    switch (i) {
-        case TETRIS:
-            playTetris();
-            return;
-        case JINGLEBELLS:
-            playJingleBells();
-            return;
-        case BEEP:
-            beep();
-            return;
-        case MARIO:
-            playMario();
-            return;
-    }
-}
-
 
 static unsigned long seed = 0x5A5A5A5A;
 

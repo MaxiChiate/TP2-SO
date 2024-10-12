@@ -93,20 +93,6 @@ void blockBlink(){
 }
 
 
-int charSizes[3]={8,16,32};
-int size=1;
-void smallerText(){
-    if(size>0) {
-        setCharWidth(charSizes[--size]);
-        refillScreen();
-    }
-}
-void biggerText(){
-    if(size<2) {
-        setCharWidth(charSizes[++size]);
-        refillScreen();
-    }
-}
 void changeColors(int fgNewColor){
     fillScreen(0x0);
     resetPosition();

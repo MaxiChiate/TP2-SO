@@ -4,19 +4,15 @@
 
 typedef void (*shellFunctions)(void);
 
-shellFunctions menuFunctions[AVAILABLE_FUNCTIONS]={&help, &time, &textSize,&colorChanging, &exitProgram, &clear, &tetrisSong, &jingleBellsSong, &div0, &invalidOpcode};
+shellFunctions menuFunctions[AVAILABLE_FUNCTIONS]={&help, &time, &exitProgram, &clear, &div0, &invalidOpcode};
 
-char* menuNames[AVAILABLE_FUNCTIONS+1]= {"help", "time", "size", "color", "exit", "clear","tetris", "jinglebells", "div0", "invalidopcode", 0};
+char* menuNames[AVAILABLE_FUNCTIONS+1]= {"help", "time", "exit", "clear", "div0", "invalidopcode", 0};
 
 char* menuDescriptions[AVAILABLE_FUNCTIONS]={
                             "Gives information about the available commands to execute",
                             "Prints the RTC's time on the screen",
-                            "Changes font size unless minimum/maximum size has been reached. Use argument 'small' or 'bigger'",
-                            "Changes the font's color, available arguments are 'white', 'red', 'blue', 'green', 'yellow', 'orange', 'violet'",
                             "Closes the Shell and finishes the execution of the program",
                             "Cleans the terminal",
-                            "Plays tetris music",
-                            "Plays jinglebells",
                             "Div by 0 and throws the exception",
                             "Excecutes an invalid opcode and throws the exception"
                             };
@@ -111,61 +107,12 @@ void time(){
     time_getter();
 }
 
-void textSize(){
-   if (strEquals("smaller", argument)){
-       make_text_smaller();
-   }
-   else if (strEquals("bigger", argument)){
-       make_text_bigger();
-   }
-   else print("Arguments are necessary or the argument written is not defined");
-}
-
 void exitProgram(){
     if (hasArgs){
         print("Function doesn't have arguments");
         return;
     }
     exit_shell();
-}
-void colorChanging(){
-    if (strEquals(argument, "white")){
-        recolor(WHITE);
-    }
-    else if (strEquals(argument, "red")){
-        recolor(RED);
-    }
-    else if (strEquals(argument, "blue")){
-        recolor(BLUE);
-    }
-    else if (strEquals(argument, "green")){
-        recolor(GREEN);
-    }
-    else if (strEquals(argument, "yellow")){
-        recolor(YELLOW);
-    }
-    else if (strEquals(argument, "orange")){
-        recolor(ORANGE);
-    }
-    else if (strEquals(argument, "violet")){
-        recolor(VIOLET);
-    }
-    else print("Arguments are necessary or the argument written is not defined");
-
-}
-void tetrisSong(){
-    if (hasArgs){
-        print("Function doesn't have arguments");
-        return;
-    }
-    play_song(1);
-}
-void jingleBellsSong(){
-    if (hasArgs){
-        print("Function doesn't have arguments");
-        return;
-    }
-    play_song(2);
 }
 
 void div0() {

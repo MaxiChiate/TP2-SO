@@ -6,11 +6,7 @@ GLOBAL killBuffer
 GLOBAL putChar
 GLOBAL exit_shell
 GLOBAL time_getter
-GLOBAL make_text_smaller
-GLOBAL make_text_bigger
 GLOBAL rand
-GLOBAL recolor
-GLOBAL play_song
 GLOBAL invalidOpcode
 
 extern strLength
@@ -153,35 +149,6 @@ time_getter:
     pop rbp
     ret
 
-make_text_bigger:
-    push rbp
-    mov rbp, rsp
-
-    push rax
-    mov rax, 0xa1
-    int 80h
-    pop rax
-
-    mov rsp, rbp
-    pop rbp
-    ret
-
-
-make_text_smaller:
-    push rbp
-    mov rbp, rsp
-
-    push rax
-    
-    mov rax, 0xa0
-    int 80h
-
-    pop rax
-
-    mov rsp, rbp
-    pop rbp
-    ret
-
 
 rand:
 
@@ -206,41 +173,6 @@ clear:
     int 0x80
 
     pop rax
-
-    mov rsp, rbp
-    pop rbp
-    ret
-
-recolor:
-
-    push rbp
-    mov rbp, rsp
-
-    push rbx
-
-    mov rbx, rdi    ; 1er arg en C
-
-    mov rax, 0xa2
-    int 0x80
-
-    pop rbx
-
-    mov rsp, rbp
-    pop rbp
-    ret
-play_song:
-    push rbp
-    mov rbp, rsp
-
-    push rbx
-    push rax
-
-    mov rax, 0xDE
-    mov rbx, rdi    ;el numero que responde a que canción llamo
-    int 0x80
-
-    pop rax
-    pop rbx
 
     mov rsp, rbp
     pop rbp

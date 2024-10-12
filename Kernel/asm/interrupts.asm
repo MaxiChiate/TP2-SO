@@ -190,6 +190,10 @@ _irq60Handler:
 	push r15
 
 ; Argumentos de las syscalls:
+
+	push r8
+	push r9
+
 	push rax
 	push rbx
 	push rcx
@@ -206,6 +210,9 @@ _irq60Handler:
 	pop rdi
 	call int_80
 	
+	pop r9
+	pop r8
+
 	push rax
 	; signal pic EOI (End of Interrupt)
 	mov al, 20h

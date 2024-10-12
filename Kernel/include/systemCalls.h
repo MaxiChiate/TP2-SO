@@ -8,14 +8,24 @@
 #define SYSTEM_KILLOS_ID                0x01
 #define SYSTEM_READ_ID                  0x03
 #define SYSTEM_WRITE_ID                 0x04
-#define SYSTEM_TIME_ID                  0x98
-#define SYSTEM_CLEAR_ID                 0x45
-#define SMALLER_TEXT                    0xA0
-#define BIGGER_TEXT                     0xA1
-#define RANDLONG_ID                     0x12
-#define RECOLOR                         0xA2
-#define SONG                            0xDE
-    
+#define SYSTEM_TIME_ID                  0x05
+#define SYSTEM_CLEAR_ID                 0x06
+#define RANDLONG_ID                     0x07
+
+// Process:
+
+#define PS_ID                           0xB0
+#define CREATE_PROCESS                  0xB1
+#define KILL_PROCESS                    0xB3
+#define GET_CURRENT_PID                 0xB4
+#define CHANGE_PROCESS_PRIORITY         0xB5
+#define BLOCK_PROCESS                   0xB6
+#define UNBLOCK_PROCESS                 0xB7
+#define GIVE_UP_CPU                     0xB8
+#define WAIT                            0xB9
+#define WAIT_PID                        0xBA
+
+
 
 // write @fd codes: (en rbx)
     #define STDOUT 						0x01

@@ -23,6 +23,7 @@
 #define DEFAULT_PARENT_PID 0
 #define INITIAL_PROCESS_ID 1
 
+#define PROCESS_NAME_LENGTH 10
 
 
 void scheduler_init(uint64_t init_address, int argc, char * argv[]);
@@ -81,7 +82,6 @@ void wait();
  * Waits for the process whose id is pid to finish
  */
 void waitpid(unsigned int pid);
-
 
 
 ps_t * get_ps();

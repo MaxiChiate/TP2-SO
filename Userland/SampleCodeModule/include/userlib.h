@@ -33,8 +33,6 @@
 
     void make_text_bigger();
 
-    void recolor(unsigned int colour);
-
     void play_song(int name);
 
     extern void invalidOpcode();
