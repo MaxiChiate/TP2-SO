@@ -1,6 +1,5 @@
 #include <process/process_management.h>
 
-
 //TODO: Releer todo y ver si compila. Habiendo configurado GDB.
 
 #define BEGINNIN_PROCESS_ADDRESS(process_index) ((uint64_t) stacks + (process_index + 1) * STACK_SPACE - 1)
@@ -26,13 +25,14 @@ typedef struct pcb {
     uint64_t code_segment;
     uint64_t instruction_pointer;
     
-    pid_t process_id;
-    pid_t parent_process_id;
+    uint64_t process_id;
+    uint64_t parent_process_id;
     process_state_t state;
+    bool foreground;
 
     unsigned long canary;
-
     unsigned int quantum;
+    unsigned int priority;
 
     int argc;      //rsi
     char ** argv; //rdi
@@ -43,7 +43,7 @@ static uint64_t stacks[PROCESS_AMOUNT][STACK_SPACE];
 
 /*-------------------------------------------------------------------------------------------------------*/
 static unsigned int current_process = 0;
-static pid_t process_id_counter = INITIAL_PROCESS_ID;
+static uint64_t process_id_counter = INITIAL_PROCESS_ID;
 static unsigned int current_amount_process = 0;
 static unsigned int started_at = 0;
 
@@ -70,12 +70,13 @@ static unsigned int get_quantum(unsigned int priority);
 static void refresh_pcb_from_stackcontext(unsigned int p);
 static void refresh_stackcontext_from_pcb(unsigned int p);
 
-int static new_process(uint64_t function_address, int argc, char * argv[], unsigned int priority);
+int static new_process(uint64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground);
 
 static int get_index_by_sp(uint64_t sp);
 static int get_index_by_pid(uint64_t pid);
 
 static bool kill_process(int p);
+static ps_t process_status(int p);
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
@@ -88,7 +89,7 @@ void scheduler_init(uint64_t init_address, int argc, char * argv[])   {
         pcbs[i].state = TERMINATED;
     }
 
-    new_process(init_address, argc, argv, QUANTUM_AMOUNT-1);
+    new_process(init_address, argc, argv, QUANTUM_AMOUNT-1, true);
 }
 
 
@@ -109,11 +110,11 @@ uint64_t schedule(uint64_t current_stack_pointer) {
 
 
 
-uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[], unsigned int priority) {
+uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground) {
 
     if(current_amount_process == PROCESS_AMOUNT) return OVERFLOW;
     
-    int new_process_index = new_process(function_address, argc, argv, priority);
+    int new_process_index = new_process(function_address, argc, argv, priority, foreground);
     pcbs[new_process_index].parent_process_id = parent_pid;
     return pcbs[new_process_index].process_id;
 }
@@ -134,7 +135,7 @@ bool kill_process_by_pid(uint64_t pid)   {
 
 
 
-pid_t get_current_pid()  {
+uint64_t get_current_pid()  {
 
     return pcbs[current_process].process_id;
 }
@@ -193,6 +194,7 @@ void wait()     {
 
 
 
+
 // Espera a que el proceso de process id = pid tenga estado TERMINATED
 void waitpid(unsigned int pid) {
 
@@ -204,6 +206,49 @@ void waitpid(unsigned int pid) {
 
         give_up_cpu();
     }
+}
+
+
+ps_t * get_ps() {
+
+    ps_t * to_return = mm_malloc(sizeof(to_return[0]) * current_amount_process+1);
+    
+    int k=0;
+    for(int i=0; k<current_amount_process && i<PROCESS_AMOUNT; i++)   {
+        
+        if (is_alive(i)) {
+            
+            to_return[k++] = process_status(i);   
+        }
+    }
+
+    to_return[k].id = 0;
+
+    return to_return;
+}
+
+
+
+static ps_t process_status(int p)   {
+
+    ps_t to_return = {
+            .bp = pcbs[p].base_pointer,
+            .sp = pcbs[p].stack_pointer,
+            .id = pcbs[p].process_id,
+            .foreground = pcbs[p].foreground,
+            .priority = pcbs[p].priority
+    };
+
+    int i;
+
+    for(i=0; i<PROCESS_NAME_LENGTH&& pcbs[p].argv[0][i]!=0; i++)    {
+
+        to_return.name[i] = pcbs[p].argv[0][i];
+    }
+
+    to_return.name[i] = '\0';
+
+    return to_return;
 }
 
 //Based on: Tanenbaum, Modern Operating Systems 4e, 2015 Prentice-Hall. Figure 2-2.
@@ -313,11 +358,13 @@ static void refresh_pcb_from_stackcontext(unsigned int p)   {
         }
 
         pcbs[p].align = stack[--i];     
-        pcbs[p].stack_segment = stack[--i];  
+        pcbs[p].stack_segment = stack[--i];
         pcbs[p].stack_pointer = stack[--i];   
         pcbs[p].register_flags = stack[--i];
         pcbs[p].code_segment = stack[--i];
         pcbs[p].instruction_pointer = stack[--i];
+
+        pcbs[p].base_pointer = stack[i - 5];
 
         pcbs[p].argc = (int)    stack[i - 6];
         pcbs[p].argv = (char**) stack[i - 7];
@@ -337,13 +384,15 @@ static void refresh_stackcontext_from_pcb(unsigned int p)   {
         stack[--i] = pcbs[p].code_segment;
         stack[--i] = pcbs[p].instruction_pointer;
 
+        stack[i - 5] = pcbs[p].base_pointer;
+
         stack[i - 6] = (uint64_t) pcbs[p].argc;
         stack[i - 7] = (uint64_t) pcbs[p].argv;
 
         stack[0] = pcbs[p].canary;
 }
 
-static int new_process(uint64_t function_address, int argc, char ** argv, unsigned int priority)  {
+static int new_process(uint64_t function_address, int argc, char ** argv, unsigned int priority, bool foreground)  {
 
     current_amount_process++;
 
@@ -355,6 +404,7 @@ static int new_process(uint64_t function_address, int argc, char ** argv, unsign
         .align = INITIAL_ALIGN,
         .stack_segment = GLOBAL_SS,
         .stack_pointer =  BEGINNIN_PROCESS_ADDRESS(new_process_index),
+        .base_pointer  =  BEGINNIN_PROCESS_ADDRESS(new_process_index),
         .register_flags = GLOBAL_RFLAGS,
         .code_segment = GLOBAL_CS,
         .instruction_pointer = function_address,
@@ -365,10 +415,12 @@ static int new_process(uint64_t function_address, int argc, char ** argv, unsign
         .process_id = process_id_counter++,
         .parent_process_id = DEFAULT_PARENT_PID,
         .state = READY,
+        .foreground = foreground,
         
         .canary = rand(),
 
         .quantum = get_quantum(priority),
+        .priority = priority
     };
 
     pcbs[new_process_index] = new_pcb;

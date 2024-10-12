@@ -1,6 +1,9 @@
 #ifndef _SYSCALLS_H
 #define _SYSCALLS_H
 
+    #include <bool.h>
+    #include <stdint.h>
+
 // Sys_Id en rax:
 #define SYSTEM_KILLOS_ID                0x01
 #define SYSTEM_READ_ID                  0x03
@@ -58,4 +61,17 @@
 
 //pone la canción del tetris
     void playSong(int which);
+
+#define PROCESS_NAME_LENGTH 10
+
+    typedef struct  {
+
+        uint64_t sp;
+        uint64_t bp;
+        uint64_t id;
+        bool foreground;
+        int priority;
+        char name[PROCESS_NAME_LENGTH+1];
+    } ps_t;
+
 #endif

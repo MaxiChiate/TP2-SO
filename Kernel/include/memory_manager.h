@@ -9,7 +9,8 @@
 #ifndef MM_MANAGER_H
 #define MM_MANAGER_H
 
-  #define BLOCK_SIZE  10
+  #define K 1024
+  #define BLOCK_SIZE  10*K
 
   void mm_init(void * start_given, int size_requested);
 

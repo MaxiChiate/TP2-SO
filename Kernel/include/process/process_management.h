@@ -23,7 +23,6 @@
 #define DEFAULT_PARENT_PID 0
 #define INITIAL_PROCESS_ID 1
 
-typedef uint64_t pid_t;
 
 
 void scheduler_init(uint64_t init_address, int argc, char * argv[]);
@@ -36,7 +35,8 @@ uint64_t schedule(uint64_t current_stack_pointer);
 /*
  *  New process, with parent. @return: pid of new process.
  */
-uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[], unsigned int priority);
+uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground);
+
 /*
  *  Kills a process according to its stack pointer.
  */
@@ -50,7 +50,7 @@ bool kill_process_by_pid(uint64_t pid);
 /*
  *  Return pid of current process.
  */
-pid_t get_current_pid();
+uint64_t get_current_pid();
 
 /*
  * Current process gives up the cpu.
@@ -81,5 +81,9 @@ void wait();
  * Waits for the process whose id is pid to finish
  */
 void waitpid(unsigned int pid);
+
+
+
+ps_t * get_ps();
 
 #endif //__process__management
