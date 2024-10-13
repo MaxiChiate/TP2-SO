@@ -22,7 +22,7 @@ container() {
     else
         # Create a new container if it doesn't exist
         echo "${YELLOW}Creating a new container $NOMBRE...${RESET}"
-        sudo docker run -d -v "$PWD":/root --security-opt seccomp:unconfined -ti --name $NOMBRE agodio/itba-so-multi-platform:3.0
+        sudo docker run --add-host=host.docker.internal:host-gateway -d -v "$PWD":/root --security-opt seccomp:unconfined -ti --name $NOMBRE agodio/itba-so-multi-platform:3.0
     fi
 }
 
@@ -34,9 +34,9 @@ compile() {
     docker exec -it $NOMBRE make -C/root/Toolchain
     docker exec -it $NOMBRE make -C/root/
     
-    # Linkear en formato ELF para GDB
-    docker exec -it $NOMBRE objcopy -O binary /root/kernel.elf /root/kernel.bin
-    docker exec -it $NOMBRE objcopy -O binary /root/sampleCodeModule.elf /root/sampleCodeModule.bin
+    # # Linkear en formato ELF para GDB
+    # docker exec -it $NOMBRE objcopy -O binary /root/Kernel/kernel.elf /root/kernel.bin
+    # docker exec -it $NOMBRE objcopy -O binary /root/Userland/0000-sampleCodeModule.elf /root/Userland/0000-sampleCodeModule.bin
 
     docker stop $NOMBRE
 }
@@ -45,30 +45,21 @@ compile() {
 run() {
     # Set FLAG based on the input argument for debug mode
     FLAG=""
-    [[ "$1" = "-d" ]] && FLAG="-s -S"
+    if [ "$1" = "-d" ]
+    then
+        FLAG="-s -S -d int"
+    fi
     
     # Set common qemu options
-    QEMU_CMD="qemu-system-x86_64 $FLAG -hda Image/x64BareBonesImage.qcow2 -m 512"
+    QEMU_CMD="qemu-system-x86_64 -hda Image/x64BareBonesImage.qcow2 -m 512 $FLAG"
     
     if [[ "$(uname)" == "Linux" ]]; then
         # Linux specific execution
-        sudo $QEMU_CMD &
+        sudo $QEMU_CMD 
     else
         # macOS specific execution
         export AUDIO_DRIVER="coreaudio"
-        $QEMU_CMD -audiodev $AUDIO_DRIVER,id=audio0 -machine pcspk-audiodev=audio0 &
-    fi
-
-    # If in debug mode, launch gdb automatically
-    if [[ "$1" = "-d" ]]; then
-        sleep 2  # Give QEMU time to start and wait for GDB connection
-
-        # Launch GDB and connect to QEMU
-        gdb -ex "target remote localhost:1234" \
-            -ex "add-symbol-file /root/kernel.elf 0x100000" \
-            -ex "add-symbol-file /root/sampleCodeModule.elf 0x400000" \
-            -ex "break main" \
-            -ex "continue"
+        $QEMU_CMD -audiodev $AUDIO_DRIVER,id=audio0 -machine pcspk-audiodev=audio0
     fi
 }
 
@@ -129,5 +120,5 @@ else
     esac
 fi
 
-# Delete .o files:
-find . -name "*.o" -type f -delete
+echo -e "${YELLOW}Cleaning...${RESET}"
+make clean

@@ -18,6 +18,7 @@ all: $(MODULE)
 # Linking module with objects
 $(MODULE): $(OBJECTS) $(OBJECTS_ASM)
 	$(LD) $(LDFLAGS) -T sampleCodeModule.ld $(OBJECTS) $(OBJECTS_ASM) -o ../$(MODULE)
+	$(LD) $(LDFLAGS) -T sampleCodeModule.ld --oformat=elf64-x86-64 -o sampleCodeModule.elf $(OBJECTS) $(OBJECTS_ASM)
 
 # Compile .c files into .o files using the include paths
 %.o: %.c
@@ -28,6 +29,6 @@ $(MODULE): $(OBJECTS) $(OBJECTS_ASM)
 	$(ASM) $(ASMFLAGS) $< -o $@
 
 clean:
-	rm -rf *.o module1/*.o module2/*.o asm/*.o
+	rm -rf *.o Testing/*.o asm/*.o *.bin *.elf
 
 .PHONY: all clean print

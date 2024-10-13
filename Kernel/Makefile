@@ -23,6 +23,7 @@ all: $(KERNEL)
 # Linking the kernel with all objects, ensure loader.o is included only once
 $(KERNEL): $(LOADEROBJECT) $(OBJECTS) $(STATICLIBS) $(OBJECTS_ASM)
 	$(LD) $(LDFLAGS) -T kernel.ld -o $(KERNEL) $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM) $(STATICLIBS)
+	$(LD) $(LDFLAGS) -T kernel.ld --oformat=elf64-x86-64 -o kernel.elf $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM) $(STATICLIBS)
 
 # Compile .c files into .o files using the include paths variable
 %.o: %.c
@@ -38,6 +39,6 @@ $(LOADEROBJECT):
 
 # Clean the build
 clean:
-	rm -rf $(OBJECTS) $(OBJECTS_ASM) $(LOADEROBJECT) $(KERNEL) asm/*.o collections/*.o *.o *.bin
+	rm -rf $(OBJECTS) $(OBJECTS_ASM) $(LOADEROBJECT) $(KERNEL) asm/*.o collections/*.o process/*.o *.o *.bin *.elf
 
 .PHONY: all clean
