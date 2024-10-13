@@ -406,7 +406,10 @@ static int new_process(uint64_t function_address, int argc, char ** argv, unsign
     current_amount_process++;
 
     int new_process_index = 0;
-    while(is_alive(new_process_index++));
+    while(is_alive(new_process_index))  {
+        
+        new_process_index++;
+    }
 
     pcb_t new_pcb = {
 

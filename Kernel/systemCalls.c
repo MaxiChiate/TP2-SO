@@ -5,7 +5,6 @@
 #include <buffer.h>
 #include <rtcDriver.h>
 #include <time.h>
-#include <speaker.h>
 
 static int characterColor=WHITE;
 

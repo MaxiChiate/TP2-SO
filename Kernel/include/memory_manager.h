@@ -10,7 +10,7 @@
 #define MM_MANAGER_H
 
   #define K 1024
-  #define BLOCK_SIZE  10*K
+  #define BLOCK_SIZE  2*K
 
   void mm_init(void * start_given, int size_requested);
 

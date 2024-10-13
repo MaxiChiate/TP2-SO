@@ -6,7 +6,7 @@ static unsigned long ticks = 0;
 
 uint64_t timer_handler(uint64_t rsp) {
 	ticks++;
-	return get_scheduler_status() ? schedule(rsp) : rsp;
+	return schedule(rsp);
 }
 
 int ticks_elapsed() {
