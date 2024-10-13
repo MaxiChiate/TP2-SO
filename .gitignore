@@ -59,7 +59,8 @@ dkms.conf
 # ignore
 .*
 
-# except .gitignore
+# except 
 !.gitignore
+!.gdbinit
 
 *.txt
