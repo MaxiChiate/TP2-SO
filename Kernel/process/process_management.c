@@ -12,7 +12,7 @@
 static unsigned int quantum[QUANTUM_AMOUNT] = {0b0001, 0b0010, 0b0100};
 
 // Nuevo estado para la implementación de waitpid
-typedef enum preocess_state {BLOCKED, READY, RUNNING, TERMINATED} process_state_t;
+typedef enum process_state {BLOCKED, READY, RUNNING, TERMINATED} process_state_t;
 
 typedef struct pcb {
     

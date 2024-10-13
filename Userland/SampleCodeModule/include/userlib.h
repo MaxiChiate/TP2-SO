@@ -2,6 +2,7 @@
 #define _USERLIB_H
 
     #include <defs.h>
+    #include <bool.h>
 
     void print(char * str);
 
@@ -29,13 +30,9 @@
 
     void time_getter();
 
-    void make_text_smaller();
-
-    void make_text_bigger();
-
-    void play_song(int name);
-
     extern void invalidOpcode();
+
+    void _hlt();
 
 //  Strings:
 

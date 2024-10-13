@@ -1,8 +1,8 @@
 GLOBAL spawn_process
 GLOBAL ps
-GLOBAL kill_process
+GLOBAL kill
 GLOBAL current_pid
-GLOBAL process_prio
+GLOBAL nice
 GLOBAL blockp
 GLOBAL unblockp
 GLOBAL giveup_cpu
@@ -11,7 +11,7 @@ GLOBAL waitpid
 
 section .text
 
-spawn_process:
+spawn_process:  
 
     push rbp
     mov  rbp, rsp
@@ -50,8 +50,8 @@ ps:
     mov rsp, rbp
     pop rbp
     ret
-kill_process:
-    
+kill:
+
     push rbp
     mov  rbp, rsp
 
@@ -80,7 +80,8 @@ current_pid:
     mov rsp, rbp
     pop rbp
     ret
-process_prio:
+
+nice:
     
     push rbp
     mov  rbp, rsp

@@ -8,6 +8,7 @@ GLOBAL exit_shell
 GLOBAL time_getter
 GLOBAL rand
 GLOBAL invalidOpcode
+GLOBAL _hlt
 
 extern strLength
 
@@ -187,3 +188,8 @@ invalidOpcode:
     ;db 0xFF
 
     ret
+
+_hlt:
+	sti
+	hlt
+	ret
