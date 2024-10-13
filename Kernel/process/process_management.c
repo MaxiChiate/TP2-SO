@@ -403,7 +403,7 @@ static int new_process(uint64_t function_address, int argc, char ** argv, unsign
 
         .align = INITIAL_ALIGN,
         .stack_segment = GLOBAL_SS,
-        .stack_pointer =  BEGINNIN_PROCESS_ADDRESS(new_process_index),
+        .stack_pointer =  BEGINNIN_PROCESS_ADDRESS(new_process_index) - STATE_PUSHED_SIZE - CONTEXT_PUSHED_SIZE+1,
         .base_pointer  =  BEGINNIN_PROCESS_ADDRESS(new_process_index),
         .register_flags = GLOBAL_RFLAGS,
         .code_segment = GLOBAL_CS,
@@ -424,9 +424,6 @@ static int new_process(uint64_t function_address, int argc, char ** argv, unsign
     pcbs[new_process_index] = new_pcb;
 
     refresh_stackcontext_from_pcb(new_process_index);
-
-// sp prepared to do popState:
-    new_pcb.stack_pointer -= (STATE_PUSHED_SIZE + CONTEXT_PUSHED_SIZE) * sizeof(stacks[0][0]);
 
     return new_process_index;
 }
