@@ -26,7 +26,15 @@
 #define PROCESS_NAME_LENGTH 10
 
 
+/*
+ * Initializes scheduler
+ */
 void scheduler_init(uint64_t init_address, int argc, char * argv[]);
+
+/*
+ * Returns the value of the scheduler_on flag
+ */
+bool get_scheduler_status();
 
 /*
  *  Decides which process will run next

@@ -33,6 +33,11 @@ compile() {
     docker exec -it $NOMBRE make clean -C/root/
     docker exec -it $NOMBRE make -C/root/Toolchain
     docker exec -it $NOMBRE make -C/root/
+    
+    # Linkear en formato ELF para GDB
+    docker exec -it $NOMBRE objcopy -O binary /root/kernel.elf /root/kernel.bin
+    docker exec -it $NOMBRE objcopy -O binary /root/sampleCodeModule.elf /root/sampleCodeModule.bin
+
     docker stop $NOMBRE
 }
 
@@ -41,15 +46,29 @@ run() {
     # Set FLAG based on the input argument for debug mode
     FLAG=""
     [[ "$1" = "-d" ]] && FLAG="-s -S"
+    
     # Set common qemu options
     QEMU_CMD="qemu-system-x86_64 $FLAG -hda Image/x64BareBonesImage.qcow2 -m 512"
+    
     if [[ "$(uname)" == "Linux" ]]; then
         # Linux specific execution
-        sudo $QEMU_CMD
+        sudo $QEMU_CMD &
     else
         # macOS specific execution
         export AUDIO_DRIVER="coreaudio"
-        $QEMU_CMD -audiodev $AUDIO_DRIVER,id=audio0 -machine pcspk-audiodev=audio0
+        $QEMU_CMD -audiodev $AUDIO_DRIVER,id=audio0 -machine pcspk-audiodev=audio0 &
+    fi
+
+    # If in debug mode, launch gdb automatically
+    if [[ "$1" = "-d" ]]; then
+        sleep 2  # Give QEMU time to start and wait for GDB connection
+
+        # Launch GDB and connect to QEMU
+        gdb -ex "target remote localhost:1234" \
+            -ex "add-symbol-file /root/kernel.elf 0x100000" \
+            -ex "add-symbol-file /root/sampleCodeModule.elf 0x400000" \
+            -ex "break main" \
+            -ex "continue"
     fi
 }
 
@@ -94,13 +113,13 @@ else
             show_output "warning"
             ;;
         -r)
-            compile &> /dev/null || { echo "${RED}Compilation failed!${RESET}"; exit 1; }
+            compile 
             echo -e "${YELLOW}Running project...${RESET}"
             run
             ;;
         -d)
-            compile &> /dev/null || { echo "${RED}Compilation failed!${RESET}"; exit 1; }
-            echo -e "${YELLOW}Running debug mode...${RESET}"
+            compile 
+            echo -e "${YELLOW}Running in debug mode...${RESET}"
             run "-d"
             ;;
         *)
@@ -110,4 +129,5 @@ else
     esac
 fi
 
-find . -name "*.o$" -type f -delete
+# Delete .o files:
+find . -name "*.o" -type f -delete

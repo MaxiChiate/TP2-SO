@@ -1,5 +1,6 @@
 #include <Testing/syscall.h>
 #include <Testing/test_util.h>
+#include <Testing/tests.h>
 
 #include <stdint.h>
 

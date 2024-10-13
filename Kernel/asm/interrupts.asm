@@ -133,24 +133,19 @@ picSlaveMask:
 
 ;8254 Timer (Timer Tick) / Also schedule
 _irq00Handler:
-
 	pushState
 
-	mov rdi, 0 ; pasaje de parametro 
+	mov rdi, 0 ; pasaje de parametro
+	mov rsi, rsp
 	call irqDispatcher
-
-	mov rdi, rsp
-	call schedule	; antes del EOI, no hay que desactivar el timer tick
- 	mov rsp, rax
+	mov rsp, rax
 
 	; signal pic EOI (End of Interrupt)
 	mov al, 20h
 	out 20h, al
 
 	popState
-
 	iretq
-
 ;Keyboard
 _irq01Handler:
 	irqHandlerMaster 1

@@ -2,6 +2,8 @@
 #define _PROCESSLIB_H
 
     #include <bool.h>
+    #include <stdint.h>
+    
     #define PROCESS_NAME_LENGTH 10
 
     typedef struct  {

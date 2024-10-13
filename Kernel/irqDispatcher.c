@@ -9,31 +9,15 @@
 #include <process_management.h>
 
 
-#define TIMERTICK_INTERRUPTION_MESSAGE "Tick numero: "
 
-static void int_21();
-static void int_20();
+uint64_t irqDispatcher(uint64_t irq, uint64_t rsp) {
+	
+    switch (irq)    {
 
-typedef void (*int_xx)(void);
-
-static int_xx interruptions[2] = {&int_20, &int_21};
-
-
-void irqDispatcher(uint64_t irq) {
-	interruptions[irq]();
-}
-
-
-void int_20() {
-	timer_handler();
-}
-
-
-void int_21() {
-    
-    char key=map(keyboard_handler());
-    
-    putChar(key);
+        case 0: return timer_handler(rsp); 
+        case 1: putChar(map(keyboard_handler())); return 0;
+        default: return -1;
+    }
 }
 
 // Syscalls:

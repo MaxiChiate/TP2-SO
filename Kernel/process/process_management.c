@@ -39,7 +39,7 @@ typedef struct pcb {
 
 static pcb_t pcbs[PROCESS_AMOUNT];
 static uint64_t stacks[PROCESS_AMOUNT][STACK_SPACE];
-static bool scheduler_on = false;
+bool scheduler_on = false;
 
 /*-------------------------------------------------------------------------------------------------------*/
 static unsigned int current_process = 0;
@@ -210,6 +210,11 @@ void waitpid(unsigned int pid) {
 
         give_up_cpu();
     }
+}
+
+bool get_scheduler_status() {
+    
+    return scheduler_on;
 }
 
 
