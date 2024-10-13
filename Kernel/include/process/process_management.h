@@ -44,7 +44,7 @@ uint64_t schedule(uint64_t current_stack_pointer);
 /*
  *  New process, with parent. @return: pid of new process.
  */
-uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground);
+int64_t create_process(int64_t parent_pid, uint64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground);
 
 /*
  *  Kills a process according to its stack pointer.
@@ -54,12 +54,12 @@ bool kill_process_by_sp(uint64_t sp_to_delete);
 /*
  *  Kills a process according to its pid
  */
-bool kill_process_by_pid(uint64_t pid);
+bool kill_process_by_pid(int64_t pid);
 
 /*
  *  Return pid of current process.
  */
-uint64_t get_current_pid();
+int64_t get_current_pid();
 
 /*
  * Current process gives up the cpu.
@@ -69,17 +69,17 @@ void give_up_cpu();
 /*
  * Blocks a process
  */
-bool block_process(uint64_t pid);
+bool block_process(int64_t pid);
 
 /*
  * Unblocks a process
  */
-bool unblock_process(uint64_t pid);
+bool unblock_process(int64_t pid);
 
 /*
  *  Changess a process' priority
  */
-bool change_process_priority(uint64_t pid, int prio);
+bool change_process_priority(int64_t pid, int prio);
 
 /*
  * Waits for a process to finish
@@ -89,7 +89,7 @@ void wait();
 /*
  * Waits for the process whose id is pid to finish
  */
-void waitpid(unsigned int pid);
+void waitpid(int64_t pid);
 
 
 ps_t * get_ps();

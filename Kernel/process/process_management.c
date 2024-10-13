@@ -24,12 +24,11 @@ typedef struct pcb {
     uint64_t code_segment;
     uint64_t instruction_pointer;
     
-    uint64_t process_id;
-    uint64_t parent_process_id;
+    int64_t process_id;
+    int64_t parent_process_id;
     process_state_t state;
     bool foreground;
 
-    unsigned long canary;
     unsigned int quantum;
     unsigned int priority;
 
@@ -43,7 +42,7 @@ bool scheduler_on = false;
 
 /*-------------------------------------------------------------------------------------------------------*/
 static unsigned int current_process = 0;
-static uint64_t process_id_counter = INITIAL_PROCESS_ID;
+static int64_t process_id_counter = INITIAL_PROCESS_ID;
 static unsigned int current_amount_process = 0;
 static unsigned int started_at = 0;
 
@@ -73,7 +72,7 @@ static void refresh_stackcontext_from_pcb(unsigned int p);
 int static new_process(uint64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground);
 
 static int get_index_by_sp(uint64_t sp);
-static int get_index_by_pid(uint64_t pid);
+static int get_index_by_pid(int64_t pid);
 
 static bool kill_process(int p);
 static ps_t process_status(int p);
@@ -114,7 +113,7 @@ uint64_t schedule(uint64_t current_stack_pointer) {
 
 
 
-uint64_t create_process(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground) {
+int64_t create_process(int64_t parent_pid, uint64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground) {
 
     if(current_amount_process == PROCESS_AMOUNT) return -1;
     
@@ -132,14 +131,14 @@ bool kill_process_by_sp(uint64_t sp_to_delete)  {
 
 
 
-bool kill_process_by_pid(uint64_t pid)   {
+bool kill_process_by_pid(int64_t pid)   {
     
     return kill_process(get_index_by_pid(pid));
 }
 
 
 
-uint64_t get_current_pid()  {
+int64_t get_current_pid()  {
 
     return current_amount_process == 0 ? -1 : pcbs[current_process].process_id;
 }
@@ -153,19 +152,19 @@ void give_up_cpu()  {
 
 
 
-bool block_process(uint64_t pid)    {
+bool block_process(int64_t pid)    {
     
     return block_process_by_index(get_index_by_pid(pid));
 }
 
 
-bool unblock_process(uint64_t pid)    {
+bool unblock_process(int64_t pid)    {
     
     return unblock_process_by_index(get_index_by_pid(pid));
 }
 
 
-bool change_process_priority(uint64_t pid, int prio)  {
+bool change_process_priority(int64_t pid, int prio)  {
 
     int index = get_index_by_pid(pid);
 
@@ -200,7 +199,7 @@ void wait()     {
 
 
 // Espera a que el proceso de process id = pid tenga estado TERMINATED
-void waitpid(unsigned int pid) {
+void waitpid(int64_t pid) {
 
     if (!IN_RANGE(pid)) return;
     
@@ -358,47 +357,36 @@ static unsigned int get_quantum(unsigned int priority)    {
 
 static void refresh_pcb_from_stackcontext(unsigned int p)   {
 
-    uint64_t * stack= (uint64_t *) BEGINNIN_PROCESS_ADDRESS(p);
     int i=STACK_SPACE;
     
-        if(stack[--i] != pcbs[p].canary || stack[0] != pcbs[p].canary)  {
+        pcbs[p].align = stacks[p][--i];     
+        pcbs[p].stack_segment = stacks[p][--i];
+        pcbs[p].stack_pointer = stacks[p][--i];   
+        pcbs[p].register_flags = stacks[p][--i];
+        pcbs[p].code_segment = stacks[p][--i];
+        pcbs[p].instruction_pointer = stacks[p][--i];
 
-            killOS();
-        }
+        pcbs[p].base_pointer = stacks[p][i - 5];
 
-        pcbs[p].align = stack[--i];     
-        pcbs[p].stack_segment = stack[--i];
-        pcbs[p].stack_pointer = stack[--i];   
-        pcbs[p].register_flags = stack[--i];
-        pcbs[p].code_segment = stack[--i];
-        pcbs[p].instruction_pointer = stack[--i];
-
-        pcbs[p].base_pointer = stack[i - 5];
-
-        pcbs[p].argc = (int)    stack[i - 6];
-        pcbs[p].argv = (char**) stack[i - 7];
+        pcbs[p].argc = (int)    stacks[p][i - 6];
+        pcbs[p].argv = (char**) stacks[p][i - 7];
 }
 
 static void refresh_stackcontext_from_pcb(unsigned int p)   {
 
-        uint64_t * stack = (uint64_t *) BEGINNIN_PROCESS_ADDRESS(p);
         int i=STACK_SPACE;
 
-        stack[--i] = pcbs[p].canary;
+        stacks[p][--i] = pcbs[p].align;
+        stacks[p][--i] = pcbs[p].stack_segment;
+        stacks[p][--i] = pcbs[p].stack_pointer;
+        stacks[p][--i] = pcbs[p].register_flags;
+        stacks[p][--i] = pcbs[p].code_segment;
+        stacks[p][--i] = pcbs[p].instruction_pointer;
 
-        stack[--i] = pcbs[p].align;
-        stack[--i] = pcbs[p].stack_segment;
-        stack[--i] = pcbs[p].stack_pointer;
-        stack[--i] = pcbs[p].register_flags;
-        stack[--i] = pcbs[p].code_segment;
-        stack[--i] = pcbs[p].instruction_pointer;
+        stacks[p][i - 5] = pcbs[p].base_pointer;
 
-        stack[i - 5] = pcbs[p].base_pointer;
-
-        stack[i - 6] = (uint64_t) pcbs[p].argc;
-        stack[i - 7] = (uint64_t) pcbs[p].argv;
-
-        stack[0] = pcbs[p].canary;
+        stacks[p][i - 6] = (uint64_t) pcbs[p].argc;
+        stacks[p][i - 7] = (uint64_t) pcbs[p].argv;
 }
 
 static int new_process(uint64_t function_address, int argc, char ** argv, unsigned int priority, bool foreground)  {
@@ -429,8 +417,6 @@ static int new_process(uint64_t function_address, int argc, char ** argv, unsign
         .state = READY,
         .foreground = foreground,
         
-        .canary = rand(),
-
         .quantum = get_quantum(priority),
         .priority = priority
     };
@@ -457,7 +443,7 @@ static int get_index_by_sp(uint64_t sp) {
     return -1;
 }
 
-static int get_index_by_pid(uint64_t pid)   {
+static int get_index_by_pid(int64_t pid)   {
 
     for(int i=0; i<PROCESS_AMOUNT; i++) {
 
