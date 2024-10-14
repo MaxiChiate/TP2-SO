@@ -151,6 +151,12 @@ void give_up_cpu()  {
     _force_timertick_int();
 }
 
+void exit_current_process() {
+
+    kill_process(current_process);
+    give_up_cpu();
+}
+
 
 
 bool block_process(int64_t pid)    {

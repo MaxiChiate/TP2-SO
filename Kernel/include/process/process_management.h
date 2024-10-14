@@ -97,4 +97,8 @@ void waitpid(int64_t pid);
 
 ps_t * get_ps();
 
+
+
+void exit_current_process();
+
 #endif //__process__management
