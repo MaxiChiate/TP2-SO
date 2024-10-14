@@ -20,7 +20,7 @@ void test_prio() {
   uint64_t i;
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    pids[i] = spawn_process(current_pid(), (uint64_t) &endless_loop_print, 1, argv, 1, true);
+    pids[i] = run_process((uint64_t) &endless_loop_print, 1, argv, 1, true);
 
   bussy_wait(WAIT);
   print("\nCHANGING PRIORITIES...\n");

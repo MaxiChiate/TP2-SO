@@ -118,12 +118,12 @@ uint64_t schedule(uint64_t current_stack_pointer) {
 
 
 
-int64_t create_process(int64_t parent_pid, uint64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground) {
+int64_t create_process(uint64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground) {
 
     if(current_amount_process == PROCESS_AMOUNT) return -1;
     
     int new_process_index = new_process(function_address, argc, argv, priority, foreground);
-    pcbs[new_process_index].parent_process_id = parent_pid;
+    pcbs[new_process_index].parent_process_id = get_current_pid();
     return pcbs[new_process_index].process_id;
 }
 

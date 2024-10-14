@@ -91,7 +91,7 @@ void int_80(int id, unsigned int rbx,  char * rcx, unsigned int rdx, char rsi, u
             break;
         }
         case CREATE_PROCESS:    {
-            create_process((uint64_t) rbx, r8, rdx, r9, rdi, (bool) rsi);
+            create_process(r8, rdx, r9, rdi, (bool) rsi);
             break;
         }
 		default: {

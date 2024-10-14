@@ -16,24 +16,18 @@ spawn_process:
     push rbp
     mov  rbp, rsp
 
-    push rbx
-
-    push r9
     push r8
 
-    mov rbx, rdi 
-    mov r8, rsi
-    ;mov rdx, rdx
-    mov r9, rcx
+    mov r8, rdi
+    mov rdx, rsi
+    mov r9, rdx
 
-    pop rdi ; rdi <- r8
-    pop rsi ; rsi <- r9
+    mov rdi, rcx
+    pop rsi ; rsi <- r8
     
     mov rax, 0xB1
     
     int 0x80
-
-    pop rbx
 
     mov rsp, rbp
     pop rbp

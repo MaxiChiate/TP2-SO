@@ -47,7 +47,7 @@ uint64_t schedule(uint64_t current_stack_pointer);
 /*
  *  New process, with parent. @return: pid of new process.
  */
-int64_t create_process(int64_t parent_pid, uint64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground);
+int64_t create_process(uint64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground);
 
 /*
  *  Kills a process according to its stack pointer.
