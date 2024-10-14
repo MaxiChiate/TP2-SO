@@ -46,6 +46,7 @@ static unsigned int current_amount_process = 0;
 static unsigned int started_at = 0;
 static bool scheduler_on = false;
 static bool initializing = false;
+static bool force_next = false;
 /*-------------------------------------------------------------------------------------------------------*/
 
 static bool can_change_state(process_state_t old, process_state_t new);
@@ -108,8 +109,9 @@ uint64_t schedule(uint64_t current_stack_pointer) {
 
     initializing ? (initializing = false) : update_pcb(current_process, current_stack_pointer); 
 
-    if(alarmAtTicks(pcbs[current_process].quantum + started_at))   {
+    if(force_next || alarmAtTicks(pcbs[current_process].quantum + started_at))   {
         
+        force_next = false;
         next_process();
     }
     
@@ -152,7 +154,7 @@ int64_t get_current_pid()  {
 
 void give_up_cpu()  {
 
-    next_process();
+    force_next = true;
     _force_timertick_int();
 }
 
@@ -456,6 +458,6 @@ static int get_index_by_pid(int64_t pid)   {
 }
 
 static bool kill_process(int p) {
-
-    return IN_RANGE(p) ? terminate_process_by_index(p) : false;
+    
+    return IN_RANGE(p) && terminate_process_by_index(p);
 }
