@@ -9,7 +9,6 @@ GLOBAL time_getter
 GLOBAL rand
 GLOBAL invalidOpcode
 GLOBAL _hlt
-GLOBAL _force_timertick_int
 
 extern strLength
 
@@ -195,6 +194,4 @@ _hlt:
 	hlt
 	ret
 
-_force_timertick_int:
-	int 0x20
-	ret
+    

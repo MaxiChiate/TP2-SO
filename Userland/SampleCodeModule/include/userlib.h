@@ -34,8 +34,6 @@
 
     void _hlt();
 
-    void _force_timertick_int();
-
 //  Strings:
 
     unsigned int strLength(const char * str);

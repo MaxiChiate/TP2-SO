@@ -153,6 +153,7 @@ int64_t get_current_pid()  {
 void give_up_cpu()  {
 
     next_process();
+    _force_timertick_int();
 }
 
 void exit_current_process() {
