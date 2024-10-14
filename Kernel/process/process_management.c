@@ -186,7 +186,7 @@ bool change_process_priority(int64_t pid, int prio)  {
 
     int index = get_index_by_pid(pid);
 
-    if(prio > 0 && prio < QUANTUM_AMOUNT)     {
+    if(prio >= 0 && prio < QUANTUM_AMOUNT)     {
 
         pcbs[index].quantum = get_quantum(prio);
         return true;
@@ -278,17 +278,33 @@ static ps_t process_status(int p)   {
     return to_return;
 }
 
-//Based on: Tanenbaum, Modern Operating Systems 4e, 2015 Prentice-Hall. Figure 2-2.
+/*  Original version. Based on: Tanenbaum, Modern Operating Systems 4e, 2015 Prentice-Hall. Figure 2-2.
 
 static bool can_change_state(process_state_t old, process_state_t new)  {
 
     switch (old)    {
         
-        case RUNNING:       return new != RUNNING;
+        case RUNNING:       return new != RUNNING ;
         
         case BLOCKED:       return new == READY;
 
         case READY:         return new == RUNNING;
+
+        default:        return false;
+    }   
+}*/
+
+
+/* Version to test:*/
+static bool can_change_state(process_state_t old, process_state_t new)  {
+
+    switch (old)    {
+        
+        case RUNNING:       return new != RUNNING ;
+        
+        case BLOCKED:       return (new == READY) || (new == TERMINATED);
+
+        case READY:         return new != READY;
 
         default:        return false;
     }   

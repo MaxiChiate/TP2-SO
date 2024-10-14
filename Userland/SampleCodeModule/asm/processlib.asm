@@ -51,10 +51,9 @@ kill:
 
     push rbx
 
+    mov rax, 0xB1
     mov rbx, rdi 
 
-    mov rax, 0xB1
-    
     int 0x80
 
     pop rbx
@@ -104,6 +103,7 @@ blockp:
     push rbx
 
     mov rax, 0xB6
+    mov rbx, rdi
     
     int 0x80
 
@@ -120,6 +120,7 @@ unblockp:
     push rbx
 
     mov rax, 0xB7
+    mov rbx, rdi    
     
     int 0x80
 
