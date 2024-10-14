@@ -3,10 +3,10 @@ include ../Makefile.inc
 MODULE=0000-sampleCodeModule.bin
 
 # Include paths for the compiler
-INCLUDE_PATHS = -I./include -I./include/Testing
+INCLUDE_PATHS = -I./include #-I./include/Testing
 
 # Manually specify subdirectories for source files
-SOURCES = $(wildcard *.c) $(wildcard Testing/*.c)
+SOURCES = $(wildcard *.c) #$(wildcard Testing/*.c)
 SOURCES_ASM = $(wildcard asm/*.asm)
 
 # Convert source files to object files

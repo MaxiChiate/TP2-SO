@@ -3,7 +3,7 @@
 //TODO: Releer todo y ver si compila. Habiendo configurado GDB.
 
 #define BEGINNIN_PROCESS_ADDRESS(process_index) ((uint64_t) stacks + (process_index + 1) * STACK_SPACE)
-#define IN_RANGE(i) ((i) > 0 && (i) < PROCESS_AMOUNT)
+#define IN_RANGE(i) ((i) >= 0 && (i) < PROCESS_AMOUNT)
 #define VALID_FD(fd) ((fd) >= 0 || (fd) < MAX_FDS)
 
 // Complete with ticks as quantum, each position represents the priority status.
@@ -219,8 +219,8 @@ void wait()     {
 // Espera a que el proceso de process id = pid tenga estado TERMINATED
 void waitpid(int64_t pid) {
 
-    if (!IN_RANGE(pid)) return;
-    
+    if(pid == -1)   return;
+
     int process_index = get_index_by_pid(pid);
 
     while(is_alive(process_index))  {

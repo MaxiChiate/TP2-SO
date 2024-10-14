@@ -1,4 +1,5 @@
-#include <Testing/syscall.h>
+// #include <Testing/syscall.h>
+#include <syscall.h>
 
 uint32_t GetUint();
 uint32_t GetUniform(uint32_t max);
