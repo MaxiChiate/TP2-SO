@@ -148,6 +148,7 @@ int64_t get_current_pid()  {
 void give_up_cpu()  {
 
     next_process();
+    _force_timertick_int();
 }
 
 
@@ -413,7 +414,7 @@ static int new_process(uint64_t function_address, int argc, char ** argv, unsign
 
     load_stackcontext_from_pcb(new_process_index);
 
-    pcbs[new_process_index].stack_pointer = &stacks[new_process_index][STACK_SPACE-STATE_PUSHED_SIZE-CONTEXT_PUSHED_SIZE];
+    pcbs[new_process_index].stack_pointer = (uint64_t) &stacks[new_process_index][STACK_SPACE-STATE_PUSHED_SIZE-CONTEXT_PUSHED_SIZE];
     pcbs[new_process_index].state = READY;
 
     return new_process_index;
