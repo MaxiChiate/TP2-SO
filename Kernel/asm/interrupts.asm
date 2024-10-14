@@ -15,6 +15,8 @@ GLOBAL _irq60Handler
 GLOBAL _exception0Handler
 GLOBAL _exception6Handler
 
+GLOBAL _force_timertick_int
+
 EXTERN schedule
 EXTERN irqDispatcher
 EXTERN int_80
@@ -249,6 +251,10 @@ _exception0Handler:
 _exception6Handler:
     exceptionHandler 6
 
+
+_force_timertick_int:
+	int 0x20
+	ret
 
 SECTION .rodata
     userland equ 0x400000

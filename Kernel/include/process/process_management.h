@@ -6,6 +6,7 @@
 #include <time.h>
 #include <memory_manager.h>
 #include <systemCalls.h>
+#include <interrupts.h>
 
 #define K 1024
 #define STACK_SPACE 4*K
@@ -19,6 +20,8 @@
 #define GLOBAL_CS       0x8
 
 #define INITIAL_ALIGN   0x0
+
+#define STACK_WIDTH 8
 
 #define DEFAULT_PARENT_PID 0
 #define INITIAL_PROCESS_ID 1

@@ -19,6 +19,8 @@ void _irq04Handler(void);
 void _irq05Handler(void);
 void _irq60Handler(void);
 
+void _force_timertick_int(void);
+
 void _exception0Handler(void);
 void _exception6Handler(void);
 

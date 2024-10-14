@@ -2,7 +2,7 @@
 
 //TODO: Releer todo y ver si compila. Habiendo configurado GDB.
 
-#define BEGINNIN_PROCESS_ADDRESS(process_index) ((uint64_t) stacks + (process_index + 1) * STACK_SPACE - 1)
+#define BEGINNIN_PROCESS_ADDRESS(process_index) ((uint64_t) stacks + (process_index + 1) * STACK_SPACE)
 #define IN_RANGE(i) ((i) > 0 && (i) < PROCESS_AMOUNT)
 #define VALID_FD(fd) ((fd) >= 0 || (fd) < MAX_FDS)
 
@@ -66,8 +66,8 @@ static void next_process();
     
 static unsigned int get_quantum(unsigned int priority);
 
-static void refresh_pcb_from_stackcontext(unsigned int p);
-static void refresh_stackcontext_from_pcb(unsigned int p);
+static void update_pcb(unsigned int p, uint64_t new_sp);
+static void load_stackcontext_from_pcb(unsigned int p);
 
 int static new_process(uint64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground);
 
@@ -88,9 +88,9 @@ void scheduler_init(uint64_t init_address, int argc, char * argv[])   {
         pcbs[i].state = TERMINATED;
     }
 
+    current_process = new_process(init_address, argc, argv, QUANTUM_AMOUNT-1, true);
     scheduler_on = true;
-
-    new_process(init_address, argc, argv, QUANTUM_AMOUNT-1, true);
+    _force_timertick_int();
 }
 
 
@@ -101,7 +101,7 @@ uint64_t schedule(uint64_t current_stack_pointer) {
 
     if(current_amount_process == 0) return -1;
 
-    refresh_pcb_from_stackcontext(current_process);
+    update_pcb(current_process, current_stack_pointer);
 
     if(alarmAtTicks(pcbs[current_process].quantum + started_at))   {
         
@@ -355,27 +355,15 @@ static unsigned int get_quantum(unsigned int priority)    {
     return quantum[priority % QUANTUM_AMOUNT];
 }
 
-static void refresh_pcb_from_stackcontext(unsigned int p)   {
+static void update_pcb(unsigned int p, uint64_t new_sp)   {
 
-    int i=STACK_SPACE;
-    
-        pcbs[p].align = stacks[p][--i];     
-        pcbs[p].stack_segment = stacks[p][--i];
-        pcbs[p].stack_pointer = stacks[p][--i];   
-        pcbs[p].register_flags = stacks[p][--i];
-        pcbs[p].code_segment = stacks[p][--i];
-        pcbs[p].instruction_pointer = stacks[p][--i];
-
-        pcbs[p].base_pointer = stacks[p][i - 5];
-
-        pcbs[p].argc = (int)    stacks[p][i - 6];
-        pcbs[p].argv = (char**) stacks[p][i - 7];
+        pcbs[p].stack_pointer = new_sp;   
 }
 
-static void refresh_stackcontext_from_pcb(unsigned int p)   {
+static void load_stackcontext_from_pcb(unsigned int p)   {
 
         int i=STACK_SPACE;
-
+        
         stacks[p][--i] = pcbs[p].align;
         stacks[p][--i] = pcbs[p].stack_segment;
         stacks[p][--i] = pcbs[p].stack_pointer;
@@ -403,8 +391,8 @@ static int new_process(uint64_t function_address, int argc, char ** argv, unsign
 
         .align = INITIAL_ALIGN,
         .stack_segment = GLOBAL_SS,
-        .stack_pointer =  BEGINNIN_PROCESS_ADDRESS(new_process_index) - STATE_PUSHED_SIZE - CONTEXT_PUSHED_SIZE+1,
-        .base_pointer  =  BEGINNIN_PROCESS_ADDRESS(new_process_index),
+        .stack_pointer =  (uint64_t) &stacks[new_process_index][STACK_SPACE],
+        .base_pointer  =  (uint64_t) &stacks[new_process_index][STACK_SPACE],
         .register_flags = GLOBAL_RFLAGS,
         .code_segment = GLOBAL_CS,
         .instruction_pointer = function_address,
@@ -414,7 +402,7 @@ static int new_process(uint64_t function_address, int argc, char ** argv, unsign
 
         .process_id = process_id_counter++,
         .parent_process_id = DEFAULT_PARENT_PID,
-        .state = READY,
+        .state = TERMINATED, // Not ready yet
         .foreground = foreground,
         
         .quantum = get_quantum(priority),
@@ -423,7 +411,10 @@ static int new_process(uint64_t function_address, int argc, char ** argv, unsign
 
     pcbs[new_process_index] = new_pcb;
 
-    refresh_stackcontext_from_pcb(new_process_index);
+    load_stackcontext_from_pcb(new_process_index);
+
+    pcbs[new_process_index].stack_pointer = &stacks[new_process_index][STACK_SPACE-STATE_PUSHED_SIZE-CONTEXT_PUSHED_SIZE];
+    pcbs[new_process_index].state = READY;
 
     return new_process_index;
 }
