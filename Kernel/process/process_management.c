@@ -219,13 +219,14 @@ void wait()     {
 // Espera a que el proceso de process id = pid tenga estado TERMINATED
 void waitpid(int64_t pid) {
 
-    if(pid == -1)   return;
-
     int process_index = get_index_by_pid(pid);
 
-    while(is_alive(process_index))  {
+    if(process_index >= 0)   {
+     
+        while(is_alive(process_index))  {
 
-        give_up_cpu();
+            give_up_cpu();
+        }
     }
 }
 
@@ -458,7 +459,7 @@ static int get_index_by_sp(uint64_t sp) {
 
     for(int i=0; i<PROCESS_AMOUNT; i++) {
 
-        if(not_alive(i) && pcbs[i].stack_pointer == sp) {
+        if(is_alive(i) && pcbs[i].stack_pointer == sp) {
     
             return i;
         }
@@ -470,7 +471,7 @@ static int get_index_by_pid(int64_t pid)   {
 
     for(int i=0; i<PROCESS_AMOUNT; i++) {
 
-        if(not_alive(i) && pcbs[i].process_id == pid) {
+        if(is_alive(i) && pcbs[i].process_id == pid) {
     
             return i;
         }

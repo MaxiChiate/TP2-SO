@@ -157,7 +157,8 @@ waitpid:
 
     push rbx
     
-    mov rax, 0xBA    
+    mov rax, 0xBA
+    mov rbx, rdi    
     int 0x80
 
     pop rbx
