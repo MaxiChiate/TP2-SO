@@ -57,10 +57,13 @@ static bool run_process_by_index(int p);
 static void chronometer();
 
 static bool is_blocked(int p);
+static bool not_blocked(int p);
 static bool is_alive(int p);
 static bool not_alive(int p);
 static bool is_ready(int p);
 static bool not_ready(int p);
+static bool is_running(int p);
+static bool not_running(int p);
 
 static bool not_alive(int p);
 
@@ -95,6 +98,7 @@ void scheduler_init(uint64_t init_address, int argc, char * argv[])   {
         current_process = new_process(init_address, argc, argv, QUANTUM_AMOUNT-1, true);
         scheduler_on = true;
         initializing = true;
+        force_next = true;
         _force_timertick_int();
     }
 }
@@ -325,6 +329,21 @@ static inline bool is_blocked(int p)    {
     return pcbs[p].state == BLOCKED;
 }
 
+static inline bool not_blocked(int p)   {
+
+    return !is_blocked(p);
+}
+
+static inline bool is_running(int p)    {
+
+    return pcbs[p].state == RUNNING;
+}
+
+static inline bool not_running(int p)   {
+
+    return !is_running(p);
+}
+
 static inline void chronometer() {
 
     started_at = ticks_elapsed();
@@ -353,6 +372,8 @@ static inline bool not_ready(int p) {
 static void next_process()   {
     
     if(current_amount_process > 0)  {
+
+        if(is_running(current_process)) unblock_process_by_index(current_process); // set ready
 
         do  {
             

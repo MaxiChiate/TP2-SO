@@ -68,7 +68,7 @@ int main() {
 
 	int argc = 1;
 	char * argv[2] = {"shell", NULL};
-	scheduler_init((uint64_t) sampleCodeModuleAddress, argc, argv);
+	scheduler_init((int64_t) sampleCodeModuleAddress, argc, argv);
 
 	return 0;
 }

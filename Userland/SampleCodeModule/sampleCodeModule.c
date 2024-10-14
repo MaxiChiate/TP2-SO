@@ -4,9 +4,10 @@
 #include <Testing/test_util.h>
 #include <Testing/tests.h>
 
+
 int main() {
 
-    waitpid(run_process((uint64_t) &test_processes, 0, NULL, 1, true));
+    waitpid(run_process(test_processes, 0, NULL, 1, true));
     // run_process(current_pid(), &test_prio, 0, NULL, 1, true);
 
 
