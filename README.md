@@ -14,4 +14,6 @@ Run the script with the following flags:
 
 ## Problems
 
-If there is any problem while running `mk_file.sh`, try: `./solve mk_file.sh` or `sed -i -e 's/\r$//' mk_file.sh`
+Errors of a corrupted `mk_file.sh`, try: `./solve mk_file.sh` or `sed -i -e 's/\r$//' mk_file.sh`
+
+Errors while running like: "qemu-system-x86_64: -hda Image/x64BareBonesImage.qcow2: Could not open 'Image/x64BareBonesImage.qcow2': No such file or directory" will probably be fixed doing `make clean` and running again.
