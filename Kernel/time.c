@@ -20,6 +20,20 @@ int seconds_elapsed() {
 int alarmAt(int at)	{
 	return seconds_elapsed() % at == 0 && ticks % 19 == 0 && seconds_elapsed()!=0 ; 
 }
+
 int alarmAtTicks(int at){
     return ticks%at==0;
+}
+
+unsigned long ms_elapsed() {
+	return ticks * 55;
+}
+
+void sleep(unsigned long ms) {
+	unsigned long  intial_time = ms_elapsed();
+	unsigned long  currentTime = intial_time;
+    while (currentTime - intial_time <= ms) {
+		currentTime = ms_elapsed();
+		_hlt();
+    }
 }

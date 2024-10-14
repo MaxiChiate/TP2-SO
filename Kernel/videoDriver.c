@@ -225,6 +225,38 @@ void scroll();
 void drawCharWithoutDisplacement(unsigned char c,int fgcolor, int bgcolor){
     render(font8x8_basic[c],fgcolor, bgcolor, ((currentPosition / VBE_mode_info->width) * charSize), currentPosition, charSize );
 }
+
+static int strlen(char * str) {
+    int len = 0;
+    while(str[len++] != '\0');
+    return len;
+}
+
+
+static void SO(char * word) {
+    int charSize = OS_CHARSIZE;
+    int xpos = (WIDTH - (charSize * strlen(word))) / 2;
+    for (int i = 0; word[i] != '\0'; i++) {
+        unsigned char c = word[i];
+        render(font8x8_basic[c], WHITE, BLACK, HEIGHT/2 - OFFSET, xpos += charSize, charSize);
+    }
+}
+
+static void load(char * word) {
+   int charSize = LOADING_CHARSIZE;
+    int xpos = (WIDTH - (charSize * strlen(word))) / 2;
+    for (int i = 0; word[i] != '\0'; i++) {
+        unsigned char c = word[i];
+        render(font8x8_basic[c], WHITE, BLACK, HEIGHT/2 + OFFSET, xpos += charSize, charSize);
+    } 
+}
+
+void welcome() {
+    SO(OS_NAME);
+    load(LOAD_MESSAGE);
+}
+
+
 void deleteSlash(){
     drawCharWithoutDisplacement('\0',BLACK, BLACK);
 }

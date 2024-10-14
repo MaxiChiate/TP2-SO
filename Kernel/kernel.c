@@ -6,6 +6,7 @@
 #include <stringPrinter.h>
 #include <buffer.h>
 #include <colours.h>
+#include <time.h>
 #include <process/process_management.h>
 #include <memory_manager.h>
 
@@ -65,6 +66,11 @@ int main() {
 	//mm_init(memoryHeapAddress, HEAP_SIZE); Possible issues
 
 	load_idt();
+
+	/* Uncomment to unlock full potential */
+	// welcome();
+	// sleep(2000);
+	// refillScreen();
 
 	int argc = 1;
 	char * argv[2] = {"shell", NULL};

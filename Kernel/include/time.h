@@ -11,5 +11,6 @@ int alarmAt(int at);
 int alarmAtDecimal(double at);
 int alarmAtTicks(int at);
 void waitTime(double at);
+void sleep(unsigned long ms);
 
 #endif
