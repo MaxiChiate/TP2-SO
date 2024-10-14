@@ -5,7 +5,7 @@
 int64_t run_process(int64_t parent_pid, int64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground)   {
 
     int64_t child_pid = spawn_process(parent_pid, function_address, argc, argv, priority, foreground);
-    giveup_cpu();
+    _force_timertick_int();
     return child_pid;
 }
 
