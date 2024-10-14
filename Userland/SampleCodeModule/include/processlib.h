@@ -3,6 +3,7 @@
 
     #include <bool.h>
     #include <stdint.h>
+    #include <userlib.h>
     
     #define PROCESS_NAME_LENGTH 10
 
@@ -16,7 +17,9 @@
         char name[PROCESS_NAME_LENGTH+1];
     } ps_t;
 
-    uint64_t spawn_process(uint64_t parent_pid, uint64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground);
+    int64_t run_process(int64_t parent_pid, int64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground);
+
+    int64_t spawn_process(int64_t parent_pid, int64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground);
 
     bool kill(uint64_t pid);
 

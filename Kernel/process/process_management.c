@@ -38,14 +38,15 @@ typedef struct pcb {
 
 static pcb_t pcbs[PROCESS_AMOUNT];
 static uint64_t stacks[PROCESS_AMOUNT][STACK_SPACE];
-bool scheduler_on = false;
 
 /*-------------------------------------------------------------------------------------------------------*/
 static unsigned int current_process = 0;
 static int64_t process_id_counter = INITIAL_PROCESS_ID;
 static unsigned int current_amount_process = 0;
 static unsigned int started_at = 0;
-
+static bool scheduler_on = false;
+static bool initializing = false;
+/*-------------------------------------------------------------------------------------------------------*/
 
 static bool can_change_state(process_state_t old, process_state_t new);
 static bool block_process_by_index(int p);
@@ -83,14 +84,18 @@ static ps_t process_status(int p);
 
 void scheduler_init(uint64_t init_address, int argc, char * argv[])   {
 
-    for (int i  = 0; i < PROCESS_AMOUNT; i++) {
+    if(!scheduler_on)   {
+            
+        for (int i  = 0; i < PROCESS_AMOUNT; i++) {
 
-        pcbs[i].state = TERMINATED;
+            pcbs[i].state = TERMINATED;
+        }
+
+        current_process = new_process(init_address, argc, argv, QUANTUM_AMOUNT-1, true);
+        scheduler_on = true;
+        initializing = true;
+        _force_timertick_int();
     }
-
-    current_process = new_process(init_address, argc, argv, QUANTUM_AMOUNT-1, true);
-    scheduler_on = true;
-    _force_timertick_int();
 }
 
 
@@ -101,7 +106,7 @@ uint64_t schedule(uint64_t current_stack_pointer) {
 
     if(current_amount_process == 0) return -1;
 
-    update_pcb(current_process, current_stack_pointer);
+    initializing ? (initializing = false) : update_pcb(current_process, current_stack_pointer); 
 
     if(alarmAtTicks(pcbs[current_process].quantum + started_at))   {
         

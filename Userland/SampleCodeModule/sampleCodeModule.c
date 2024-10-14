@@ -6,8 +6,10 @@
 
 int main() {
 
-    spawn_process(current_pid(), (uint64_t) &test_processes, 0, NULL, 1, true);
-    // spawn_process(current_pid(), &test_prio, 0, NULL, 1, true);
+    int64_t cpid = current_pid();
+
+    run_process(cpid, (uint64_t) &test_processes, 0, NULL, 1, true);
+    // run_process(current_pid(), &test_prio, 0, NULL, 1, true);
 
 
     // char buffer[254] = {'\0'};
