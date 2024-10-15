@@ -1,5 +1,5 @@
 GLOBAL spawn_process
-GLOBAL ps
+; GLOBAL ps
 GLOBAL kill
 GLOBAL current_pid
 GLOBAL nice
@@ -8,6 +8,7 @@ GLOBAL unblockp
 GLOBAL giveup_cpu
 GLOBAL waitp
 GLOBAL waitpid
+GLOBAL suicide 
 
 section .text
 
@@ -32,18 +33,18 @@ spawn_process:
     mov rsp, rbp
     pop rbp
     ret
-ps:
+; ps:
     
-    push rbp
-    mov  rbp, rsp
+;     push rbp
+;     mov  rbp, rsp
     
-    mov rax, 0xB0
+;     mov rax, 0xB0
     
-    int 0x80
+;     int 0x80
 
-    mov rsp, rbp
-    pop rbp
-    ret
+;     mov rsp, rbp
+;     pop rbp
+;     ret
 kill:
 
     push rbp
@@ -167,3 +168,17 @@ waitpid:
     mov rsp, rbp
     pop rbp
     ret
+
+suicide:
+    
+    push rbp
+    mov  rbp, rsp
+
+    mov rax, 0xBB
+    mov rbx, rdi    
+    int 0x80
+
+    mov rsp, rbp
+    pop rbp
+    ret
+    

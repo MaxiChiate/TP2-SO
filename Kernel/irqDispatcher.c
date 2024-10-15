@@ -6,7 +6,7 @@
 #include <systemCalls.h>
 #include <buffer.h>
 #include <stringPrinter.h>
-#include <process_management.h>
+#include <process/process_management.h>
 
 
 
@@ -54,10 +54,10 @@ void int_80(int id, unsigned int rbx,  char * rcx, unsigned int rdx, char rsi, u
             }
 
 
-        case PS_ID: {
-            get_ps();
-            break;
-        }
+        // case PS_ID: {
+        //     get_ps();
+        //     break;
+        // }
         case KILL_PROCESS: {
             kill_process_by_pid((uint64_t)rbx);
             break;
@@ -92,6 +92,11 @@ void int_80(int id, unsigned int rbx,  char * rcx, unsigned int rdx, char rsi, u
         }
         case CREATE_PROCESS:    {
             create_process(r8, rdx, r9, rdi, (bool) rsi);
+            break;
+        }
+        case SUICIDE:   {
+
+            suicide();
             break;
         }
 		default: {

@@ -24,6 +24,7 @@
 #define GIVE_UP_CPU                     0xB8
 #define WAIT                            0xB9
 #define WAIT_PID                        0xBA
+#define SUICIDE                         0xBB
 
 
 

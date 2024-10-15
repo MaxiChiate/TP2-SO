@@ -16,14 +16,22 @@ int64_t test_processes(/*uint64_t argc, char *argv[]*/);
 
 int main() {
 
+    bussy_wait(100000000);
     
+    print("Entrega parcial 2, grupo 2");putnEnters(2);
 
-    // char * testargv[] = {"test_process", "62", NULL};
-    // run_process((int64_t)test_processes, 2, testargv, 1, true);
+    print("test_prio:");putnEnters(2);
 
-    char * testargv[] = {"test_prio", "62", NULL};
-    run_process((int64_t) test_prio, 2, testargv, 1, true);
+    bussy_wait(100000000);
 
+    char * prioargv[] = {"test_prio", "62", NULL};
+    waitpid(run_process((int64_t) test_prio, 2, prioargv, 1, true));
+
+    putnEnters(2);print("\ntest_process:\n");putnEnters(2);
+
+    bussy_wait(100000000);
+    char * testargv[] = {"test_process", "62", NULL};
+    run_process((int64_t)test_processes, 2, testargv, 1, true);
 
     waitp();
 
@@ -49,7 +57,6 @@ typedef struct P_rq {
 
 int64_t test_processes(/*uint64_t argc, char *argv[]*/) {
 
-  print("Starting test_processes\n");
 
   uint8_t rq;
   uint8_t alive = 0;
@@ -182,4 +189,6 @@ void test_prio() {
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
     kill(pids[i]);
+
+  suicide();
 }

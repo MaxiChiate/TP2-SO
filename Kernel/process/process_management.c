@@ -80,7 +80,7 @@ static int get_index_by_sp(uint64_t sp);
 static int get_index_by_pid(int64_t pid);
 
 static bool kill_process(int p);
-static ps_t process_status(int p);
+// static ps_t process_status(int p);
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
@@ -162,7 +162,7 @@ void give_up_cpu()  {
     _force_timertick_int();
 }
 
-void exit_current_process() {
+void suicide() {
 
     kill_process(current_process);
     give_up_cpu();
@@ -235,64 +235,50 @@ bool get_scheduler_status() {
     return scheduler_on;
 }
 
+// TODO
+// ps_t * get_ps() {
 
-ps_t * get_ps() {
-
-    ps_t * to_return = mm_malloc(sizeof(to_return[0]) * current_amount_process+1);
+//     ps_t * to_return = mm_malloc(sizeof(to_return[0]) * current_amount_process+1);
     
-    int k=0;
-    for(int i=0; k<current_amount_process && i<PROCESS_AMOUNT; i++)   {
+//     int k=0;
+//     for(int i=0; k<current_amount_process && i<PROCESS_AMOUNT; i++)   {
         
-        if (is_alive(i)) {
+//         if (is_alive(i)) {
             
-            to_return[k++] = process_status(i);   
-        }
-    }
+//             to_return[k++] = process_status(i);   
+//         }
+//     }
 
-    to_return[k].id = 0;
+//     to_return[k].id = 0;
 
-    return to_return;
-}
+//     return to_return;
+// }
 
 
 
-static ps_t process_status(int p)   {
+// static ps_t process_status(int p)   {
 
-    ps_t to_return = {
-            .bp = pcbs[p].base_pointer,
-            .sp = pcbs[p].stack_pointer,
-            .id = pcbs[p].process_id,
-            .foreground = pcbs[p].foreground,
-            .priority = pcbs[p].priority
-    };
+//     ps_t to_return = {
+//             .bp = pcbs[p].base_pointer,
+//             .sp = pcbs[p].stack_pointer,
+//             .id = pcbs[p].process_id,
+//             .foreground = pcbs[p].foreground,
+//             .priority = pcbs[p].priority
+//     };
 
-    int i;
+//     int i;
 
-    for(i=0; i<PROCESS_NAME_LENGTH&& pcbs[p].argv[0][i]!=0; i++)    {
+//     for(i=0; i<PROCESS_NAME_LENGTH&& pcbs[p].argv[0][i]!=0; i++)    {
 
-        to_return.name[i] = pcbs[p].argv[0][i];
-    }
+//         to_return.name[i] = pcbs[p].argv[0][i];
+//     }
 
-    to_return.name[i] = '\0';
+//     to_return.name[i] = '\0';
 
-    return to_return;
-}
+//     return to_return;
+// }
 
-/*  Original version. Based on: Tanenbaum, Modern Operating Systems 4e, 2015 Prentice-Hall. Figure 2-2.
 
-static bool can_change_state(process_state_t old, process_state_t new)  {
-
-    switch (old)    {
-        
-        case RUNNING:       return new != RUNNING ;
-        
-        case BLOCKED:       return new == READY;
-
-        case READY:         return new == RUNNING;
-
-        default:        return false;
-    }   
-}*/
 
 
 /* Version to test:*/

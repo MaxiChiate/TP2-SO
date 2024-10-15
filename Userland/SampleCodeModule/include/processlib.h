@@ -37,6 +37,8 @@
 
     void waitpid(int64_t pid);
 
-    ps_t * ps();
+    void suicide();
+
+    // ps_t * ps();
 
 #endif // _PROCESSLIB_H
