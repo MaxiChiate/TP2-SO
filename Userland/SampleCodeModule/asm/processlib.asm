@@ -51,7 +51,7 @@ kill:
 
     push rbx
 
-    mov rax, 0xB1
+    mov rax, 0xB3
     mov rbx, rdi 
 
     int 0x80

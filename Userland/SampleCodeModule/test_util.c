@@ -77,13 +77,15 @@ static void iotas(int64_t pid, char *str) {
 }
 
 
-void endless_loop_print(uint64_t wait) {
+#define MINOR_WAIT 99000099  
+
+void endless_loop_print() {
   int64_t pid = current_pid();
   char s[4];
   iotas(pid, s);
   while (1) {
     
     print(s);
-    bussy_wait(wait);
+    bussy_wait(MINOR_WAIT);
   }
 }

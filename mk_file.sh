@@ -21,7 +21,7 @@ container() {
         fi
     else
         # Create a new container if it doesn't exist
-        echo "${YELLOW}Creating a new container $NOMBRE...${RESET}"
+        echo -e "${YELLOW}Creating a new container $NOMBRE...${RESET}"
         sudo docker run --add-host=host.docker.internal:host-gateway -d -v "$PWD":/root --security-opt seccomp:unconfined -ti --name $NOMBRE agodio/itba-so-multi-platform:3.0
     fi
 }

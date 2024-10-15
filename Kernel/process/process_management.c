@@ -9,7 +9,7 @@
 // Complete with ticks as quantum, each position represents the priority status.
 
 #define QUANTUM_AMOUNT 3
-static unsigned int quantum[QUANTUM_AMOUNT] = {0b0001, 0b0010, 0b0100};
+static unsigned int quantum[QUANTUM_AMOUNT] = {0b001, 0b010, 0b100};
 
 // Nuevo estado para la implementación de waitpid
 typedef enum process_state {BLOCKED, READY, RUNNING, TERMINATED} process_state_t;
@@ -202,8 +202,8 @@ void wait()     {
 
     while(i<PROCESS_AMOUNT) {
 
-        if(is_alive(current_process) && 
-            pcbs[current_process].parent_process_id == pcbs[current_process].process_id)  {
+        if(is_alive(i) && 
+            pcbs[i].parent_process_id == pcbs[current_process].process_id)  {
 
                 i= (-1);
                 give_up_cpu();
@@ -497,5 +497,11 @@ static int get_index_by_pid(int64_t pid)   {
 
 static bool kill_process(int p) {
     
-    return IN_RANGE(p) && terminate_process_by_index(p);
+    if(IN_RANGE(p) && terminate_process_by_index(p))    {
+        
+        current_amount_process--;
+        return true;
+    }
+
+    return false;
 }
