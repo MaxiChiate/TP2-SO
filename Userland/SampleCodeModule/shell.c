@@ -4,14 +4,13 @@
 
 typedef void (*shellFunctions)(void);
 
-shellFunctions menuFunctions[AVAILABLE_FUNCTIONS]={&help, &time, &exitProgram, &clear, &div0, &invalidOpcode};
+shellFunctions menuFunctions[AVAILABLE_FUNCTIONS]={&help, &time, &clear, &div0, &invalidOpcode};
 
-char* menuNames[AVAILABLE_FUNCTIONS+1]= {"help", "time", "exit", "clear", "div0", "invalidopcode", 0};
+char* menuNames[AVAILABLE_FUNCTIONS+1]= {"help", "time", "clear", "div0", "invalidopcode", 0};
 
 char* menuDescriptions[AVAILABLE_FUNCTIONS]={
                             "Gives information about the available commands to execute",
                             "Prints the RTC's time on the screen",
-                            "Closes the Shell and finishes the execution of the program",
                             "Cleans the terminal",
                             "Div by 0 and throws the exception",
                             "Excecutes an invalid opcode and throws the exception"
@@ -105,14 +104,6 @@ void time(){
         return;
     }
     time_getter();
-}
-
-void exitProgram(){
-    if (hasArgs){
-        print("Function doesn't have arguments");
-        return;
-    }
-    exit_shell();
 }
 
 void div0() {

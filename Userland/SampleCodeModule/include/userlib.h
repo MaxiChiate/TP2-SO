@@ -18,8 +18,6 @@
 
     void clear();
 
-    void exit_shell();
-
     void putEnter();
 
     void putnEnters(unsigned int n);
