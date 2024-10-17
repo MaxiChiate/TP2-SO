@@ -11,14 +11,15 @@
 
 uint64_t prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM, HIGHEST};
 
-void test_prio() {
+void test_prio(int argc, char ** argv) {
+
   uint64_t pids[TOTAL_PROCESSES];
-  char *argv[] = {"endless_loop_print", NULL};
+  char *argvaux[] = {"endless_loop_print", NULL};
 
   uint64_t i;
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    pids[i] = spawn_process((int64_t) endless_loop_print, 1, argv, 1, true);
+    pids[i] = spawn_process((int64_t) endless_loop_print, 1, argvaux, 1, true);
 
   bussy_wait(WAIT);
   print("\nCHANGING PRIORITIES...\n");

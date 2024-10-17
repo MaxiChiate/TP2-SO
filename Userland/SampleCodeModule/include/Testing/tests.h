@@ -6,7 +6,7 @@
 
     #define MAX_PROCESSES 62
 
-    int64_t test_processes();
-    void test_prio();
+    void test_processes(int argc, char ** argv);
+    void test_prio(int argc, char ** argv);
 
 #endif

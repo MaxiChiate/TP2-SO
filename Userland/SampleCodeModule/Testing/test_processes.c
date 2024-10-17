@@ -11,7 +11,7 @@ typedef struct P_rq {
   enum State state;
 } p_rq;
 
-int64_t test_processes(/*uint64_t argc, char *argv[]*/) {
+void test_processes(int argc, char *argv[]) {
 
 
   uint8_t rq;
@@ -22,12 +22,12 @@ int64_t test_processes(/*uint64_t argc, char *argv[]*/) {
 
 //   if (argc != 2)    {
 //     print("test_processes: args amount\n");
-//     return -1;
+//     suicide();
 //   }
 
 //   if ((max_processes = satoi(argv[1])) <= 0){
 //     print("test_processes: max processes format\n");
-//     return -1;
+//     suicide();
 //   }
 
   p_rq p_rqs[max_processes];
@@ -42,7 +42,7 @@ int64_t test_processes(/*uint64_t argc, char *argv[]*/) {
 
       if (p_rqs[rq].pid == -1) {
         print("test_processes: ERROR creating process\n");
-        return -1;
+        suicide();
       } else {
         p_rqs[rq].state = RUNNING;
         alive++;
@@ -64,7 +64,7 @@ int64_t test_processes(/*uint64_t argc, char *argv[]*/) {
               if (!kill(p_rqs[rq].pid)) {
                 
                 print("test_processes: ERROR killing process\n");
-                return -1;
+                suicide();
               }
               p_rqs[rq].state = KILLED;
               alive--;
@@ -76,7 +76,7 @@ int64_t test_processes(/*uint64_t argc, char *argv[]*/) {
                 print("Blocking process\n");
               if (!blockp(p_rqs[rq].pid)) {
                 print("test_processes: ERROR blocking process\n");
-                return -1;
+                suicide();
               }
               p_rqs[rq].state = BLOCKED;
             }
@@ -90,7 +90,7 @@ int64_t test_processes(/*uint64_t argc, char *argv[]*/) {
             print("Unblocking process\n");
           if (!unblockp(p_rqs[rq].pid)) {
             print("test_processes: ERROR unblocking process\n");
-            return -1;
+            suicide();
           }
           p_rqs[rq].state = RUNNING;
         }
