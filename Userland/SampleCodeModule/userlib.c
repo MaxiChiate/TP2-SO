@@ -21,7 +21,7 @@ void putTab()   {
 char* stringNormalizer(char* origString){
     int i=0, j=0;
     while (origString[i]!='\0'){
-        if (origString[i]>='A' && origString[i]<='Z'){
+        if (isUpper(origString[i])){
             origString[j++]=origString[i++]+32;
         } else if (origString[i]==' '){
             origString[j++]=' ';
