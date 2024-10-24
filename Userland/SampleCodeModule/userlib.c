@@ -1,5 +1,45 @@
 #include <userlib.h>
 
+void print(char * str)  {
+
+    int64_t len = (int64_t) strLength(str);
+
+    _int80(SYS_READ, STRING, (int64_t) str, len , 0, 0);
+    _int80(SYS_WRITE, STDOUT, len, 0, 0, 0);
+}
+
+unsigned char getChar() {
+
+    return (unsigned char) _int80(SYS_WRITE, RETURN_CHAR, 0, 0, 0, 0);
+}
+
+void putChar(char c)    {
+
+    _int80(SYS_READ, CHAR, (int64_t) c, 0, 0, 0);
+    _int80(SYS_WRITE, CHARSTDOUT, 0, 0, 0, 0);
+}
+
+char getAndPrintChar()  {
+
+    return (char) _int80(SYS_WRITE, RETURNANDSTDOUT_CHAR, 0, 0, 0, 0);
+}
+
+void clear()    {
+
+    _int80(SYS_CLEAR, 0, 0, 0, 0, 0);
+}
+
+void time_getter()  {
+
+    _int80(SYS_TIME, 0, 0, 0, 0, 0);
+}
+
+void rand() {
+
+    _int80(SYS_RAND, 0, 0, 0, 0, 0);
+}
+
+
 void putEnter() {
     putChar('\n');
 }
@@ -70,10 +110,12 @@ unsigned int strEquals(char * s1, char * s2)  {
 }
 
 int isDigit(unsigned char c) {
+    
     return digits[c];
 }
 
 int isUpper(unsigned char c)    {
+
     return capitals[c];
 }
 

@@ -6,6 +6,7 @@
 #include <time.h>
 #include <memory_manager.h>
 #include <systemCalls.h>
+#include <systemCallDefs.h>
 #include <interrupts.h>
 
 #define K 1024
@@ -25,8 +26,6 @@
 
 #define DEFAULT_PARENT_PID 0
 #define INITIAL_PROCESS_ID 1
-
-#define PROCESS_NAME_LENGTH 10
 
 
 /*
