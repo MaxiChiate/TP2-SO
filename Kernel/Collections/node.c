@@ -26,15 +26,15 @@ node_t node_init(void * data) {
 void node_add_next(node_t current_node, node_t next_node) {
 
   if(is_null(current_node)) {
-  
-      return;    
+
+      return;
   }
 
 
   //Must be same datatype, if @node_next is null, just assign it:
-  
+
   if(not_null(next_node) && (sizeof(current_node->data[0]) != sizeof(next_node->data[0])))  {
-    
+
 //      printError(NODE_ADD_NEXT__INCOMPATIBLE_DATATYPE__ERROR);
       return;
   }
@@ -84,5 +84,3 @@ void node_free(node_t node)  {
 
     mm_free(node);
 }
-
-

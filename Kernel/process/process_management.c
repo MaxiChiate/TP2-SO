@@ -1,7 +1,5 @@
 #include <process/process_management.h>
 
-//TODO: Releer todo y ver si compila. Habiendo configurado GDB.
-
 #define BEGINNIN_PROCESS_ADDRESS(process_index) ((uint64_t) stacks + (process_index + 1) * STACK_SPACE)
 #define IN_RANGE(i) ((i) >= 0 && (i) < PROCESS_AMOUNT)
 #define VALID_FD(fd) ((fd) >= 0 || (fd) < MAX_FDS)
@@ -172,7 +170,14 @@ void suicide() {
 
 bool block_process(int64_t pid)    {
     
-    return block_process_by_index(get_index_by_pid(pid));
+    bool answer = block_process_by_index(get_index_by_pid(pid));
+
+    if(answer && pid == pcbs[current_process].process_id) {
+
+        give_up_cpu();
+    }
+
+    return answer;
 }
 
 

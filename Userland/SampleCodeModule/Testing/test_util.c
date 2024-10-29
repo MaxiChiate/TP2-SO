@@ -64,17 +64,21 @@ void endless_loop() {
     ;
 }
 
-static void iotas(int64_t pid, char *str) {
-    for (int i = 2; i >= 0; i--) {
-        if (pid != 0) {
-            str[i] = '0' + (pid % 10);
-            pid /= 10;
-        } else {
-            str[i] = ' ';
-        }
+void iotas(int n, char *str, int dim) {
+    int i = dim - 1;
+    str[dim] = '\0'; // Null-terminate the string
+
+    while (i >= 0 && n != 0) {
+        str[i--] = '0' + (n % 10);
+        n /= 10;
     }
-    str[3] = '\0'; 
+
+    // Fill remaining spaces at the beginning if pid has fewer digits than dim
+    while (i >= 0) {
+        str[i--] = ' ';
+    }
 }
+
 
 
 #define MINOR_WAIT 99000099  
@@ -82,7 +86,7 @@ static void iotas(int64_t pid, char *str) {
 void endless_loop_print() {
   int64_t pid = current_pid();
   char s[4];
-  iotas(pid, s);
+  iotas(pid, s, 3);
   while (1) {
     
     print(s);

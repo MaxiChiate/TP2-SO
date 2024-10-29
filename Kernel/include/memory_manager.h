@@ -3,6 +3,7 @@
 #include <lib.h>
 #include <stringPrinter.h>
 #include <buffer.h>
+#include <bool.h>
 
 //memory_manager.h
 
@@ -10,7 +11,7 @@
 #define MM_MANAGER_H
 
   #define K 1024
-  #define BLOCK_SIZE  2*K
+  #define MAX_HEAP_DIM 10*K
 
   void mm_init(void * start_given, int size_requested);
 
@@ -19,3 +20,4 @@
   void mm_free(void * p);
 
 #endif
+

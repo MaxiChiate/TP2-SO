@@ -26,6 +26,13 @@
 #define WAIT_PID                        0xBA
 #define SUICIDE                         0xBB
 
+// Semaphores:
+
+#define NEW_SEM                         0xC0
+#define IS_SEM_ALIVE                    0xC1
+#define KILL_SEM                        0xC2
+#define UP                              0xC3
+#define DOWN                            0xC4
 
 
 // write @fd codes: (en rbx)

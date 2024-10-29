@@ -41,6 +41,8 @@ int64_t my_sem_close(char *sem_id) {
 }
 
 int64_t my_yield() {
+
+  for(int i=0; i<10000; i++);
   return 0;
 }
 

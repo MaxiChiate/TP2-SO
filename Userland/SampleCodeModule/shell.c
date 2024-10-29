@@ -4,12 +4,12 @@
 
 build_in_f build_in_functions[AVAILABLE_BUILDIN_F]={&help, &time, &clear, &div0, &invalidOpcode};
 process_f  process_functions[AVAILABLE_PROCESS_F]={};
-process_f  test_functions[AVAILABLE_TESTS]={&test_processes, &test_prio};
+process_f  test_functions[AVAILABLE_TESTS]={&test_processes, &test_prio, &test_sync, &test_async};
 
 
 char* build_in_names[AVAILABLE_BUILDIN_F+1]= {"help", "time", "clear", "div0", "invalidopcode", 0};
 char* process_names[AVAILABLE_PROCESS_F+1]={'\0'};
-char* test_names[AVAILABLE_TESTS+1]={"test_processes", "test_prio", '\0'};
+char* test_names[AVAILABLE_TESTS+1]={"test_processes", "test_prio", "test_syncro", "test_asyncro", '\0'};
 
 char* build_in_descriptions[AVAILABLE_BUILDIN_F+1]={
                             "Gives information about the available commands to execute",
@@ -25,6 +25,8 @@ char* process_descriptions[AVAILABLE_PROCESS_F+1]={
 char* test_descriptions[AVAILABLE_TESTS+1]={
                             "Test process creations",
                             "Test process priority",
+                            "Test semaphore syncro",
+                            "Test semaphore without syncro",
                             '\0'
                             };
 

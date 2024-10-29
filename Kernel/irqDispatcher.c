@@ -7,7 +7,7 @@
 #include <buffer.h>
 #include <stringPrinter.h>
 #include <process/process_management.h>
-
+#include <semaphore.h>
 
 
 uint64_t irqDispatcher(uint64_t irq, uint64_t rsp) {
@@ -99,6 +99,33 @@ void int_80(int id, unsigned int rbx,  char * rcx, unsigned int rdx, char rsi, u
             suicide();
             break;
         }
+
+        case NEW_SEM:   {
+
+            new_sem((uint8_t) rdi);
+            break;
+        }
+        case IS_SEM_ALIVE:   {
+
+            is_sem_alive((uint8_t) rdi);
+            break;
+        }
+        case KILL_SEM:   {
+
+            kill_sem((uint8_t) rdi);
+            break;
+        }
+        case UP:   {
+
+            up((uint8_t) rdi);
+            break;
+        }
+        case DOWN:   {
+
+            down((uint8_t) rdi);
+            break;
+        }
+
 		default: {
 			break;
 		}
