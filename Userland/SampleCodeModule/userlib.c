@@ -1,5 +1,59 @@
 #include <userlib.h>
 
+void print(char * str)  {
+
+    print2(str, strLength(str));
+}
+
+void print2(char * str, unsigned int dim)   {
+
+    int64_t args[] = { STRING, (int64_t) str, (int64_t) dim };
+
+    _int80(SYS_READ, args);
+
+    args[0] = STDOUT;
+    args[1] = (int64_t) dim;
+
+    _int80(SYS_WRITE, args);
+}
+
+unsigned char getChar() {
+
+    int64_t arg = RETURN_CHAR;
+
+    return (unsigned char) _int80(SYS_WRITE, &arg);
+}
+
+void putChar(char c)    {
+
+    char s [] = {c, '\0'};
+
+    print2(s, 1);
+}
+
+char getAndPrintChar()  {
+
+    int64_t arg = RETURNANDSTDOUT_CHAR;
+
+    return (char) _int80(SYS_WRITE, &arg);
+}
+
+void clear()    {
+
+    _int80(SYS_CLEAR, NULL);
+}
+
+void time_getter()  {
+
+    _int80(SYS_TIME, NULL);
+}
+
+void rand() {
+
+    _int80(SYS_RAND, NULL);
+}
+
+
 void putEnter() {
     putChar('\n');
 }
@@ -70,10 +124,12 @@ unsigned int strEquals(char * s1, char * s2)  {
 }
 
 int isDigit(unsigned char c) {
+    
     return digits[c];
 }
 
 int isUpper(unsigned char c)    {
+
     return capitals[c];
 }
 
