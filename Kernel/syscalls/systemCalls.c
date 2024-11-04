@@ -1,0 +1,109 @@
+//sytemCalls.c
+
+#include <systemCalls.h>
+
+static int characterColor=WHITE;
+
+
+char sysWrite(unsigned int fd, unsigned int count)	{
+
+	switch(fd)	{
+	// STDOUT : Salida estandar.
+		case STDOUT :	{
+			char s [count+1];
+			readBuffer(s, count+1);
+			printTextDefault(s, characterColor, BLACK);
+			break;
+		}
+		case CHARSTDOUT : {
+			printCharDefault(readChar(), characterColor, BLACK);
+			break;
+		}
+	// STDERR : Salida de error (salida estandar pero en rojo).
+		case STDERR :	{
+			char s [count+1];
+			readBuffer(s, count+1);
+			printTextDefault(s, RED, BLACK);
+			break;
+		}
+	// RETURN_CHAR : Devuelve en rax el ultimo caracter del buffer.
+		case RETURN_CHAR :	{ 
+			return readChar();
+			break;
+		}
+		case RETURNANDSTDOUT_CHAR :	{
+			char c = readChar();
+			printCharDefault(c, characterColor, BLACK);
+			return c;
+		}
+
+		default :
+			break;
+	}
+
+	return 0;
+}
+
+void sysRead( unsigned int fd, const char * s, char c)	{
+    switch(fd)	{
+		case STRING :	{
+			putString(s);
+			break;
+		}
+		case CHAR :	{
+			putChar(c);
+			break;
+		}
+		default :
+			break;
+	}
+	
+}
+
+void sysKillBuffer()	{
+	cleanBuffer();
+}
+
+void sysClear()	{
+	fillScreen(BLACK);
+    resetPosition();
+    resetBuffer();
+}
+
+void timeManager(){
+    char* time=getTime();
+    printTextDefault(time, characterColor, BLACK);
+}
+
+void killOS(){
+    fillScreen(BLACK);
+    haltcpu();          //queda trabado acá y no puede hacer nada más
+
+}
+
+static unsigned long seed = 0x5A5A5A5A;
+
+unsigned long rand() {
+    unsigned long ans = 1103515245;
+
+    char * currentTime = getTime();
+    
+        ans *= currentTime[1] * currentTime[0] +
+               currentTime[3] * currentTime[4] +
+               currentTime[6] * currentTime[7] +
+               currentTime[9] * currentTime[10] +
+               currentTime[12] * currentTime[13] +
+               currentTime[15] * currentTime[16] * currentTime[17] * currentTime[18];
+
+    ans += ((unsigned long) currentTime) << 11;
+
+    seed = seed * ans;
+    ans = ans ^ seed;
+
+    ans *= ticks_elapsed();
+
+    // Return a 31-bit positive number
+    return ans & 0x7fffffff;
+}
+
+

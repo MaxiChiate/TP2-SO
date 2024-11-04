@@ -1,7 +1,22 @@
 #ifndef DEFS_H
 #define DEFS_H
+    
+    #ifndef NULL
+    
+        #define NULL ( (void *) 0x0000)
+        
+    #endif
 
-        // https://www.onlinegdb.com/online_c_debugger
+
+//  [0-9]
+    extern unsigned char digits[257];
+
+//  [A-Z]
+    extern unsigned char capitals[257];
+
+#endif
+
+// https://www.onlinegdb.com/online_c_debugger
 // Script util para armar estas matrices: (ejemplo @capitals)
 
     // #include <stdio.h>
@@ -23,12 +38,3 @@
 
     //     return 0;
     // }
-
-    
-//  [0-9]
-    extern unsigned char digits[257];
-
-//  [A-Z]
-    extern unsigned char capitals[257];
-
-#endif

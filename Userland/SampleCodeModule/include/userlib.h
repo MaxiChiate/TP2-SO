@@ -6,9 +6,11 @@
     #include <stdint.h>
     #include <../../../Kernel/include/systemCallDefs.h>
 
-    int64_t _int80(int id, int64_t rdi, int64_t rsi, int64_t rdx, int64_t rcx, int64_t r8);
+    int64_t _int80(int id, int64_t * args);
 
     void print(char * str);
+
+    void print2(char * str, unsigned int dim);
 
     void printUinteger(unsigned int n);
 

@@ -186,13 +186,7 @@ _irq60Handler:
 	push r14
 	push r15
 
-; 7mo argumento por stack: (los demás ya coinciden con los argumentos a como se pasan en C)
-
-	push r10
-
 	call int_80
-	
-	pop r10
 
 	push rax
 	; signal pic EOI (End of Interrupt)

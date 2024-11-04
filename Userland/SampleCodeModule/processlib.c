@@ -9,52 +9,56 @@ int64_t run_process(int64_t function_address, int argc, char ** argv, unsigned i
 
 int64_t spawn_process(int64_t function_address, int argc, char ** argv, unsigned int priority, bool foreground)   {
 
-    return (int64_t) _int80(SYS_CREATE_PROCESS, (int64_t) argc, (int64_t) argv, (int64_t) priority, (int64_t) foreground, 0);
+    int64_t args[] = { function_address, (int64_t) argc, (int64_t) argv, (int64_t) priority, (int64_t) foreground };
+
+    return (int64_t) _int80(SYS_CREATE_PROCESS, args);
 }
 
 bool kill(int64_t pid)  {
 
-    return (bool) _int80(SYS_KILL_PROCESS, pid, 0, 0, 0, 0);
+    return (bool) _int80(SYS_KILL_PROCESS, &pid);
 }
 
 int64_t current_pid()  {
 
-    return _int80(SYS_GET_CURRENT_PID, 0, 0, 0, 0, 0);
+    return _int80(SYS_GET_CURRENT_PID, NULL);
 }
 
 void giveup_cpu()   {
 
-    _int80(SYS_GIVE_UP_CPU, 0, 0, 0, 0, 0);
+    _int80(SYS_GIVE_UP_CPU, NULL);
 }
 
 bool blockp(int64_t pid)    {
 
-    return (bool) _int80(SYS_BLOCK_PROCESS, pid, 0, 0, 0, 0);
+    return (bool) _int80(SYS_BLOCK_PROCESS, &pid);
 }
 
 bool unblockp(int64_t pid)  {
 
-    return (bool) _int80(SYS_UNBLOCK_PROCESS, pid, 0, 0, 0, 0);
+    return (bool) _int80(SYS_UNBLOCK_PROCESS, &pid);
 }
 
 bool nice(int64_t pid, int prio)    {
 
-    return (bool) _int80(SYS_CHANGE_PROCESS_PRIORITY, pid, (int64_t) prio, 0, 0, 0);
+    int64_t args [] = { pid, (int64_t) prio };
+
+    return (bool) _int80(SYS_CHANGE_PROCESS_PRIORITY, args);
 }
 
 void waitp()    {
 
-    _int80(SYS_WAIT, 0, 0, 0, 0, 0);
+    _int80(SYS_WAIT, NULL);
 }
 
 void waitpid(int64_t pid)   {
 
-    _int80(SYS_WAITPID, pid, 0, 0, 0, 0);
+    _int80(SYS_WAITPID, &pid);
 }
 
 void suicide()  {
 
-    _int80(SYS_SUICIDE, 0, 0, 0, 0, 0);
+    _int80(SYS_SUICIDE, NULL);
 }
 
 /* ps_t * ps()  {

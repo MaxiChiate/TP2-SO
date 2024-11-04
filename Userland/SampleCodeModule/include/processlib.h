@@ -5,6 +5,7 @@
     #include <stdint.h>
     #include <userlib.h>
     #include <../../../Kernel/include/systemCallDefs.h>
+    #include <defs.h>
 
     int64_t run_process(int64_t function_address, int argc, char ** argv, unsigned int priority, bool foreground);
 

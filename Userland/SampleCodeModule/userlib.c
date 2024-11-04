@@ -2,41 +2,55 @@
 
 void print(char * str)  {
 
-    int64_t len = (int64_t) strLength(str);
+    print2(str, strLength(str));
+}
 
-    _int80(SYS_READ, STRING, (int64_t) str, len , 0, 0);
-    _int80(SYS_WRITE, STDOUT, len, 0, 0, 0);
+void print2(char * str, unsigned int dim)   {
+
+    int64_t args[] = { STRING, (int64_t) str, (int64_t) dim };
+
+    _int80(SYS_READ, args);
+
+    args[0] = STDOUT;
+    args[1] = (int64_t) dim;
+
+    _int80(SYS_WRITE, args);
 }
 
 unsigned char getChar() {
 
-    return (unsigned char) _int80(SYS_WRITE, RETURN_CHAR, 0, 0, 0, 0);
+    int64_t arg = RETURN_CHAR;
+
+    return (unsigned char) _int80(SYS_WRITE, &arg);
 }
 
 void putChar(char c)    {
 
-    _int80(SYS_READ, CHAR, (int64_t) c, 0, 0, 0);
-    _int80(SYS_WRITE, CHARSTDOUT, 0, 0, 0, 0);
+    char s [] = {c, '\0'};
+
+    print2(s, 1);
 }
 
 char getAndPrintChar()  {
 
-    return (char) _int80(SYS_WRITE, RETURNANDSTDOUT_CHAR, 0, 0, 0, 0);
+    int64_t arg = RETURNANDSTDOUT_CHAR;
+
+    return (char) _int80(SYS_WRITE, &arg);
 }
 
 void clear()    {
 
-    _int80(SYS_CLEAR, 0, 0, 0, 0, 0);
+    _int80(SYS_CLEAR, NULL);
 }
 
 void time_getter()  {
 
-    _int80(SYS_TIME, 0, 0, 0, 0, 0);
+    _int80(SYS_TIME, NULL);
 }
 
 void rand() {
 
-    _int80(SYS_RAND, 0, 0, 0, 0, 0);
+    _int80(SYS_RAND, NULL);
 }
 
 
