@@ -123,14 +123,19 @@ unsigned int strEquals(char * s1, char * s2)  {
     return s1[i] == '\0' && s2[i] == '\0';
 }
 
-int isDigit(unsigned char c) {
+bool isDigit(unsigned char c) {
     
-    return digits[c];
+    return (bool) digits[c];
 }
 
-int isUpper(unsigned char c)    {
+bool isUpper(unsigned char c)    {
 
-    return capitals[c];
+    return (bool) capitals[c];
+}
+
+bool isVocal(unsigned char c)    {
+
+    return (bool) vocals[c];
 }
 
 unsigned int strToUint(char * s) {

@@ -9,10 +9,13 @@
 
 
 //  [0-9]
-    extern unsigned char digits[257];
+    extern bool digits[257];
 
 //  [A-Z]
-    extern unsigned char capitals[257];
+    extern bool capitals[257];
+
+//  [aeiouAEIOU]
+    extern bool vocals[257];
 
 #endif
 

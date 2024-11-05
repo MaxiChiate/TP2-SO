@@ -46,9 +46,11 @@
 
     unsigned int strToUint(char * s);
 
-    int isDigit(unsigned char c);
+    bool isDigit(unsigned char c);
 
-    int isUpper(unsigned char c);
+    bool isUpper(unsigned char c);
+
+    bool isVocal(unsigned char c);
 
     int getUintDigits(unsigned int n );
 
