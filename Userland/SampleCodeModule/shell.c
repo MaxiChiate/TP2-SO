@@ -105,11 +105,11 @@ static bool check_and_run_process(process_f * p, char ** names, int argc, char *
 
                 if(background)  {
                     
-                    spawn_process((int64_t) p[i], argc, argv, 2, true); // TODO: Blockear salida estandar de proceso en background.
+                    spawn_process((int64_t) p[i], argc, argv, 2, true);
                 }
                 else    {
 
-                    int64_t cpid = run_process((int64_t) p[i], 1, argv, 2, true);    //TODO: Forzar el timer tick para que corra el nuevo proceso.
+                    int64_t cpid = run_process((int64_t) p[i], 1, argv, 2, false);
                     waitpid(cpid);
                 }
 
@@ -131,6 +131,8 @@ void getMenu(char* buffer){
         return;
     }
 
+// Si es build-in:
+
     if(check_and_run(build_in_functions, build_in_names))   {
 
         return;
@@ -142,9 +144,12 @@ void getMenu(char* buffer){
         background = argument[k] == BACKGROUND_CHARACTER;
     }
 
-    //TODO: Corregir pasaje de argumentos a los procesos.
-    if(check_and_run_process(process_functions, process_names, 1, NULL, background) ||
-    check_and_run_process(test_functions, test_names, 1, NULL, background)) {
+    char * argv[] = {"Hola", "plp", NULL};
+
+// Si es programa o test:
+
+    if(check_and_run_process(process_functions, process_names, 3, argv, background) ||
+        check_and_run_process(test_functions, test_names, 3, argv, background)) {
 
         return;
     }

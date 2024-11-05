@@ -21,6 +21,11 @@
             SYS_WAIT,
             SYS_SUICIDE,
             SYS_TIME,
+            SYS_KILL_SEM,
+            SYS_UP,
+            SYS_DOWN,
+            SYS_IS_SEM_ALIVE,
+            SYS_NEW_SEM,
 
             SYSCALL_COUNT
         } syscall_id;

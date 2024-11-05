@@ -15,6 +15,7 @@
     #include <rtcDriver.h>
     #include <time.h>
     #include <process_management.h>
+    #include <semaphore.h>
 
     void call_syscall(int id, int64_t * args);
 
