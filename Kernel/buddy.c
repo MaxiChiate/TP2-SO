@@ -1,188 +1,216 @@
 #include <buddy.h>
 
-typedef struct buddy_block {
+typedef struct buddy_block_descriptor {
 	int order; /*Potencia de 2 que representa el tamaño del bloque*/
-	bool is_free;
-	struct buddy_block * next;
-} buddy_block;
+    block_state state;
+	struct buddy_block_descriptor * left;
+    struct buddy_block_descriptor * right;
+    void * chunk;
+} buddy_block_descriptor;
 
-// 1024
-// 512 256 128 64
-// 960 + 64
+typedef struct buddy_tree {
+    buddy_block_descriptor_t head;
+    size_t total_assignable_space;
+    size_t descriptor_counter; /*Índice de la lista. Solo sirve para inicializar*/
+} buddy_tree;
 
-// Arreglo de punteros a buddy_block_t. Cada posición representa bloques de tamaño específico en potencias de 2.
-buddy_block_t free_list[MAX_ORDER + 1];
-char heap[HEAP_SIZE]; /*Memoria preasignada para el sistema*/
-static int total_assignable_space = HEAP_SIZE;
+#define IN_RANGE(x) (x >= tree->head->chunk && x < tree->head->chunk + (1 << tree->head->order))
 
-void init_buddy() {
+// Memoria preasignada para el sistema
+static char heap[HEAP_SIZE];
 
-	for (int i = 0; i <= MAX_ORDER; i++) {
-		free_list[i] = NULL;
-	}
+// Memoria preasignada para los bloques
+static buddy_block_descriptor blocks_heap[MAX_NODES];
 
-	// Bloque que abarca toda la memoria
-	buddy_block_t initial_block = (buddy_block_t)heap;
-	initial_block->order = MAX_ORDER;
-	initial_block->is_free = true;
-	initial_block->next = NULL;
+static buddy_tree tree_struct;
+static buddy_tree_t tree = &tree_struct;
 
-	free_list[MAX_ORDER] = initial_block;
+static void init_block(buddy_block_descriptor_t block, int order){
+
+    block->order = order;
+    block->state = GREEN;
+    block->left = NULL;
+    block->right = NULL;
+
 }
 
-// Dividir un block en dos buddies
-static buddy_block_t split_block(buddy_block_t block) {
 
-	int new_order = block->order - 1;
-	buddy_block_t buddy = (buddy_block_t)((char *)block + (1 << new_order));
 
-	buddy->order = new_order;
-	buddy->is_free = true;
-	buddy->next = NULL;
+static buddy_block_descriptor_t create_new_block_descriptor(int order) {
+    
+    buddy_block_descriptor_t new_block_descriptor = &blocks_heap[tree->descriptor_counter++];
+    
+    init_block(new_block_descriptor, order);
 
-	block->order = new_order;
-	block->is_free = true;
-	block->next = buddy;
+    return new_block_descriptor;
 
-	return buddy;
+}
+
+//Hace un arbol del orden mínimo solicitado, se llamará en el init_buddy para crear el arbol de descriptores
+static void split_block(buddy_block_descriptor_t block, int order) {
+
+    if (block->order <= order) {
+        return;
+    }
+
+    buddy_block_descriptor_t left_block =  create_new_block_descriptor(block->order - 1);
+    buddy_block_descriptor_t right_block = create_new_block_descriptor(block->order - 1);
+
+    left_block->chunk = (void *)block->chunk;
+    right_block->chunk = (void *)block->chunk + ((1 << (block->order - 1)));
+
+    block->left = left_block;
+    block->right = right_block;
+
+    split_block(left_block, order);
+    split_block(right_block, order);
+
+}
+
+static buddy_block_descriptor_t find_rec(buddy_block_descriptor_t current, int order) {
+
+    buddy_block_descriptor_t to_return = NULL;
+
+    // Si es null retorna null
+    if (current == NULL) {
+        return NULL;
+    }
+    // Si este bloque esta libre y es del orden indicado se retorna este bloque
+    if (current->order == order && current->state == GREEN) {
+        current->state = RED;
+        return current;
+    }
+
+    // Si left es GREEN llamo recursivamente con left
+    if (current->left != NULL && current->left->state == GREEN) {
+        to_return = find_rec(current->left, order);
+    }
+
+    // Si left es YELLOW
+    else if (current->left != NULL && current->left->state == YELLOW) {
+
+        // Si left es del orden solicitado llamo recursivamente con right 
+        if (current->left->order == order && current->right != NULL) {
+            to_return = find_rec(current->right, order);
+
+        }
+
+        // Si left->order > order llamo recursivamente con left
+        else if (current->left->order > order) {
+            to_return = find_rec(current->left, order);
+
+            // Si no pudo en el sub arbol left, va por el sub arbol right
+            if (to_return == NULL) {
+                to_return = find_rec(current->right, order);
+            }
+        }
+    }
+
+    // Si left es RED o BLUE llamo recursivamente con right
+    else if (current->left != NULL && (current->left->state == RED || current->left->state == BLUE)) {
+        to_return = find_rec(current->right, order);
+    }
+
+    // Si no es una hoja    
+    if(current->left!=NULL && current->right!=NULL){
+        // Pone en amarillo todo el recorrido
+        current->state = YELLOW;
+        //Si ambos hijos son RED, el current se pone en BLUE
+        if (current->left->state == RED && current->right->state == RED) {
+            current->state = BLUE;
+        }
+        else if (current->left->state == BLUE && current->right->state == BLUE) {
+            current->state = BLUE;
+        }
+    }
+    
+    return to_return;
+
 }
 
 // Encontrar el bloque adecuado en la lista
-static buddy_block_t find_suitable_block(int order) {
+static buddy_block_descriptor_t find_suitable_block(int order) {
 
-	for (int i = order; i <= MAX_ORDER; i++) {
-		if (free_list[i] != NULL) {
-			return free_list[i];
-		}
-	}
-	return NULL;
+    return find_rec(tree->head, order);
+
 }
 
-static int ceil_custom(double x) {
-    int integer_part = (int)x;
-    
-    // Si x ya es un número entero, simplemente regresamos la parte entera.
-    if (x == (double)integer_part) {
-        return integer_part;
-    }
+void * buddy_alloc(size_t size) {
 
-    // Si x es positivo y tiene parte decimal, redondeamos al entero siguiente.
-    return integer_part + 1;
-}
-
-
-static int get_order(int x) {
-    if (x <= 0) {
-        return -1; // Indica un error para valores no positivos
-    }
-
-    int integer_part = 0;
-    double fraction_part = 0.0;
-
-    // Calcular la parte entera del logaritmo
-    while (x >= 2.0) {
-        x /= 2.0;
-        integer_part++;
-    }
-    while (x < 1.0) {
-        x *= 2.0;
-        integer_part--;
-    }
-
-    // Calcular la parte fraccionaria usando un método de aproximación
-    double fraction = 0.5;
-    while (x != 1.0 && fraction > 1e-10) {  // Precisión ajustable
-        x *= x;
-        if (x >= 2.0) {
-            fraction_part += fraction;
-            x /= 2.0;
-        }
-        fraction /= 2.0;
-    }
-
-    return ceil_custom(integer_part + fraction_part);
-}
-
-void * buddy_alloc(int size) {
-    int order = get_order(size); /* Ceiling. Redondea para arriba */
+    int order = get_order(size);
     if (order > MAX_ORDER) {
         return NULL;
     }
 
-    if (total_assignable_space < size) {
-            return NULL;
+    if (tree->total_assignable_space < size) {
+        return NULL;
     }
 
-    buddy_block_t block = find_suitable_block(order);
+    buddy_block_descriptor_t block = find_suitable_block(order);
     if (block == NULL) {
         return NULL;
     }
 
-    block->is_free = false;
+    tree->total_assignable_space -= (1 << order);
 
-    // Mantener el bloque en free_list
-    free_list[block->order] = block->next;
-
-    int current = block->order;
-    while (current > order) {
-        buddy_block_t buddy = split_block(block);
-        free_list[current - 1] = buddy;
-        current--;
-    }
-
-    total_assignable_space -= (1 << order);
-
-    return (void *)block;
+    return block->chunk;
 }
 
-void buddy_free(void *ptr) {
-    // Verificar si el puntero es NULL
-    if (ptr == NULL) {
+static void free_rec(buddy_block_descriptor_t block, void * ptr) {
+
+    if(block == NULL){
         return;
     }
 
-    buddy_block_t block = (buddy_block_t)ptr;
-
-    // Verificar si el bloque es un bloque válido
-    if (block->is_free) {
-        return; // El bloque ya está libre, no se debe liberar de nuevo
+    //Si el bloque encontrado no esta libre, se libera y se pone en GREEN
+    if (block->state == RED) {
+        block->state = GREEN;
+        tree->total_assignable_space += (1 << block->order);
+        return;
     }
 
-    // Marcar el bloque como libre
-    block->is_free = true;
-
-    // Calcular el tamaño del bloque
-    size_t block_size = 1 << block->order;
-    total_assignable_space += block_size;  // Aumentar el espacio total asignable
-
-    int current_order = block->order;
-
-    // Intentar fusionar con su buddy
-    while (current_order < MAX_ORDER) {
-        size_t buddy_offset = 1 << current_order;
-        buddy_block_t buddy = (buddy_block_t)((uintptr_t)block ^ buddy_offset); // Calcular la dirección del buddy
-
-        // Verificar si el buddy está dentro del rango de la memoria asignada
-        if (buddy < (buddy_block_t)heap || buddy >= (buddy_block_t)(heap + HEAP_SIZE)) {
-            break;  // El buddy está fuera de los límites, no se puede fusionar
-        }
-
-        // Verificar si el buddy está libre
-        if (buddy->is_free && buddy->order == current_order) {
-            // Actualizar la dirección del bloque a la dirección mínima
-            if (buddy < block) {
-                block = buddy;  // Siempre usar el bloque de menor dirección
-            }
-
-            // Fusionar: incrementar el orden
-            current_order++;
-        } else {
-            break;  // No se puede fusionar más, salimos del bucle
-        }
+    //Si el puntero es menor a la mitad del bloque, va al subarbol izquierdo
+    if (ptr < (block->chunk + (1 << (block->order - 1)))) {
+        free_rec(block->left, ptr);
+    } 
+    //Si el puntero es mayor a la mitad del bloque, va al subarbol derecho
+    else {
+        free_rec(block->right, ptr);
     }
 
-    // Actualizar la estructura del bloque resultante
-    block->order = current_order;  // Nuevo orden del bloque fusionado
-    block->next = free_list[current_order];  // Enlazar el bloque en la lista
-    free_list[current_order] = block;  // Añadir a la lista de bloques libres
+    //Si ambos hijos son GREEN, el current se pone en GREEN
+    if (block->left!= NULL && block->left->state == GREEN && block->right->state == GREEN) {
+        block->state = GREEN;
+    }
+    //Si los dos hijos no son GREEN, se pone en YELLOW
+    else if(block->left!=NULL){
+        block->state = YELLOW;
+    }
+}
+
+void buddy_free(void *ptr) {
+
+    if (!IN_RANGE(ptr)) {
+        return;
+    }
+
+    free_rec(tree->head, ptr);
+
+    return;
+
+}
+
+//Aloca el head en blocks_heap y llama recursivamente a split_block
+void init_buddy() {
+
+    tree->descriptor_counter = 0;
+    tree->total_assignable_space = HEAP_SIZE;
+    tree->head = create_new_block_descriptor(MAX_ORDER);
+	tree->head->chunk = (void *) heap;
+    split_block(tree->head, MIN_CHUNK_ORDER);
+
+}
+
+size_t get_total_assignable_space(){
+    return tree->total_assignable_space;
 }
