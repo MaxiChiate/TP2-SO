@@ -1,8 +1,4 @@
-#include <stdint.h>
-#include <stdio.h>
-#include <Testing/syscall.h>
-#include <Testing/test_util.h>
-
+#include <Testing/tests.h>
 
 #define TOTAL_PAIR_PROCESSES 2
 
@@ -16,7 +12,7 @@ void slowInc(int64_t *p, int64_t inc)   {
   *p = aux;
 }
 
-uint64_t my_process_inc(uint64_t argc, char *argv[])    {
+void my_process_inc(uint64_t argc, char *argv[])    {
 
   uint64_t n;
   int8_t inc;
@@ -24,7 +20,7 @@ uint64_t my_process_inc(uint64_t argc, char *argv[])    {
   int8_t mutex;
 
   if (argc != 4){
-    print("Error: Incorrect argc in my_process_inc\n");
+    print("Error: Incorrect argc in my_process_inc. Must be 4\n");
     suicide();
 }
   if ((n = satoi(argv[0])) <= 0  || 
@@ -54,12 +50,13 @@ uint64_t my_process_inc(uint64_t argc, char *argv[])    {
     suicide();
 }
 
-uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
+void test_sync(int argc, char ** argv) { //{n, use_sem, 0}
+
   uint64_t pids[2 * TOTAL_PAIR_PROCESSES];
 
   if (argc != 2)    {
 
-    print("Error: Incorrect argc in test_sync\n");
+    print("Error: Incorrect argc in test_sync. Only 2 args\n");
     suicide();
   }
     
@@ -81,8 +78,8 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
 
   uint64_t i;
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++)    {
-    pids[i] = spawn_process(&my_process_inc, 4, argvDec, 1, true);
-    pids[i + TOTAL_PAIR_PROCESSES] = my_create_process(&my_process_inc, 4, argvInc, 1, true);
+    pids[i] = spawn_process( (int64_t) &my_process_inc, 4, argvDec, 1, true);
+    pids[i + TOTAL_PAIR_PROCESSES] = spawn_process( (int64_t) &my_process_inc, 4, argvInc, 1, true);
   }
 
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
@@ -91,7 +88,7 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
   }
 
 
-    digits = getUintDigits(global)
+    digits = getUintDigits(global);
     char global_toString[digits+1];
     uIntToString(global, global_toString, digits);
 

@@ -14,4 +14,7 @@ int randInt(unsigned int izq, unsigned int der)    {
 
 }
 
-// Creditos: Marcelo Garberoglio 
+unsigned long rand()  {
+
+    return (int) _int80(SYS_RAND, NULL);
+}

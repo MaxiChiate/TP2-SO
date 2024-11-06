@@ -3,6 +3,7 @@
 
     #include <Testing/syscall.h>
     #include <Testing/test_util.h>
+    #include <semlib.h>
 
     #define MAX_PROCESSES 62
 

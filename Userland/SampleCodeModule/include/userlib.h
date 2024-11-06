@@ -40,11 +40,11 @@
 
 //  Strings:
 
-    unsigned int strLength(const char * str);
+    unsigned int strLength( char * str);
 
-    unsigned int strEquals(char * s1, char * s2);
+    unsigned int strEquals( char * s1,  char * s2);
 
-    unsigned int strToUint(char * s);
+    unsigned int strToUint( char * s);
 
     bool isDigit(unsigned char c);
 
@@ -56,9 +56,9 @@
 
     int getUlongDigits(unsigned long n);
 
-    char* stringNormalizer(char* origString);
+    char* stringNormalizer(char * origString);
 
-    int stringTrimmerBySpace(char* origString, char* aux1, char* aux2);
+    int stringTrimmerBySpace( char * origString, char * function_name, char **argv);
     
 //  Al no tener memoria dinamica uIntToString depende de que se le pase la cantidad de digitos
 //  del numero a transformar. Para eso se dispone de la funcion getUintDigits.
