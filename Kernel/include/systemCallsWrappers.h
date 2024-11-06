@@ -37,5 +37,10 @@
     void wait_wrapper(int64_t * args);
     void suicide_wrapper(int64_t * args);
     void timeManager_wrapper(int64_t * args);
+    void new_sem_wrapper(int64_t *args);    
+    void is_sem_alive_wrapper(int64_t *args);
+    void kill_sem_wrapper(int64_t *args);
+    void up_wrapper(int64_t *args);
+    void down_wrapper(int64_t *args); 
 
 #endif

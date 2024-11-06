@@ -93,12 +93,9 @@ bool kill_sem(uint8_t sem_id)   {
 
 static void wait_sem_access(uint8_t sem_id)  {
 
-    enter_region(&semaphores[sem_id].locked);
-
-    while(semaphores[sem_id].locked)   {
+    while(enter_region(&semaphores[sem_id].locked))   {
 
         give_up_cpu();
-        enter_region(&semaphores[sem_id].locked);
     }
 }
 

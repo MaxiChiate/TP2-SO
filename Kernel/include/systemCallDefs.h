@@ -3,6 +3,9 @@
 #ifndef SYSTEM_CALL_DEFS_H
 #define SYSTEM_CALL_DEFS_H
 
+    #include <bool.h>
+    #include <stdint.h>
+
     typedef enum    {
 
             SYS_WRITE = 0,

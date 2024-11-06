@@ -18,7 +18,7 @@
 
 // Semaforo "Global" para acceder al semaphore store.
 
-    void enter_region(bool * lock);
+    bool enter_region(bool * lock);
     void leave_region(bool * lock);
 
     void up(uint8_t sem_id);
