@@ -126,6 +126,8 @@ static bool transfer_freespace(int current_index, int dim_requested)	{
 
 			free_block(j);
 			heap[j].dim = freeblock_dim;
+			heap[j].initial_address = heap[current_index].initial_address + heap[current_index].dim;
+
 			return true;
 		}
 

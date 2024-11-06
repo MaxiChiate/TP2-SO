@@ -1,10 +1,10 @@
 #include <collections/KVTree.h>
 
-typedef struct node {
+typedef struct KVnode {
     key_t key;
     value_t value;
-    struct node * right;
-    struct node * left;
+    struct KVnode * right;
+    struct KVnode * left;
 } tNode;
 
 typedef tNode * tTree;

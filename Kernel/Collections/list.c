@@ -59,24 +59,24 @@ void delete_first(list_t my_list) {
         return;
     }
     node_t to_free = my_list->head;
-my_list->head = node_get_next(my_list->head);
-mm_free(to_free);
-my_list->size--;
+  my_list->head = node_get_next(my_list->head);
+  node_free(to_free);
+  my_list->size--;
 }
 
 void list_mm_free(list_t my_list) {
     if (is_null(my_list)) {
-        return; // AsegÃºrate de que la lista no sea nula
+        return; 
     }
 
     node_t current = my_list->head;
     node_t next;
 
     while (current != NULL) {
-        next = node_get_next(current); // Guarda el siguiente nodo
-        node_free(current); // Libera el nodo actual
-        current = next; // Avanza al siguiente nodo
+        next = node_get_next(current); 
+        node_free(current); 
+        current = next; 
     }
 
-    mm_free(my_list); // Finalmente libera la lista
+    mm_free(my_list); 
 }

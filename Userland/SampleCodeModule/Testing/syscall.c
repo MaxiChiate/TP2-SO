@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include <syscall.h>
 
 int64_t my_getpid() {
   return 0;
@@ -42,7 +42,7 @@ int64_t my_sem_close(char *sem_id) {
 
 int64_t my_yield() {
 
-  for(int i=0; i<10000; i++);
+  giveup_cpu();
   return 0;
 }
 

@@ -147,7 +147,7 @@ void up(uint8_t sem_id) {
 
     if(!queue_is_empty(semaphores[sem_id].processes_queue))  {
 
-        int64_t * next_pid = dequeue(semaphores[sem_id].processes_queue);
+        int64_t * next_pid = (int64_t *) dequeue(semaphores[sem_id].processes_queue);
 
         if(next_pid != NULL)    {
 
