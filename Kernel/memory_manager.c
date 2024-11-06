@@ -102,7 +102,7 @@ static inline int16_t get_address_index(const void * address) {
 		}
 		else	{
 
-			i += heap[i].dim;
+			i++;
 		}
 	}
 
@@ -126,7 +126,7 @@ static bool transfer_freespace(int current_index, int dim_requested)	{
 
 			free_block(j);
 			heap[j].dim = freeblock_dim;
-			heap[j].initial_address = heap[current_index].initial_address + heap[current_index].dim;
+			heap[j].initial_address = heap[current_index].initial_address + dim_requested;
 
 			return true;
 		}
