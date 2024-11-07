@@ -4,12 +4,12 @@
 
 build_in_f build_in_functions[AVAILABLE_BUILDIN_F]={&help, &time, &clear, &div0, &invalidOpcode};
 process_f  process_functions[AVAILABLE_PROCESS_F]={};
-process_f  test_functions[AVAILABLE_TESTS]={&test_processes, &test_prio, &test_sync};
+process_f  test_functions[AVAILABLE_TESTS]={&test_processes, &test_prio, &test_sync, &test_mm};
 
 
 char* build_in_names[AVAILABLE_BUILDIN_F+1]= {"help", "time", "clear", "div0", "invalidopcode", 0};
 char* process_names[AVAILABLE_PROCESS_F+1]={'\0'};
-char* test_names[AVAILABLE_TESTS+1]={"test_processes", "test_prio", "test_sync", '\0'};
+char* test_names[AVAILABLE_TESTS+1]={"test_processes", "test_prio", "test_sync", "test_mm", '\0'};
 
 char* build_in_descriptions[AVAILABLE_BUILDIN_F+1]={
                             "Gives information about the available commands to execute",
@@ -23,9 +23,10 @@ char* process_descriptions[AVAILABLE_PROCESS_F+1]={
                             '\0'
                             };
 char* test_descriptions[AVAILABLE_TESTS+1]={
-                            "Test process creations",
-                            "Test process priority",
-                            "Test semaphore syncro. Usage: test_sync <increment times> <use sem, 1 or 0>",
+                            "Test process creations. \nUsage: test_processes <max processes> <show process, 1 or 0>",
+                            "Test process priority. \nUsage: test_priority",
+                            "Test semaphore syncro. \nUsage: test_sync <increment times> <use sem, 1 or 0>",
+                            "Test memory manager. \nUsage: test_mm <max_memory>",
                             '\0'
                             };
 
