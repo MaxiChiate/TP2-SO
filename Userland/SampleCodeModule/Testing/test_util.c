@@ -80,16 +80,14 @@ void iotas(int n, char *str, int dim) {
 }
 
 
+void endless_loop_print(int argc, char ** argv) {
 
-#define MINOR_WAIT 99000099  
-
-void endless_loop_print() {
   int64_t pid = current_pid();
   char s[4];
   iotas(pid, s, 3);
   while (1) {
     
     print(s);
-    bussy_wait(MINOR_WAIT);
+    bussy_wait(satoi(argv[0]));
   }
 }
