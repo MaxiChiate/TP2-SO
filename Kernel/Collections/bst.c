@@ -11,7 +11,7 @@ typedef tNode * tTree;
 typedef struct bstCDT {
     tTree root;
     int height; /*Altura del árbol*/
-    size_t size; /*Cantidad de elementos en el árbol*/
+    uint32_t size; /*Cantidad de elementos en el árbol*/
     int (*compare)(elemType, elemType);
 } bstCDT;
 

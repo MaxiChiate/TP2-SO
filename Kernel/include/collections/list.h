@@ -12,7 +12,7 @@
 
   void list_add(list_t my_list, void * data);
 
-  size_t list_get_size(list_t my_list);
+  uint32_t list_get_size(list_t my_list);
 
   void * list_get_head(list_t my_list);
 

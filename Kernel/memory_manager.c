@@ -137,7 +137,7 @@ static bool transfer_freespace(int current_index, int dim_requested)	{
 }
 
 
-void * mm_malloc(size_t dim)	{
+void * mm_malloc(uint32_t dim)	{
 
 	for(int i=0; i<size; i++)	{
 
@@ -181,26 +181,3 @@ void mm_free(void * p)	{
 		free_block(index);
 	}
 }
-
-// /* Anda bastante bien, queda pisar la memoria usada y que libere todos los
-//  * bloques que se le dió a cada puntero */
-// int main()  {
-
-//     char hola[30];
-
-//     mm_init(hola, 30);
-
-//     char * v = (char *) mm_malloc(5);
-
-//     v[0] = 'H';
-//     v[1] = 'o';
-//     v[2] = 'l';
-//     v[3] = 'a';
-//     v[4] = '\0';
-
-//     printf("%s\n", v);
-
-//     mm_free(v);
-    
-//     printf("%s\n",v);
-// }

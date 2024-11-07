@@ -1,13 +1,12 @@
 #ifndef __TESTING_H
 #define __TESTING_H
 
-    #include <Testing/syscall.h>
     #include <Testing/test_util.h>
     #include <semlib.h>
+    #include <processlib.h>
+    #include <heaplib.h>
 
     #define END_MESSAGE "OK\n"
-
-    #define MAX_PROCESSES 62
 
     void test_processes(int argc, char ** argv);
     void test_prio(int argc, char ** argv);

@@ -4,7 +4,7 @@
 
 typedef struct TreeMapCDT {
     KVTree trees[AMOUNT_TREES];
-    size_t size;
+    uint32_t size;
     int (*compareKeys)(key_t, key_t);
     int (*compareValues)(value_t, value_t);
 } TreeMapCDT;

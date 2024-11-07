@@ -5,7 +5,7 @@
 struct list {
 
   node_t head;
-  size_t size;
+  uint32_t size;
 
 };
 
@@ -40,7 +40,7 @@ void list_add(list_t my_list, void * data) {
 
 
 
-size_t list_get_size(list_t my_list)  {
+uint32_t list_get_size(list_t my_list)  {
 
   return not_null(my_list) ? my_list->size : 0x00;
 }

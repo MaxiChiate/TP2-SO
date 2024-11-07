@@ -22,4 +22,8 @@
 #define ACS_STACK       (ACS_PRESENT | ACS_DSEG | ACS_WRITE)
 
 
+#ifndef NULL
+#define NULL ((void*)0x0000)
+#endif
+
 #endif

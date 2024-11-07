@@ -12,7 +12,7 @@ typedef tNode * tTree;
 typedef struct KVTreeCDT {
     tTree root;
     int height; /*Altura del árbol*/
-    size_t size; /*Cantidad de key en el árbol*/
+    uint32_t size; /*Cantidad de key en el árbol*/
     int (*compareKeys)(key_t, key_t);
     int (*compareValues)(value_t, value_t);
 } KVTreeCDT;
