@@ -22,6 +22,8 @@ typedef struct pcb {
     uint64_t code_segment;
     uint64_t instruction_pointer;
     
+    queue_t waiting_me;
+
     int64_t process_id;
     int64_t parent_process_id;
     process_state_t state;
@@ -78,6 +80,8 @@ static int get_index_by_sp(uint64_t sp);
 static int get_index_by_pid(int64_t pid);
 
 static bool kill_process(int p);
+
+static void wait4it(int64_t pid);
 // static ps_t process_status(int p);
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -163,6 +167,16 @@ void give_up_cpu()  {
 void suicide() {
 
     kill_process(current_process);
+
+    queue_t waiting = pcbs[current_process].waiting_me;
+
+    while(!queue_is_empty(waiting))    {
+
+        unblock_process_by_index(*(int*) dequeue(waiting));
+    }
+
+    free_queue(waiting);
+
     give_up_cpu();
 }
 
@@ -210,29 +224,23 @@ void wait()     {
         if(is_alive(i) && 
             pcbs[i].parent_process_id == pcbs[current_process].process_id)  {
 
-                i= (-1);
-                give_up_cpu();
+                wait4it(pcbs[i].process_id); // Solo se borra de un proceso cuando lo libera, TODO implementar una funcion cp en node y que no acepte repetidos y listo
         }
 
         i++;
     }
+
+    block_process_by_index(current_process);
+    give_up_cpu();
 }
 
 
 
-
-// Espera a que el proceso de process id = pid tenga estado TERMINATED
 void waitpid(int64_t pid) {
 
-    int process_index = get_index_by_pid(pid);
-
-    if(process_index >= 0)   {
-     
-        while(is_alive(process_index))  {
-
-            give_up_cpu();
-        }
-    }
+    wait4it(pid);
+    block_process_by_index(current_process);
+    give_up_cpu();
 }
 
 bool get_scheduler_status() {
@@ -448,6 +456,8 @@ static int new_process(uint64_t function_address, int argc, char ** argv, unsign
         .state = TERMINATED, // Not ready yet
         .foreground = foreground,
         
+        .waiting_me = queue_init(),
+
         .quantum = get_quantum(priority),
         .priority = priority
     };
@@ -495,4 +505,14 @@ static bool kill_process(int p) {
     }
 
     return false;
+}
+
+static void wait4it(int64_t pid)  {
+
+    int process_index = get_index_by_pid(pid);
+
+    int64_t * my_pid;
+    *my_pid = get_current_pid();
+
+    enqueue(pcbs[process_index].waiting_me, my_pid);
 }

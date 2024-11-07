@@ -8,6 +8,7 @@
 #include <systemCalls.h>
 #include <systemCallDefs.h>
 #include <interrupts.h>
+#include <collections/queue.h>
 
 #define K 1024
 #define STACK_SPACE 4*K
