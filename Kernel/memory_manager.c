@@ -2,82 +2,70 @@
 
 #define OUT_OF_RANGE_EXCLUSIVE(x,a,b) ((x) < (a) || (x) > (b))
 
+#define IN_RANGE(x, y, z) (x >= y && x < z)
+
 typedef struct {
 
 	bool free;
 	void * initial_address;
-	uint16_t dim;
+	int id;
+	int link;
 
-} heapblock_t;
-
-
-// init_mm(0, 10)
-// 	[{free, 0, 10}, {inUse, NULL, 0}, ...]
-//	mm_malloc(5);
-//	[{inUse, 0, 5}, {free, 5, 5}, ...]
-//	mm_malloc(2);
-//	[{inUse, 0, 5}, {inUse, 5, 2}, {free, 7, 3}, ...]
-//	mm_free(0);
-//	[{free, 0, 5}, {inUse, 5, 2}, {free, 7, 3}}, ...]
-//	mm_malloc(3);
-//	[{inUse, 0, 3}, {inUse, 5, 2}, {free, 7, 3}, {free, 10, 2}, ...]
-
+} blocks_heapblock_t;
 
 static void * start;
-static void * end;
-static heapblock_t heap[MAX_HEAP_DIM];
 
-static int size;
-static int empty_blocks;
+static char heap[HEAP_SIZE];
 
-void mm_init(void * start_given, int size_requested)	{
-  
-	size = (MAX_HEAP_DIM < size_requested) ? MAX_HEAP_DIM : size_requested;
+// index del último bloque reservado
+static int last_alloced = 0;
 
-	start = (void *) start_given;
-	end = (void *) (start + size_requested - 1);
-	size = size_requested;	
-	empty_blocks = size_requested - 1;
+static blocks_heapblock_t blocks_heap[BLOCKS_HEAP_SIZE];
+static int empty_blocks = HEAP_SIZE - 1;
 
-	heapblock_t genesis_block = {
-			
-		.free = true,
-		.initial_address = start,
-		.dim = size
-	};
+static blocks_heapblock_t create_blocks_heapblock(void * initial_address, int id, int link) {
+    
+    blocks_heapblock_t blocks_heapblock = {
+        .free = true,
+        .initial_address = initial_address,
+        .id = id,
+        .link = -1
+    };
 
-	heapblock_t empty_block = {
-
-		.free = false,
-		.initial_address = NULL,
-		.dim = 0
-	};
-
-	heap[0] = genesis_block;
-
-// Inicializo bloques "sin uso", sirven para crear bloques libres al hacer malloc.
-
-	for(int i=1; i<size; i++)	{
-
-		heap[i] = empty_block;
-	}
+    return blocks_heapblock;
 }
 
 
+void mm_init(void * start_given) {
+  
+	start = start_given;
+
+	blocks_heapblock_t empty_block = {
+
+		.free = true,
+		.initial_address = NULL,
+	};
+
+// Inicializo bloques "sin uso", sirven para crear bloques libres al hacer malloc.
+	for(int i = 0; i < BLOCKS_HEAP_SIZE; i++)	{
+		blocks_heap[i] = create_blocks_heapblock(heap + i * BLOCK_SIZE, i, -1);
+	}
+}
 
 static inline void free_block(int index)	{
 
-	heap[index].free = true;
+	blocks_heap[index].free = true;
+    blocks_heap[index].link = -1;
 }
 
 static inline void lock_block(int index)	{
 
-	heap[index].free = false;
+	blocks_heap[index].free = false;
 }
 
 static inline bool is_free(int index)	{
 
-	return heap[index].free;
+	return blocks_heap[index].free;
 }
 
 static inline bool is_locked(int index)	{
@@ -87,118 +75,115 @@ static inline bool is_locked(int index)	{
 
 static inline void * end_address(int index)	{
 
-	return (void *) (heap[index].initial_address + heap[index].dim - 1);
+	return (void *) (blocks_heap[index].initial_address + blocks_heap[index].id * BLOCKS_HEAP_SIZE);
 }
 
-static inline int16_t get_address_index(const void * address) {
+static size_t find_blocks_to_alloc(size_t dim) {
+    
+    size_t to_return = dim/BLOCK_SIZE;
 
-	uint16_t i = 0;
+    if(dim%BLOCK_SIZE!=0){
+        to_return+=1;
+    }
 
-	while(i<size)	{
-
-		if((address - heap[i].initial_address) < heap[i].dim)	{
-			
-			return i;
-		}
-		else	{
-
-			i += heap[i].dim;
-		}
-	}
-
-	return -1;
+    return to_return;
 }
 
-static bool transfer_freespace(int current_index, int dim_requested)	{
+// Retorna la posición donde se comenzará a reservar el nuevo bloque
+static int find_block_space(int blocks){
 
-	if( heap[current_index].dim == dim_requested)	{
-		
-		return true;
-	}
+    int free_streak= 0;
+    
+    for(int i=last_alloced; i < BLOCKS_HEAP_SIZE;i++){
 
-	for(int j=current_index+1; j<size; j++)	{	
+        if(blocks_heap[i].free){
+            free_streak+=1;
+            if(free_streak>=blocks){
+                return i-blocks+1;
+            }
+        }
+        else{
+            free_streak=0;
+        }
+    }
+    free_streak=0;
+    for(int i=0; i<last_alloced; i++){
+        
+        if(blocks_heap[i].free){
+            free_streak+=1;
+            if(free_streak>=blocks){
+                return i-blocks+1;
+            }
+        }
+        else{
+            free_streak=0;
+        }
+    }
 
-		int freeblock_dim = heap[current_index].dim - dim_requested;
+    return -1;
 
-	// Block "sin uso":
-
-		if(is_locked(j) && heap[j].initial_address == NULL)	{ 
-
-			free_block(j);
-			heap[j].dim = freeblock_dim;
-			return true;
-		}
-
-	}	
-
-	return false;
 }
 
 
 void * mm_malloc(size_t dim)	{
 
-	for(int i=0; i<size; i++)	{
+    size_t blocks_to_alloc = find_blocks_to_alloc(dim);
+    // Si no me quedan bloques retorno NULL
+    int to_alloc=find_block_space(blocks_to_alloc);
 
-		if (is_free(i) && heap[i].dim >= dim)	{	// Encontró un bloque libre
+    if (to_alloc==-1) {
+        return NULL;
+    }
 
-			if(empty_blocks == 0)	{	// Sin bloques vacíos no hace la logica de transferir bloques libres
+    void * to_return = blocks_heap[to_alloc].initial_address;
+    for (int i = to_alloc; i < to_alloc + blocks_to_alloc; i++) {
+        blocks_heap[i].link = to_alloc;
+        blocks_heap[i].free=false;
+    }
 
-				lock_block(i);
-				return heap[i].initial_address;
-			}
+    last_alloced = to_alloc + blocks_to_alloc;
+    return to_return;
 
-		// Primero se "transfieren" los bloques libres que no se van a alocar que estaban en el bloque con espacio
+}	
 
-			if(!transfer_freespace(i, dim))	{
+static int get_index(void * ptr) {
 
-				return NULL;
-			}
-			
-			lock_block(i);
-			heap[i].dim = dim;
-			return heap[i].initial_address;
-		}
-	}
+    for (int i = 0; i < BLOCKS_HEAP_SIZE; i++) {
 
-	return NULL;
-}								
+        if (IN_RANGE(ptr, blocks_heap[i].initial_address, blocks_heap[i].initial_address + BLOCK_SIZE)) {
+            return i;
+        }
+
+    }
+
+    return -1;
+}
+
+static int get_first_link(int index) {
+
+    int i = index;
+
+    while (blocks_heap[i--].link == blocks_heap[index].id) {
+        if (i == 0) break;
+    }
+
+    return i;
+}
 
 void mm_free(void * p)	{
 
-//Checkeo para saber si es una direccion valida:
+    //Si no es una dirección válida retorno
 
-	if(OUT_OF_RANGE_EXCLUSIVE(p, start, start + size - 1))	{
-
+	if(!IN_RANGE(p, (void *)heap, (void *)heap + HEAP_SIZE))	{
 		return;
 	}
+	int index = get_index(p);
+    if (index == -1) return;
 
-	int index = get_address_index(p);
+    int i = index;
+    while (i < BLOCKS_HEAP_SIZE && blocks_heap[i].link == blocks_heap[index].id) {
+        free_block(i++);
+    }
 
-	if( index >= 0 && is_locked(index))	{
 
-		free_block(index);
-	}
 }
-
-// /* Anda bastante bien, queda pisar la memoria usada y que libere todos los
-//  * bloques que se le dió a cada puntero */
-// int main()  {
-
-//     char hola[30];
-
-//     mm_init(hola, 30);
-
-//     char * v = (char *) mm_malloc(5);
-
-//     v[0] = 'H';
-//     v[1] = 'o';
-//     v[2] = 'l';
-//     v[3] = 'a';
-//     v[4] = '\0';
-
-//     printf("%s\n", v);
-
-//     mm_free(v);
-    
-//     printf("%s\n",v);
-// }

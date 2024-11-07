@@ -11,7 +11,7 @@
 #define HEAP_SIZE (1 << MAX_ORDER) /*2^MAX_ORDER*/
 #define MAX_NODES ((1 << (MAX_ORDER - MIN_CHUNK_ORDER + 1)) - 1) /*255*/
 
-typedef enum {GREEN, YELLOW, RED, BLUE} block_state;
+typedef enum {B_GREEN, B_YELLOW, B_RED, B_BLUE} block_state;
 
 /*
  * GREEN:  free

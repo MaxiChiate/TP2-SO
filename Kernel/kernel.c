@@ -24,8 +24,6 @@ static void * const sampleCodeModuleAddress = 	(void*)0x400000;
 static void * const sampleDataModuleAddress = 	(void*)0x500000;
 static void * const memoryHeapAddress =   		(void*)0x600000;
 
-#define HEAP_SIZE 10*K
-
 typedef int (*EntryPoint)(); 
 
 
@@ -64,7 +62,7 @@ void * initializeKernelBinary()
 
 int main() {
 
-	mm_init(memoryHeapAddress, HEAP_SIZE);
+	mm_init(memoryHeapAddress);
 	init_semaphore_store();
 	load_idt();
 

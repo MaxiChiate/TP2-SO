@@ -28,7 +28,7 @@ static buddy_tree_t tree = &tree_struct;
 static void init_block(buddy_block_descriptor_t block, int order){
 
     block->order = order;
-    block->state = GREEN;
+    block->state = B_GREEN;
     block->left = NULL;
     block->right = NULL;
 
@@ -76,18 +76,18 @@ static buddy_block_descriptor_t find_rec(buddy_block_descriptor_t current, int o
         return NULL;
     }
     // Si este bloque esta libre y es del orden indicado se retorna este bloque
-    if (current->order == order && current->state == GREEN) {
-        current->state = RED;
+    if (current->order == order && current->state == B_GREEN) {
+        current->state = B_RED;
         return current;
     }
 
     // Si left es GREEN llamo recursivamente con left
-    if (current->left != NULL && current->left->state == GREEN) {
+    if (current->left != NULL && current->left->state == B_GREEN) {
         to_return = find_rec(current->left, order);
     }
 
     // Si left es YELLOW
-    else if (current->left != NULL && current->left->state == YELLOW) {
+    else if (current->left != NULL && current->left->state == B_YELLOW) {
 
         // Si left es del orden solicitado llamo recursivamente con right 
         if (current->left->order == order && current->right != NULL) {
@@ -107,20 +107,20 @@ static buddy_block_descriptor_t find_rec(buddy_block_descriptor_t current, int o
     }
 
     // Si left es RED o BLUE llamo recursivamente con right
-    else if (current->left != NULL && (current->left->state == RED || current->left->state == BLUE)) {
+    else if (current->left != NULL && (current->left->state == B_RED || current->left->state == B_BLUE)) {
         to_return = find_rec(current->right, order);
     }
 
     // Si no es una hoja    
     if(current->left!=NULL && current->right!=NULL){
         // Pone en amarillo todo el recorrido
-        current->state = YELLOW;
+        current->state = B_YELLOW;
         //Si ambos hijos son RED, el current se pone en BLUE
-        if (current->left->state == RED && current->right->state == RED) {
-            current->state = BLUE;
+        if (current->left->state == B_RED && current->right->state == B_RED) {
+            current->state = B_BLUE;
         }
-        else if (current->left->state == BLUE && current->right->state == BLUE) {
-            current->state = BLUE;
+        else if (current->left->state == B_BLUE && current->right->state == B_BLUE) {
+            current->state = B_BLUE;
         }
     }
     
@@ -163,8 +163,8 @@ static void free_rec(buddy_block_descriptor_t block, void * ptr) {
     }
 
     //Si el bloque encontrado no esta libre, se libera y se pone en GREEN
-    if (block->state == RED) {
-        block->state = GREEN;
+    if (block->state == B_RED) {
+        block->state = B_GREEN;
         tree->total_assignable_space += (1 << block->order);
         return;
     }
@@ -179,12 +179,12 @@ static void free_rec(buddy_block_descriptor_t block, void * ptr) {
     }
 
     //Si ambos hijos son GREEN, el current se pone en GREEN
-    if (block->left!= NULL && block->left->state == GREEN && block->right->state == GREEN) {
-        block->state = GREEN;
+    if (block->left!= NULL && block->left->state == B_GREEN && block->right->state == B_GREEN) {
+        block->state = B_GREEN;
     }
     //Si los dos hijos no son GREEN, se pone en YELLOW
     else if(block->left!=NULL){
-        block->state = YELLOW;
+        block->state = B_YELLOW;
     }
 }
 
