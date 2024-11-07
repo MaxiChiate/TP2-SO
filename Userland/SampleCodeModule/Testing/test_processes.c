@@ -1,6 +1,4 @@
-#include <test_util.h>
-#include <syscall.h>
-#include <tests.h>
+#include <Testing/tests.h>
 
 enum State { RUNNING,
              BLOCKED,
@@ -11,24 +9,32 @@ typedef struct P_rq {
   enum State state;
 } p_rq;
 
-void test_processes(int argc, char *argv[]) {
-
+void test_processes(int argc, char ** argv) {
 
   uint8_t rq;
   uint8_t alive = 0;
   uint8_t action;
-  uint64_t max_processes = MAX_PROCESSES;
-  char *argvAux[] = {"endless_loop", NULL};
+  uint64_t max_processes;
+  uint8_t show;
+  char *argvAux[] = {0};
 
-//   if (argc != 2)    {
-//     print("test_processes: args amount\n");
-//     suicide();
-//   }
+  if (argc != 2)  {
 
-//   if ((max_processes = satoi(argv[1])) <= 0){
-//     print("test_processes: max processes format\n");
-//     suicide();
-//   }
+    print("test_processes: ERROR incorrect argument amount\nUsage: test_processes <max processes> <show process, 1 or 0>\n");
+    suicide();
+  }
+
+  if ((max_processes = satoi(argv[0])) <= 0)  {
+   
+    print("test_processes: ERROR incorrect first argument value");
+    suicide();
+  }
+
+  if ((show = satoi(argv[1])) > 1)  {
+   
+    print("test_processes: ERROR incorrect second argument value");
+    suicide();
+  }
 
   p_rq p_rqs[max_processes];
 
@@ -37,8 +43,11 @@ void test_processes(int argc, char *argv[]) {
     // Create max_processes processes
     for (rq = 0; rq < max_processes; rq++) {
 
-        print("Spawn new process\n");
-        p_rqs[rq].pid = (int) spawn_process((uint64_t) endless_loop, 1, argvAux, 1, true);
+      if(show)  {
+
+        print("Spawning process...");
+      }
+      p_rqs[rq].pid = spawn_process((int64_t) &endless_loop, 0, argvAux, 1, false);
 
       if (p_rqs[rq].pid == -1) {
         print("test_processes: ERROR creating process\n");
@@ -46,6 +55,8 @@ void test_processes(int argc, char *argv[]) {
       } else {
         p_rqs[rq].state = RUNNING;
         alive++;
+        if(show)
+          print(" Done!\n");
       }
     }
 
@@ -59,13 +70,15 @@ void test_processes(int argc, char *argv[]) {
           case 0:
             if (p_rqs[rq].state == RUNNING || p_rqs[rq].state == BLOCKED) {
               
-              print("Killing process\n");
-              
-              if (!kill(p_rqs[rq].pid)) {
-                
+              if(show)
+                print("Killing process...");
+
+              if (kill(p_rqs[rq].pid) == -1) {
                 print("test_processes: ERROR killing process\n");
                 suicide();
               }
+              if(show)
+                print(" Done!\n");
               p_rqs[rq].state = KILLED;
               alive--;
             }
@@ -73,11 +86,15 @@ void test_processes(int argc, char *argv[]) {
 
           case 1:
             if (p_rqs[rq].state == RUNNING) {
-                print("Blocking process\n");
-              if (!blockp(p_rqs[rq].pid)) {
+
+              if(show)
+                print("Blocking process...");
+              if (blockp(p_rqs[rq].pid) == -1) {
                 print("test_processes: ERROR blocking process\n");
                 suicide();
               }
+              if(show)
+                print(" Done!\n");
               p_rqs[rq].state = BLOCKED;
             }
             break;
@@ -87,11 +104,16 @@ void test_processes(int argc, char *argv[]) {
       // Randomly unblocks processes
       for (rq = 0; rq < max_processes; rq++)
         if (p_rqs[rq].state == BLOCKED && GetUniform(100) % 2) {
-            print("Unblocking process\n");
-          if (!unblockp(p_rqs[rq].pid)) {
+
+          if(show)
+            print("Unblocking process...");
+
+          if (unblockp(p_rqs[rq].pid) == -1) {
             print("test_processes: ERROR unblocking process\n");
             suicide();
           }
+          if(show)
+            print(" Done!\n");
           p_rqs[rq].state = RUNNING;
         }
     }
