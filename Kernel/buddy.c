@@ -1,4 +1,4 @@
-#include <buddy.h>
+#include <memory_manager.h>
 
 typedef struct buddy_block_descriptor {
 	int order; /*Potencia de 2 que representa el tamaño del bloque*/

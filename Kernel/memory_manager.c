@@ -21,7 +21,6 @@ static char heap[HEAP_SIZE];
 static int last_alloced = 0;
 
 static blocks_heapblock_t blocks_heap[BLOCKS_HEAP_SIZE];
-static int empty_blocks = HEAP_SIZE - 1;
 
 static blocks_heapblock_t create_blocks_heapblock(void * initial_address, int id, int link) {
     
@@ -39,12 +38,6 @@ static blocks_heapblock_t create_blocks_heapblock(void * initial_address, int id
 void mm_init(void * start_given) {
   
 	start = start_given;
-
-	blocks_heapblock_t empty_block = {
-
-		.free = true,
-		.initial_address = NULL,
-	};
 
 // Inicializo bloques "sin uso", sirven para crear bloques libres al hacer malloc.
 	for(int i = 0; i < BLOCKS_HEAP_SIZE; i++)	{
@@ -157,17 +150,6 @@ static int get_index(void * ptr) {
     }
 
     return -1;
-}
-
-static int get_first_link(int index) {
-
-    int i = index;
-
-    while (blocks_heap[i--].link == blocks_heap[index].id) {
-        if (i == 0) break;
-    }
-
-    return i;
 }
 
 void mm_free(void * p)	{
