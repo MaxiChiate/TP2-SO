@@ -18,6 +18,12 @@
 #define MAX_NODES ((1 << (MAX_ORDER - MIN_CHUNK_ORDER + 1)) - 1) /*255*/
 
 typedef enum {B_GREEN, B_YELLOW, B_RED, B_BLUE} block_state;
+/*
+ * GREEN:  free
+ * YELLOW: partially free
+ * RED:    alloced
+ * BLUE:   left and right are alloced but current isn't
+ */
 
 typedef struct buddy_block_descriptor * buddy_block_descriptor_t;
 
