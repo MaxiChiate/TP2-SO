@@ -54,5 +54,6 @@ void test_prio(int argc, char ** argv) {
   for (i = 0; i < TOTAL_PROCESSES; i++)
     kill(pids[i]);
 
+  print(END_MESSAGE);
   suicide();
 }

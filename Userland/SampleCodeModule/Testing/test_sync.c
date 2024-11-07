@@ -96,5 +96,7 @@ void test_sync(int argc, char ** argv) { //{n, use_sem, 0}
     print(global_toString);
     putEnter();
 
+    print(END_MESSAGE);
+
     suicide();
 }

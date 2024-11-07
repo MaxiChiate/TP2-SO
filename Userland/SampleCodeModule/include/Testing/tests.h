@@ -5,6 +5,8 @@
     #include <Testing/test_util.h>
     #include <semlib.h>
 
+    #define END_MESSAGE "OK\n"
+
     #define MAX_PROCESSES 62
 
     void test_processes(int argc, char ** argv);
