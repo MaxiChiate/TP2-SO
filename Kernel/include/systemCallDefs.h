@@ -29,6 +29,8 @@
             SYS_DOWN,
             SYS_IS_SEM_ALIVE,
             SYS_NEW_SEM,
+            SYS_MM_MALLOC,
+            SYS_MM_FREE,
 
             SYSCALL_COUNT
         } syscall_id;
