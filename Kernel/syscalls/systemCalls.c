@@ -1,14 +1,9 @@
-#include <colours.h>
+//sytemCalls.c
+
 #include <systemCalls.h>
-#include <videoDriver.h>
-#include <stringPrinter.h>
-#include <buffer.h>
-#include <rtcDriver.h>
-#include <time.h>
 
 static int characterColor=WHITE;
 
-extern void haltcpu();
 
 char sysWrite(unsigned int fd, unsigned int count)	{
 
@@ -110,4 +105,5 @@ unsigned long rand() {
     // Return a 31-bit positive number
     return ans & 0x7fffffff;
 }
+
 

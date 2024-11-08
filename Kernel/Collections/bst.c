@@ -1,17 +1,17 @@
 #include <collections/bst.h>
 
-typedef struct node {
+typedef struct BSTnode {
     elemType value;
-    struct node * right;
-    struct node * left;
-} tNode;
+    struct BSTnode * right;
+    struct BSTnode * left;
+} bst_tNode;
 
-typedef tNode * tTree;
+typedef bst_tNode * tTree;
 
 typedef struct bstCDT {
     tTree root;
     int height; /*Altura del árbol*/
-    size_t size; /*Cantidad de elementos en el árbol*/
+    uint32_t size; /*Cantidad de elementos en el árbol*/
     int (*compare)(elemType, elemType);
 } bstCDT;
 
@@ -31,7 +31,7 @@ unsigned int bstSize(bstADT bst) {
 static tTree insertRec(tTree tree, elemType elem, bool * added, int * level, int (*compare)(elemType, elemType)) {
     int c;
     if (tree == NULL) {
-        tNode * node = mm_malloc(sizeof(tNode));
+        bst_tNode * node = mm_malloc(sizeof(bst_tNode));
         node->value = elem;
         node->right = NULL;
         node->left = NULL;

@@ -4,18 +4,8 @@
     #include <bool.h>
     #include <stdint.h>
     #include <userlib.h>
-    
-    #define PROCESS_NAME_LENGTH 10
-
-    typedef struct  {
-
-        uint64_t sp;
-        uint64_t bp;
-        uint64_t id;
-        bool foreground;
-        int priority;
-        char name[PROCESS_NAME_LENGTH+1];
-    } ps_t;
+    #include <../../../Kernel/include/systemCallDefs.h>
+    #include <defs.h>
 
     int64_t run_process(int64_t function_address, int argc, char ** argv, unsigned int priority, bool foreground);
 
@@ -23,10 +13,10 @@
 
     bool kill(int64_t pid);
 
-    uint64_t current_pid();
+    int64_t current_pid();
 
     void giveup_cpu();
-
+    
     bool blockp(int64_t pid);
 
     bool unblockp(int64_t pid);

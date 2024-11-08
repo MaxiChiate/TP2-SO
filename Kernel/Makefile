@@ -6,7 +6,7 @@ KERNEL_BUDDY = kernel.bin
 INCLUDE_PATHS = -I./include -I./include/collections -I./include/asm -I./include/process
 
 # Manually specify subdirectories for source files (hardcoded)
-SOURCES_ALL = $(wildcard ./*.c) $(wildcard asm/*.c) $(wildcard collections/*.c) $(wildcard process/*.c)
+SOURCES_ALL = $(wildcard ./*.c) $(wildcard asm/*.c) $(wildcard collections/*.c) $(wildcard process/*.c) $(wildcard syscalls/*.c)
 SOURCES_ASM = $(wildcard asm/*.asm) $(wildcard collections/*.asm)
 
 

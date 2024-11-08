@@ -9,7 +9,6 @@
 #define QUANTUM_AMOUNT 3
 static unsigned int quantum[QUANTUM_AMOUNT] = {0b001, 0b010, 0b100};
 
-// Nuevo estado para la implementación de waitpid
 typedef enum process_state {BLOCKED, READY, RUNNING, TERMINATED} process_state_t;
 
 typedef struct pcb {
@@ -22,6 +21,8 @@ typedef struct pcb {
     uint64_t code_segment;
     uint64_t instruction_pointer;
     
+    queue_t waiting_me;
+
     int64_t process_id;
     int64_t parent_process_id;
     process_state_t state;
@@ -78,7 +79,11 @@ static int get_index_by_sp(uint64_t sp);
 static int get_index_by_pid(int64_t pid);
 
 static bool kill_process(int p);
-// static ps_t process_status(int p);
+
+static bool wait4(int64_t pid);
+static void wake_up_processes_waiting_me();
+
+static ps_t process_status(int p);
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
@@ -101,7 +106,7 @@ void scheduler_init(uint64_t init_address, int argc, char * argv[])   {
     }
 }
 
-
+#include <systemCalls.h> // Delete
 
 uint64_t schedule(uint64_t current_stack_pointer) {
 
@@ -163,6 +168,9 @@ void give_up_cpu()  {
 void suicide() {
 
     kill_process(current_process);
+
+    wake_up_processes_waiting_me();
+
     give_up_cpu();
 }
 
@@ -203,35 +211,35 @@ bool change_process_priority(int64_t pid, int prio)  {
 
 void wait()     {
 
+    bool waiting;
     int i = 0;
 
     while(i<PROCESS_AMOUNT) {
 
         if(is_alive(i) && 
             pcbs[i].parent_process_id == pcbs[current_process].process_id)  {
-
-                i= (-1);
-                give_up_cpu();
+                                            //TODO
+                waiting = wait4(pcbs[i].process_id); // Solo se borra de un proceso cuando lo libera, TODO implementar una funcion cp en node y que no acepte repetidos y listo
         }
 
         i++;
+    }
+
+    if(waiting)    {
+
+        block_process_by_index(current_process);
+        give_up_cpu();
     }
 }
 
 
 
-
-// Espera a que el proceso de process id = pid tenga estado TERMINATED
 void waitpid(int64_t pid) {
 
-    int process_index = get_index_by_pid(pid);
+    if(wait4(pid))    {
 
-    if(process_index >= 0)   {
-     
-        while(is_alive(process_index))  {
-
-            give_up_cpu();
-        }
+        block_process_by_index(current_process);
+        give_up_cpu();
     }
 }
 
@@ -240,48 +248,47 @@ bool get_scheduler_status() {
     return scheduler_on;
 }
 
-// TODO
-// ps_t * get_ps() {
+ps_t * get_ps() {
 
-//     ps_t * to_return = mm_malloc(sizeof(to_return[0]) * current_amount_process+1);
+    ps_t * to_return = mm_malloc(sizeof(to_return[0]) * current_amount_process);
     
-//     int k=0;
-//     for(int i=0; k<current_amount_process && i<PROCESS_AMOUNT; i++)   {
+    int k=0;
+    for(int i=0; k<current_amount_process && i<PROCESS_AMOUNT; i++)   {
         
-//         if (is_alive(i)) {
+        if (is_alive(i)) {
             
-//             to_return[k++] = process_status(i);   
-//         }
-//     }
+            to_return[k++] = process_status(i);   
+        }
+    }
 
-//     to_return[k].id = 0;
-
-//     return to_return;
-// }
+    return to_return;
+}
 
 
 
-// static ps_t process_status(int p)   {
+static ps_t process_status(int p)   {
 
-//     ps_t to_return = {
-//             .bp = pcbs[p].base_pointer,
-//             .sp = pcbs[p].stack_pointer,
-//             .id = pcbs[p].process_id,
-//             .foreground = pcbs[p].foreground,
-//             .priority = pcbs[p].priority
-//     };
+    ps_t to_return = {
+            .bp = pcbs[p].base_pointer,
+            .sp = pcbs[p].stack_pointer,
+            .id = pcbs[p].process_id,
+            .parent_id = pcbs[p].parent_process_id,
+            .state = pcbs[p].state == RUNNING ? 'R' : (pcbs[p].state == READY ? 'r' : (pcbs[p].state == BLOCKED ? 'b' : 't')),
+            .foreground = pcbs[p].foreground,
+            .priority = pcbs[p].priority
+    };
 
-//     int i;
+    int i;
 
-//     for(i=0; i<PROCESS_NAME_LENGTH&& pcbs[p].argv[0][i]!=0; i++)    {
+    for(i=0; i<PROCESS_NAME_LENGTH&& pcbs[p].argv[0][i]!=0; i++)    {
 
-//         to_return.name[i] = pcbs[p].argv[0][i];
-//     }
+        to_return.name[i] = pcbs[p].argv[0][i];
+    }
 
-//     to_return.name[i] = '\0';
+    to_return.name[i] = '\0';
 
-//     return to_return;
-// }
+    return to_return;
+}
 
 
 
@@ -448,6 +455,8 @@ static int new_process(uint64_t function_address, int argc, char ** argv, unsign
         .state = TERMINATED, // Not ready yet
         .foreground = foreground,
         
+        .waiting_me = queue_init(),
+
         .quantum = get_quantum(priority),
         .priority = priority
     };
@@ -495,4 +504,30 @@ static bool kill_process(int p) {
     }
 
     return false;
+}
+
+static bool wait4(int64_t pid)  {
+
+    int process_index = get_index_by_pid(pid);
+
+    if(process_index < INITIAL_PROCESS_ID || not_alive(process_index))    {
+
+        return false;
+    }
+
+    enqueue(pcbs[process_index].waiting_me, current_process);
+
+    return true;
+}
+
+static void wake_up_processes_waiting_me()    {
+
+    queue_t waiting = pcbs[current_process].waiting_me;
+
+    while(!queue_is_empty(waiting))    {
+
+        unblock_process_by_index(dequeue(waiting));
+    }
+
+    free_queue(waiting);
 }

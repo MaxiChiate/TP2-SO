@@ -93,12 +93,9 @@ bool kill_sem(uint8_t sem_id)   {
 
 static void wait_sem_access(uint8_t sem_id)  {
 
-    enter_region(&semaphores[sem_id].locked);
-
-    while(semaphores[sem_id].locked)   {
+    while(enter_region(&semaphores[sem_id].locked))   {
 
         give_up_cpu();
-        enter_region(&semaphores[sem_id].locked);
     }
 }
 
@@ -109,13 +106,15 @@ void down(uint8_t sem_id)   {
         return;
     }
 
+    int64_t pid;
+
 // Accesso exclusivo al semaphore store:
 
     wait_sem_access(sem_id);
 
-    if(semaphores[sem_id].count == 0)   {
+    while(semaphores[sem_id].count == 0)   {
 
-        int64_t pid = get_current_pid();
+        pid = get_current_pid();
 
         if(pid == -1)   {
 
@@ -123,15 +122,18 @@ void down(uint8_t sem_id)   {
             return;
         }
 
-        enqueue(semaphores[sem_id].processes_queue, &pid);
+        enqueue(semaphores[sem_id].processes_queue, pid);
         leave_region(&semaphores[sem_id].locked);
-        block_process(pid);
-    }
-    else    {
 
-        semaphores[sem_id].count--;
-        leave_region(&semaphores[sem_id].locked);
+    // Pierde el cpu:
+        block_process(pid);
+
+        wait_sem_access(sem_id);
     }
+
+    semaphores[sem_id].count--;
+    leave_region(&semaphores[sem_id].locked);
+
 }
 
 
@@ -143,19 +145,13 @@ void up(uint8_t sem_id) {
     }
 
 // Accesso exclusivo al semaphore store:
-
     wait_sem_access(sem_id);
 
     semaphores[sem_id].count++;
 
     if(!queue_is_empty(semaphores[sem_id].processes_queue))  {
 
-        int64_t * next_pid = dequeue(semaphores[sem_id].processes_queue);
-
-        if(next_pid != NULL)    {
-
-            unblock_process(next_pid[0]);
-        }
+        unblock_process(dequeue(semaphores[sem_id].processes_queue));
     }
 
     leave_region(&semaphores[sem_id].locked);

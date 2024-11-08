@@ -1,5 +1,53 @@
 #include <userlib.h>
 
+void print(char * str)  {
+
+    print2(str, strLength(str));
+}
+
+void print2(char * str, unsigned int dim)   {
+
+    int64_t args[] = { STRING, (int64_t) str, (int64_t) dim };
+
+    _int80(SYS_READ, args);
+
+    args[0] = STDOUT;
+    args[1] = (int64_t) dim;
+
+    _int80(SYS_WRITE, args);
+}
+
+unsigned char getChar() {
+
+    int64_t arg = RETURN_CHAR;
+
+    return (unsigned char) _int80(SYS_WRITE, &arg);
+}
+
+void putChar(char c)    {
+
+    char s [] = {c, '\0'};
+
+    print2(s, 1);
+}
+
+char getAndPrintChar()  {
+
+    int64_t arg = RETURNANDSTDOUT_CHAR;
+
+    return (char) _int80(SYS_WRITE, &arg);
+}
+
+void clear()    {
+
+    _int80(SYS_CLEAR, NULL);
+}
+
+void time_getter()  {
+
+    _int80(SYS_TIME, NULL);
+}
+
 void putEnter() {
     putChar('\n');
 }
@@ -33,33 +81,74 @@ char* stringNormalizer(char* origString){
     origString[j]='\0';
     return origString;
 }
-////asume que el string solo tiene dos palabras separadas por espacio, donde quiero devolver las 2;
-int stringTrimmerBySpace(char* origString, char* aux1, char* aux2) {
-    aux2[0] = '\0';
-    int i = 0, j = 0, k = 0;
-    while (origString[i] != ' ' && origString[i] != '\0') {
-        aux1[j++] = origString[i++];
-    }
-    aux1[j] = '\0';
-    if (origString[i] != '\0') {
-        i++; // //salteo el espacio
-        while (origString[i] != '\0') {
-            aux2[k++] = origString[i++];
+
+static int get_arg( char * origString, char * arg)    {
+ 
+    int i=0, k=0;
+
+    if (origString[i] != '\0' && arg != NULL)   {
+
+        while (origString[i] != ' ' && origString[i] != '\0')   {
+
+            arg[k++] = origString[i++];
         }
-        aux2[k] = '\0';
+
+        arg[k] = '\0';
+
     }
-
-    return k; // devuelvo longitud de aux2
-
+    return i;
 }
 
-unsigned int strLength(const char * str) {
+
+int stringTrimmerBySpace( char * origString, char * function_name, char ** argv) {
+    
+    int i = 0, argc = 0;
+
+    if(origString != NULL && function_name != NULL)     {
+
+        while (origString[i] != ' ' && origString[i] != '\0') {
+         
+            function_name[i] = origString[i];
+            i++;
+        }
+
+        function_name[i] = '\0';
+        
+        if (argv != NULL)   {
+
+            i += (origString[i] == ' '); // Si hay espacio, lo saco
+
+            int arg_lenght;
+            while( (arg_lenght = get_arg(origString + i, argv[argc])) )  { 
+
+                if(arg_lenght > 14 + 1) {
+
+                    return -1;
+                }
+
+                i += arg_lenght;
+                i += (origString[i] == ' '); // Por si hay espacio
+
+                argc++;
+            }
+
+            if(origString[i] != '\0')  { 
+        // No llego al final entonces quiere hacer overflow en el buffer, chau pichi    
+                return -1;
+            }
+        }
+    }
+
+    return argc;
+}
+
+unsigned int strLength( char * str) {
     int i=0;
     while(str[i++]!='\0');
     return i-1;
 }
 
-unsigned int strEquals(char * s1, char * s2)  {
+unsigned int strEquals( char * s1,  char * s2)  {
     int i=0;
     while(s1[i]!='\0' && s2[i]!='\0') {
         if(s1[i]!=s2[i])
@@ -69,21 +158,28 @@ unsigned int strEquals(char * s1, char * s2)  {
     return s1[i] == '\0' && s2[i] == '\0';
 }
 
-int isDigit(unsigned char c) {
-    return digits[c];
+bool isDigit(unsigned char c) {
+
+    return (bool) digits[c];
 }
 
-int isUpper(unsigned char c)    {
-    return capitals[c];
+bool isUpper(unsigned char c)    {
+
+    return (bool) capitals[c];
 }
 
-unsigned int strToUint(char * s) {
+bool isVocal(unsigned char c)   {
+
+    return (bool) vocals[c];
+}
+
+unsigned int strToUint( char * s) {
     
     unsigned int ans = 0;
     int i=0;
     while(isDigit((unsigned char)s[i])) {
      
-     putChar(s[i]);
+    //  putChar(s[i]);
         ans = ans*10 + s[i++]-0x30;
 
     }

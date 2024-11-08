@@ -6,7 +6,9 @@
 #include <time.h>
 #include <memory_manager.h>
 #include <systemCalls.h>
+#include <systemCallDefs.h>
 #include <interrupts.h>
+#include <collections/queue.h>
 
 #define K 1024
 #define STACK_SPACE 4*K
@@ -25,8 +27,6 @@
 
 #define DEFAULT_PARENT_PID 0
 #define INITIAL_PROCESS_ID 1
-
-#define PROCESS_NAME_LENGTH 10
 
 
 /*
@@ -94,7 +94,7 @@ void wait();
  */
 void waitpid(int64_t pid);
 
-// ps_t * get_ps();
+ps_t * get_ps();
 
 void suicide();
 

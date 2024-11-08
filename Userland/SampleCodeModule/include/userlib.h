@@ -3,8 +3,14 @@
 
     #include <defs.h>
     #include <bool.h>
+    #include <stdint.h>
+    #include <../../../Kernel/include/systemCallDefs.h>
+
+    int64_t _int80(int id, int64_t * args);
 
     void print(char * str);
+
+    void print2(char * str, unsigned int dim);
 
     void printUinteger(unsigned int n);
 
@@ -34,23 +40,25 @@
 
 //  Strings:
 
-    unsigned int strLength(const char * str);
+    unsigned int strLength( char * str);
 
-    unsigned int strEquals(char * s1, char * s2);
+    unsigned int strEquals( char * s1,  char * s2);
 
-    unsigned int strToUint(char * s);
+    unsigned int strToUint( char * s);
 
-    int isDigit(unsigned char c);
+    bool isDigit(unsigned char c);
 
-    int isUpper(unsigned char c);
+    bool isUpper(unsigned char c);
+
+    bool isVocal(unsigned char c);
 
     int getUintDigits(unsigned int n );
 
     int getUlongDigits(unsigned long n);
 
-    char* stringNormalizer(char* origString);
+    char* stringNormalizer(char * origString);
 
-    int stringTrimmerBySpace(char* origString, char* aux1, char* aux2);
+    int stringTrimmerBySpace( char * origString, char * function_name, char **argv);
     
 //  Al no tener memoria dinamica uIntToString depende de que se le pase la cantidad de digitos
 //  del numero a transformar. Para eso se dispone de la funcion getUintDigits.

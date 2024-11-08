@@ -1,25 +1,30 @@
-#include <test_util.h>
-#include <syscall.h>
+#include <Testing/tests.h>
 
 #define WAIT 1000000000
-  
-             
+#define MINOR_WAIT "99000099"  
+
+
 #define TOTAL_PROCESSES 3
 #define LOWEST 0  
 #define MEDIUM 1  
 #define HIGHEST 2 
 
-uint64_t prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM, HIGHEST};
+int64_t prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM, HIGHEST};
 
 void test_prio(int argc, char ** argv) {
 
-  uint64_t pids[TOTAL_PROCESSES];
-  char *argvaux[] = {"endless_loop_print", NULL};
+  if(argc != 0) {
 
+      print("test_prio: ERROR argument amount\nUsage: test_prio\n");
+      suicide();
+  }
+
+  int64_t pids[TOTAL_PROCESSES];
+  char *argvAux[] = {MINOR_WAIT, NULL};
   uint64_t i;
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    pids[i] = spawn_process((int64_t) endless_loop_print, 1, argvaux, 1, true);
+    pids[i] = spawn_process((int64_t) &endless_loop_print, 1, argvAux, MEDIUM, false);
 
   bussy_wait(WAIT);
   print("\nCHANGING PRIORITIES...\n");
@@ -44,10 +49,11 @@ void test_prio(int argc, char ** argv) {
     unblockp(pids[i]);
 
   bussy_wait(WAIT);
-  print("KILLING...");
+  print("\nKILLING...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
     kill(pids[i]);
 
+  print(END_MESSAGE);
   suicide();
 }
