@@ -13,9 +13,8 @@ typedef struct {
 
 } blocks_heapblock_t;
 
-static void * start;
 
-static char heap[HEAP_SIZE];
+static char * heap;
 
 // index del último bloque reservado
 static int last_alloced = 0;
@@ -37,7 +36,7 @@ static blocks_heapblock_t create_blocks_heapblock(void * initial_address, int id
 
 void mm_init(void * start_given) {
   
-	start = start_given;
+	heap = (char *) start_given;
 
 // Inicializo bloques "sin uso", sirven para crear bloques libres al hacer malloc.
 	for(int i = 0; i < BLOCKS_HEAP_SIZE; i++)	{

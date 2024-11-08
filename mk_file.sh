@@ -31,8 +31,18 @@ compile() {
     docker start $NOMBRE
     docker exec -it $NOMBRE make clean -C/root/Toolchain
     docker exec -it $NOMBRE make clean -C/root/
-    docker exec -it $NOMBRE make -C/root/Toolchain
-    docker exec -it $NOMBRE make -C/root/
+    docker exec -it $NOMBRE make all -C/root/Toolchain
+
+    if [[ $# -gt 0 ]]; then
+    # If it gets "buddy" as a parameter, it compiles with the buddy
+        if [[ "$1" == "buddy" ]]; then    
+            docker exec -it $NOMBRE make buddy -C/root/
+        fi
+    else
+        docker exec -it $NOMBRE make all -C/root/
+    fi
+
+
     
     # # Linkear en formato ELF para GDB
     # docker exec -it $NOMBRE objcopy -O binary /root/Kernel/kernel.elf /root/kernel.bin
@@ -112,6 +122,11 @@ else
             compile 
             echo -e "${YELLOW}Running in debug mode...${RESET}"
             run "-d"
+            ;;
+        -b)
+            compile "buddy"
+            echo -e "${YELLOW}Running with buddy system...${RESET}"
+            run 
             ;;
         *)
             echo -e "${RED}ERROR.${RESET}"
