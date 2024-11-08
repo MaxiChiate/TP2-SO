@@ -1,23 +1,28 @@
 #include <Collections/queue.h>
 
-queue_t queue_init() {
-    return list_init();
+queue_t queue_init()    {
+
+    return list_int_init();
 }
 
-void enqueue(queue_t q, void * data) {
-    list_add(q, data);
+void enqueue(queue_t q, int64_t data) {
+
+    list_int_add(q, data);
 }
 
-void * dequeue(queue_t q) {
-    void * to_return = list_get_head(q);
-    delete_first(q);
+int64_t dequeue(queue_t q) {
+
+    int64_t to_return = list_int_get_head(q);
+    list_int_delete_first(q);
     return to_return;
 }
 
 void free_queue(queue_t q) {
-    list_mm_free(q);
+
+    list_int_free(q);
 }
 
 bool queue_is_empty(queue_t q) {
-    return list_get_size(q) == 0;
+    
+    return list_int_is_empty(q);
 }

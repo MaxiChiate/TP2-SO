@@ -120,7 +120,7 @@ void down(uint8_t sem_id)   {
             return;
         }
 
-        enqueue(semaphores[sem_id].processes_queue, &pid);
+        enqueue(semaphores[sem_id].processes_queue, pid);
         leave_region(&semaphores[sem_id].locked);
         block_process(pid);
     }
@@ -147,12 +147,7 @@ void up(uint8_t sem_id) {
 
     if(!queue_is_empty(semaphores[sem_id].processes_queue))  {
 
-        int64_t * next_pid = (int64_t *) dequeue(semaphores[sem_id].processes_queue);
-
-        if(next_pid != NULL)    {
-
-            unblock_process(next_pid[0]);
-        }
+        unblock_process(dequeue(semaphores[sem_id].processes_queue));
     }
 
     leave_region(&semaphores[sem_id].locked);

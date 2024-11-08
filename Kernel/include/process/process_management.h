@@ -94,7 +94,7 @@ void wait();
  */
 void waitpid(int64_t pid);
 
-// ps_t * get_ps();
+ps_t * get_ps();
 
 void suicide();
 

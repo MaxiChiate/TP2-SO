@@ -1,16 +1,15 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-#include <Collections/list.h>
-#include <bool.h>
+#include <Collections/list_int.h>
 
 typedef list_t queue_t;
 
 queue_t queue_init();
 
-void enqueue(queue_t q, void *data);
+void enqueue(queue_t q, int64_t data);
 
-void *dequeue(queue_t q);
+int64_t dequeue(queue_t q);
 
 void free_queue(queue_t q);
 

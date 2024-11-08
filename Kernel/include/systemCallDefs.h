@@ -43,6 +43,8 @@
         uint64_t sp;
         uint64_t bp;
         uint64_t id;
+        uint64_t parent_id;
+        char state;
         bool foreground;
         int priority;
         char name[PROCESS_NAME_LENGTH+1];
