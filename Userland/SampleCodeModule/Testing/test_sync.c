@@ -61,7 +61,7 @@ void test_sync(int argc, char ** argv) { //{n, use_sem, 0}
   }
     
 
-    // Creamos el semaforo por fuera de los procesos asi sabemos su id (no es argumento de la funcion):
+    // Creamos el semaforo por fuera de los procesos asi sabemos su id (no es argumento de la funcion new_sem()):
 
     int8_t mutex = new_sem(1);
 
