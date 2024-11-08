@@ -29,8 +29,7 @@ void test_mm(int argc, char ** argv) {
   while (1) {
     rq = 0;
     total = 0;
-
-    // Request as many blocks as we can
+    //Request as many blocks as we can
     while (rq < MAX_BLOCKS && total < max_memory) {
       mm_rqs[rq].size = GetUniform(max_memory - total - 1) + 1;
       mm_rqs[rq].address = malloc(mm_rqs[rq].size);
@@ -40,7 +39,6 @@ void test_mm(int argc, char ** argv) {
         rq++;
       }
     }
-
     // Set
     uint32_t i;
     for (i = 0; i < rq; i++)
@@ -54,10 +52,11 @@ void test_mm(int argc, char ** argv) {
           print("test_mm ERROR\n");
           suicide();
         }
-
     // Free
     for (i = 0; i < rq; i++)
       if (mm_rqs[i].address)
         free(mm_rqs[i].address);
+
+    print("OK!\n");
   }
 }

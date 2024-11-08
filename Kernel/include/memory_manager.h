@@ -10,8 +10,8 @@
 #ifndef MM_MANAGER_H
 #define MM_MANAGER_H
 
-#define MAX_ORDER 10
-#define MIN_CHUNK_ORDER 3
+#define MAX_ORDER 20
+#define MIN_CHUNK_ORDER 6
 #define BLOCK_SIZE (1 << MIN_CHUNK_ORDER)
 #define BLOCKS_HEAP_SIZE (HEAP_SIZE/ BLOCK_SIZE) /*Cantidad de bloques*/
 #define HEAP_SIZE (1 << MAX_ORDER) /*2^MAX_ORDER*/
