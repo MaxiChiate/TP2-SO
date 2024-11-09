@@ -4,7 +4,7 @@
 
 syscall_wrapper syscalls[SYSCALL_COUNT] = {
 	
-    &sysWrite_wrapper, &sysRead_wrapper, &sysClear_wrapper, 
+    &write_wrapper, &read_wrapper, &open_wrapper, &close_wrapper, &dup_wrapper, &dup2_wrapper, &dup3_wrapper, &pipe_wrapper, &sysClear_wrapper, 
     &rand_wrapper, &create_process_wrapper, &kill_process_by_pid_wrapper,
     &block_process_wrapper, &unblock_process_wrapper, &change_process_priority_wrapper,
     &waitpid_wrapper, &haltcpu_wrapper, &get_current_pid_wrapper, &give_up_cpu_wrapper,
@@ -26,14 +26,45 @@ void haltcpu_wrapper(int64_t *args) {
 	haltcpu();
 }
 
-void sysWrite_wrapper(int64_t *args) {
+void write_wrapper(int64_t *args) {
     
-	sysWrite((unsigned int) args[0], (unsigned int) args[1]);            
+	write((unsigned int) args[0], (char *) args[1], (unsigned int) args[2]);
 }
 
-void sysRead_wrapper(int64_t *args) {
+void read_wrapper(int64_t *args) {
     
-	sysRead((unsigned int) args[0], (char *) args[1], (char) args[2]);           
+	read((int) args[0], (char *) args[1], (int) args[2]);
+}
+
+void open_wrapper(int64_t * args) {
+
+	open((rw_flags_t) args[0]);
+}
+
+void close_wrapper(int64_t * args) {
+
+	close((int) args[0]);
+}
+
+void dup_wrapper(int64_t * args) {
+
+	dup((int) args[0]);
+}
+
+void dup2_wrapper(int64_t * args) {
+
+	dup2((int) args[0], (int) args[1]);
+}
+
+void dup3_wrapper(int64_t * args)	{
+
+	dup3((int) args[0], (int) args[1], (rw_flags_t) args[2]);
+}
+
+void pipe_wrapper(int64_t * args) {
+
+	int fildes[2] = {(unsigned int) args[0], (unsigned int) args[1]};
+	pipe(fildes);
 }
 
 void sysClear_wrapper(int64_t *args) {

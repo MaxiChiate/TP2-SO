@@ -2,7 +2,6 @@
 #include <colours.h>
 #include <videoDriver.h>
 #include <stringPrinter.h>
-#include <buffer.h>
 
 #define ZERO_EXCEPTION_ID 0
 #define INVALID_OPCODE_EXCEPTION_ID 6

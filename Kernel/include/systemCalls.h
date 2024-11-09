@@ -10,7 +10,7 @@
     #include <systemCalls.h>
     #include <videoDriver.h>
     #include <stringPrinter.h>
-    #include <buffer.h>
+    #include <buffers_manager.h>
     #include <rtcDriver.h>
     #include <time.h>
     #include <process_management.h>

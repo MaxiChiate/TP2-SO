@@ -4,7 +4,7 @@
 #include <moduleLoader.h>
 #include <idtLoader.h>
 #include <stringPrinter.h>
-#include <buffer.h>
+#include <buffers_manager.h>
 #include <colours.h>
 
 #include <process/process_management.h>

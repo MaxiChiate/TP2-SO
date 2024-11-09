@@ -11,7 +11,7 @@
     #include <systemCalls.h>
     #include <videoDriver.h>
     #include <stringPrinter.h>
-    #include <buffer.h>
+    #include <buffers_manager.h>
     #include <rtcDriver.h>
     #include <time.h>
     #include <process_management.h>
@@ -21,8 +21,14 @@
 
     typedef void (*syscall_wrapper)(int64_t * args);
 
-    void sysWrite_wrapper(int64_t * args);
-    void sysRead_wrapper(int64_t * args);
+    void write_wrapper(int64_t * args);
+    void read_wrapper(int64_t * args);
+    void open_wrapper(int64_t * args);
+    void close_wrapper(int64_t * args);
+    void dup_wrapper(int64_t * args);
+    void dup2_wrapper(int64_t * args);
+    void dup3_wrapper(int64_t * args);
+    void pipe_wrapper(int64_t * args);
     void sysClear_wrapper(int64_t * args);
     void rand_wrapper(int64_t * args);
     void create_process_wrapper(int64_t * args);

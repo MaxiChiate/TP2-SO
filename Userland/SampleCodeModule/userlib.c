@@ -7,21 +7,16 @@ void print(char * str)  {
 
 void print2(char * str, unsigned int dim)   {
 
-    int64_t args[] = { STRING, (int64_t) str, (int64_t) dim };
-
-    _int80(SYS_READ, args);
-
-    args[0] = STDOUT;
-    args[1] = (int64_t) dim;
+    int64_t args[] = {(int64_t) STDOUT_FILENO, (int64_t) str, (int64_t) dim};
 
     _int80(SYS_WRITE, args);
 }
 
-unsigned char getChar() {
+unsigned char getChar(char * c) {
 
-    int64_t arg = RETURN_CHAR;
+    int64_t args[] = {0, (int64_t) c, 1};
 
-    return (unsigned char) _int80(SYS_WRITE, &arg);
+    return (unsigned char) _int80(SYS_READ, args);
 }
 
 void putChar(char c)    {
@@ -33,9 +28,10 @@ void putChar(char c)    {
 
 char getAndPrintChar()  {
 
-    int64_t arg = RETURNANDSTDOUT_CHAR;
-
-    return (char) _int80(SYS_WRITE, &arg);
+    char c;
+    getChar(&c);
+    putChar(c);
+    return c;
 }
 
 void clear()    {

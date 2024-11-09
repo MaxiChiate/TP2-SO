@@ -10,6 +10,12 @@
 
             SYS_WRITE = 0,
             SYS_READ,
+            SYS_OPEN,
+            SYS_CLOSE,
+            SYS_DUP,
+            SYS_DUP2,
+            SYS_DUP3,
+            SYS_PIPE,
             SYS_CLEAR,
             SYS_RAND,
             SYS_CREATE_PROCESS,
@@ -51,15 +57,9 @@
     } ps_t;
 
 
-    // write @fd codes: (en rbx)
-    #define STDOUT 						0x01
-    #define CHARSTDOUT                  0x02
-    #define STDERR 						0x03
-    #define RETURN_CHAR                 0xA0	
-    #define RETURNANDSTDOUT_CHAR        0xA1
 
-    // read @fd codes: (en rbx)
-    #define STRING  0x02
-    #define CHAR    0x01
+    typedef enum {STDIN_FILENO = 0, STDOUT_FILENO, STDERR} std_buffers;
+    typedef enum {NO, R, W, RW} rw_flags_t;
+
 
 #endif
