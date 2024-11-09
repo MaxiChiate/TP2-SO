@@ -66,6 +66,10 @@ int main() {
 
 	mm_init(memoryHeapAddress, HEAP_SIZE);
 	init_semaphore_store();
+	
+	int fd[2]; int fderr;
+	init_buffers(fd, &fderr);
+
 	load_idt();
 
 

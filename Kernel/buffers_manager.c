@@ -32,7 +32,7 @@ static buffer create_buffer(state_t state, char * start) {
 }
 
 
-void init_file_system(int stdio_fd[2], int * stderr_fd) {
+void init_buffers(int stdio_fd[2], int * stderr_fd) {
 
     for (int i = FIRST_BUFFER; i < MAX_FDS; i++) {
         

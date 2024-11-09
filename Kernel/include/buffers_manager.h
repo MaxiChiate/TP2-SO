@@ -1,5 +1,5 @@
-#ifndef FILE_SYSTEM_H
-#define FILE_SYSTEM_H
+#ifndef __BUFFERS_MANAGER_H
+#define __BUFFERS_MANAGER_H
 
     #include <stdint.h>
     #include <bool.h>
@@ -19,7 +19,7 @@
     typedef struct buffer * buffer_t;
 
 
-    void init_file_system(int stdio_fd[2], int * stderr_fd);
+    void init_buffers(int stdio_fd[2], int * stderr_fd);
 
     int open(rw_flags_t flags_fd);
 
@@ -39,4 +39,4 @@
 
     int pipe(int fds[2]);
 
-#endif //FILE_SYSTEM_H
+#endif //__BUFFERS_MANAGER_H
