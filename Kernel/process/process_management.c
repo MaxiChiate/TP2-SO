@@ -130,7 +130,7 @@ uint64_t schedule(uint64_t current_stack_pointer) {
 int64_t create_process(uint64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground) {
 
     if(current_amount_process == PROCESS_AMOUNT) return -1;
-    
+
     int new_process_index = new_process(function_address, argc, argv, priority, foreground);
     pcbs[new_process_index].parent_process_id = get_current_pid();
     return pcbs[new_process_index].process_id;
@@ -170,6 +170,13 @@ void suicide() {
     kill_process(current_process);
 
     wake_up_processes_waiting_me();
+
+    for(int i=0;i <pcbs[current_process].argc ; i++)    {
+
+        mm_free(pcbs[current_process].argv[i]);
+    }
+
+    mm_free(pcbs[current_process].argv);
 
     give_up_cpu();
 }
@@ -293,7 +300,6 @@ static ps_t process_status(int p)   {
 
 
 
-/* Version to test:*/
 static bool can_change_state(process_state_t old, process_state_t new)  {
 
     switch (old)    {
@@ -427,6 +433,7 @@ static void load_stackcontext_from_pcb(unsigned int p)   {
         stacks[p][i - 7] = (uint64_t) pcbs[p].argv;
 }
 
+
 static int new_process(uint64_t function_address, int argc, char ** argv, unsigned int priority, bool foreground)  {
 
     current_amount_process++;
@@ -448,7 +455,7 @@ static int new_process(uint64_t function_address, int argc, char ** argv, unsign
         .instruction_pointer = function_address,
 
         .argc = argc,
-        .argv = argv,
+        .argv = (char **) mm_malloc(sizeof(argv[0])*argc),
 
         .process_id = process_id_counter++,
         .parent_process_id = DEFAULT_PARENT_PID,
@@ -460,6 +467,11 @@ static int new_process(uint64_t function_address, int argc, char ** argv, unsign
         .quantum = get_quantum(priority),
         .priority = priority
     };
+
+    for(int i=0; i<argc; i++)   {
+
+        new_pcb.argv[i] = getcpy(argv[i], argc, sizeof(char));
+    }
 
     pcbs[new_process_index] = new_pcb;
 

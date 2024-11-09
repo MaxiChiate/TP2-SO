@@ -1,4 +1,4 @@
-#include <stdint.h>
+//lib.h
 #include <lib.h>
 
 uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base){
@@ -75,3 +75,8 @@ void * memcpy(void * destination, const void * source, uint64_t length){
 	return destination;
 }
 
+
+void * getcpy(const void * source, uint64_t length, uint16_t data_size)	{
+
+	return memcpy(mm_malloc(data_size*length), source, length);
+}
