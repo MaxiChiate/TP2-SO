@@ -9,6 +9,12 @@
         
     #endif
 
+    #ifndef EOF
+
+        #define EOF (-1)
+
+    #endif
+
 
 //  [0-9]
     extern unsigned char digits[256];

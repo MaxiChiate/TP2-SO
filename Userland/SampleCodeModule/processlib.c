@@ -66,3 +66,9 @@ void suicide()  {
     _int80(0xAA);
 }
 */
+
+void init_hlt()  {
+
+    char * argv [2] = {"hlt", NULL};
+    spawn_process((int64_t) &_hlt, 1, argv, 0, 0);
+}

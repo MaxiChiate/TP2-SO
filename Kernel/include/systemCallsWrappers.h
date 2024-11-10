@@ -11,10 +11,10 @@
     #include <systemCalls.h>
     #include <videoDriver.h>
     #include <stringPrinter.h>
-    #include <buffers_manager.h>
+    #include <process/ipc_management.h>
     #include <rtcDriver.h>
     #include <time.h>
-    #include <process_management.h>
+    #include <process/process_management.h>
     #include <semaphore.h>
 
     void call_syscall(int id, int64_t * args);

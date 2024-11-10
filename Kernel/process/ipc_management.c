@@ -1,4 +1,4 @@
-#include <buffers_manager.h>
+#include <process/ipc_management.h>
 
 #define IN_RANGE(x) ((x) >= 0 && (x) < MAX_FDS)
 

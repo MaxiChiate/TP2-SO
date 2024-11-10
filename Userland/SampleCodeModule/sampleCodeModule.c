@@ -8,6 +8,8 @@ int main() {
 
     initShell();
 
+    init_hlt();
+
     char buffer[254] = {'\0'};
 
     while(1)	{

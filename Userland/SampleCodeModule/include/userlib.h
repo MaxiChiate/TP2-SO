@@ -16,7 +16,7 @@
 
     void printUlong(unsigned long n);
 
-    unsigned char getChar();
+    unsigned char getChar(char * c);
 
     void putChar(char c);
 
@@ -36,7 +36,7 @@
 
     extern void invalidOpcode();
 
-    void _hlt();
+    void _hlt(int argc, char ** argv);
 
 //  Strings:
 

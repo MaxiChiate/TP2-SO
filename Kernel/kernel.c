@@ -7,9 +7,9 @@
 #include <colours.h>
 
 #include <process/process_management.h>
+#include <process/ipc_management.h>
 #include <memory_manager.h>
 #include <semaphore.h>
-#include <buffers_manager.h>
 
 extern uint8_t text;
 extern uint8_t rodata;

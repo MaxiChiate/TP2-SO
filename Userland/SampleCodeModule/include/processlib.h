@@ -31,4 +31,6 @@
 
     // ps_t * ps();
 
+    void init_hlt();
+    
 #endif // _PROCESSLIB_H

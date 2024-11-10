@@ -36,17 +36,36 @@ void initShell()    {
 }
 
 void read(char * buffer)   {
+
     print(LINE_STRING);
     int i=0;
+
+    int64_t my_pid = current_pid();
     char c;
-    while((c = getChar(buffer))!='\n')    {
+
+    blockp(my_pid);
+    getChar(&c);
+
+    while(c!='\n')    {
         
-        if (c!='\0')    {
+        if(c == EOF)    {
+
+            suicide();
+        }
+
+        else if (c!='\0')    {
             
             if(c=='\b' ) {
 
                 if(i!=0)    {
                 
+                    int pixelsToDelete = (buffer[i-1] == '\t')? 3 : 1; //Si borro un tab queda en 3 sino queda en 1
+                    
+                    for(int j=0; j<pixelsToDelete; ++j) {
+
+                        putChar('\b');
+                    }
+                    
                     putChar('\b');
                     
                     buffer[--i] = '\0';
@@ -57,7 +76,10 @@ void read(char * buffer)   {
                 buffer[i++] = c;
                 putChar(buffer[i-1]);
             }
-        }        
+        }
+
+        blockp(my_pid);    // Espero hasta el siguiente caracter.
+        getChar(&c);        
     }
 
     buffer[i] = '\0';
