@@ -24,6 +24,7 @@
             SYS_WAIT,
             SYS_SUICIDE,
             SYS_TIME,
+            SYS_SLEEP,
             SYS_KILL_SEM,
             SYS_UP,
             SYS_DOWN,

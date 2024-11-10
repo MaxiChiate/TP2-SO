@@ -35,6 +35,7 @@
     void get_current_pid_wrapper(int64_t * args);
     void give_up_cpu_wrapper(int64_t * args);
     void wait_wrapper(int64_t * args);
+    void sleep_wrapper(int64_t * args);
     void suicide_wrapper(int64_t * args);
     void timeManager_wrapper(int64_t * args);
     void new_sem_wrapper(int64_t *args);    

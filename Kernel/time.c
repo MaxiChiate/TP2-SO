@@ -23,3 +23,16 @@ int alarmAt(int at)	{
 int alarmAtTicks(int at){
     return ticks%at==0;
 }
+
+static unsigned long ms_elapsed() {
+	return ticks * 55;
+}
+
+void sleep(unsigned long ms) {
+	unsigned long  intial_time = ms_elapsed();
+	unsigned long  currentTime = intial_time;
+    while (currentTime - intial_time <= ms) {
+		currentTime = ms_elapsed();
+		_hlt();
+    }
+}
