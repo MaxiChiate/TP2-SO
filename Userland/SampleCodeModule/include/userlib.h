@@ -59,6 +59,9 @@
     char* stringNormalizer(char * origString);
 
     int stringTrimmerBySpace( char * origString, char * function_name, char **argv);
+
+    void strcopy(char* dest, char* string);
+
     
 //  Al no tener memoria dinamica uIntToString depende de que se le pase la cantidad de digitos
 //  del numero a transformar. Para eso se dispone de la funcion getUintDigits.

@@ -284,3 +284,14 @@ void * memset(void * destiation, int32_t c, uint64_t length) {
 
 	return destiation;
 }
+
+void strcopy(char* dest, char* string){
+    if(dest == NULL){
+        return;
+    }
+    int i;
+    for(i  = 0; string[i] != '\0'; i++){
+        dest[i] = string[i];
+    }
+    dest[i] = '\0';
+}
