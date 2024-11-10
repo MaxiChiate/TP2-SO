@@ -11,3 +11,7 @@ void free(void * ptr) {
 
     _int80(SYS_MM_FREE, (int64_t *) &ptr);
 }
+
+mem_t mem_data(){
+    _int80(SYS_MM_MEM,NULL);
+}

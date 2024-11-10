@@ -3,10 +3,10 @@ include ../Makefile.inc
 MODULE=0000-sampleCodeModule.bin
 
 # Include paths for the compiler
-INCLUDE_PATHS = -I./include -I./include/Testing
+INCLUDE_PATHS = -I./include -I./include/Testing -I./include/Apps
 
 # Manually specify subdirectories for source files
-SOURCES = $(wildcard *.c) $(wildcard Testing/*.c)
+SOURCES = $(wildcard *.c) $(wildcard Testing/*.c) $(wildcard Apps/*.c)
 SOURCES_ASM = $(wildcard asm/*.asm)
 
 # Convert source files to object files
@@ -29,6 +29,6 @@ $(MODULE): $(OBJECTS) $(OBJECTS_ASM)
 	$(ASM) $(ASMFLAGS) $< -o $@
 
 clean:
-	rm -rf *.o Testing/*.o asm/*.o *.bin *.elf
+	rm -rf *.o Testing/*.o Apps/*.o asm/*.o *.bin *.elf
 
 .PHONY: all clean print

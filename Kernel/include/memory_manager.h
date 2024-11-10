@@ -27,8 +27,8 @@ typedef enum {B_GREEN, B_YELLOW, B_RED, B_BLUE} block_state;
 
 typedef struct mem_struct{
     
-    size_t total_space;
-    size_t used_space;
+    uint32_t total_space;
+    uint32_t used_space;
 
 } mem_struct;
 

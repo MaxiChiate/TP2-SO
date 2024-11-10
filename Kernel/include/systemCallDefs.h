@@ -31,6 +31,7 @@
             SYS_NEW_SEM,
             SYS_MM_MALLOC,
             SYS_MM_FREE,
+            SYS_MM_MEM,
 
             SYSCALL_COUNT
         } syscall_id;

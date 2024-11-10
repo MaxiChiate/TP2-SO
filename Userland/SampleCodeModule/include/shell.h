@@ -3,6 +3,7 @@
 
     #include <userlib.h>
     #include <Testing/tests.h>
+    #include <Apps/apps.h>
 
     #define INIT_MESSAGE "Welcome to shell, write help if you want to know the available options\n"
     // #define OVERFLOW_MESSAGE "\nYou're trying to overflow the buffer, aren't you? By the way, that's an Unknown Command\n"
@@ -12,7 +13,7 @@
 
     #define AVAILABLE_FUNCTIONS ((AVAILABLE_BUILDIN_F)+(AVAILABLE_PROCESS_F)+(AVAILABLE_TESTS))
     #define AVAILABLE_BUILDIN_F 5
-    #define AVAILABLE_PROCESS_F 0
+    #define AVAILABLE_PROCESS_F 1
     #define AVAILABLE_TESTS     4
 
     #define BACKGROUND_CHARACTER '&'
