@@ -274,3 +274,13 @@ unsigned long pow(unsigned long x, unsigned long n) {
         return pow(x * x, n / 2);
 
 }
+
+void * memset(void * destiation, int32_t c, uint64_t length) {
+	uint8_t chr = (uint8_t)c;
+	char * dst = (char*)destiation;
+
+	while(length--)
+		dst[length] = chr;
+
+	return destiation;
+}

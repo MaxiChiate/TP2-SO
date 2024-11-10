@@ -18,6 +18,7 @@
 
     #define BACKGROUND_CHARACTER '&'
     #define LINE_STRING "$> "
+    #define INVALID_INPUT_MESSAGE "\nUnknown Command\n"
 
     #define MAX_ARGS    4
     #define MAX_ARG_LONG 15

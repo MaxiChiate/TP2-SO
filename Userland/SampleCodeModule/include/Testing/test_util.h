@@ -5,7 +5,6 @@
 
     #include <stdint.h>
     #include <processlib.h>
-    #include <../../../Kernel/include/lib.h>    // Necesario para le memset del test_mm
 
     uint32_t GetUint();
     uint32_t GetUniform(uint32_t max);

@@ -100,17 +100,33 @@ static bool check_and_run_process( process_f * p,  char ** names, int argc, char
             
             if (strEquals(names[i], function))  {
 
-                bool background = (bool) (argc > 0 && argv[argc - 1][0] == BACKGROUND_CHARACTER);
+                bool background = false;
+                int back_index = 0;
 
+            // Busco el BACKGROUND_CHARACTER:
+                for (back_index = 0; back_index < argc && !background; back_index++)   {
+
+                    background = (bool) (argv[back_index][0] == BACKGROUND_CHARACTER);
+                }
+
+                if(back_index < argc-1) {
+
+                    char s[2] = {argc-1-back_index + '0', '\0'};
+
+                    print("\nWaring: Ignoring ");
+                    print(s);
+                    print(" arguments after &\n");
+                }
+                
                 putEnter();
 
                 if(background)  {
-                    
-                    spawn_process((int64_t) p[i], argc, argv, 2, true);
+   
+                    spawn_process((int64_t) p[i], argc-1, argv, 1, true);
                 }
                 else    {
 
-                    int64_t cpid = run_process((int64_t) p[i], argc, argv, 2, false);
+                    int64_t cpid = run_process((int64_t) p[i], argc, argv, 1, false);
                     waitpid(cpid);
                 }
 
@@ -165,7 +181,7 @@ void getMenu(char* buffer)  {
         return;
     }
 
-    print("\nUnknown Command\n");
+    print(INVALID_INPUT_MESSAGE);
 }
 
 void help(int argc, char ** argv) {
