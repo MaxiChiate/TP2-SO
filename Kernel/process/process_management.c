@@ -255,7 +255,7 @@ bool get_scheduler_status() {
     return scheduler_on;
 }
 
-ps_t * get_ps() {
+ps_t * get_ps(ps_t * to_assign) {
 
     ps_t * to_return = mm_malloc(sizeof(to_return[0]) * current_amount_process);
     
@@ -267,6 +267,8 @@ ps_t * get_ps() {
             to_return[k++] = process_status(i);   
         }
     }
+
+    *to_assign = *to_return;
 
     return to_return;
 }

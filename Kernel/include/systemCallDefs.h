@@ -23,6 +23,7 @@
             SYS_GIVE_UP_CPU,
             SYS_WAIT,
             SYS_SUICIDE,
+            SYS_PS,
             SYS_TIME,
             SYS_SLEEP,
             SYS_KILL_SEM,

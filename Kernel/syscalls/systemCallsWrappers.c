@@ -8,7 +8,7 @@ syscall_wrapper syscalls[SYSCALL_COUNT] = {
     &rand_wrapper, &create_process_wrapper, &kill_process_by_pid_wrapper,
     &block_process_wrapper, &unblock_process_wrapper, &change_process_priority_wrapper,
     &waitpid_wrapper, &haltcpu_wrapper, &get_current_pid_wrapper, &give_up_cpu_wrapper,
-    &wait_wrapper, &suicide_wrapper, &timeManager_wrapper, &sleep_wrapper,
+    &wait_wrapper, &suicide_wrapper, &ps_wrapper, &timeManager_wrapper, &sleep_wrapper,
 	&kill_sem_wrapper, &up_wrapper, &down_wrapper, &is_sem_alive_wrapper, &new_sem_wrapper,
 	&mm_malloc_wrapper, &mm_free_wrapper, &mm_mem_wrapper
 };
@@ -94,6 +94,11 @@ void waitpid_wrapper(int64_t *args) {
 void suicide_wrapper(int64_t *args) {
     
 	suicide();
+}
+
+void ps_wrapper(int64_t * args) {
+
+	get_ps((ps_t *) args[0]);
 }
 
 void timeManager_wrapper(int64_t *args) {

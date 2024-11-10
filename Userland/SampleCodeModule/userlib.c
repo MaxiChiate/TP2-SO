@@ -17,6 +17,18 @@ void print2(char * str, unsigned int dim)   {
     _int80(SYS_WRITE, args);
 }
 
+void print_ps(ps_t ps) {
+
+    print("sp: \n");
+    print("bp: \n");
+    print("id: \n");
+    print("parent_id: \n");
+    print("state: \n");
+    print("foreground: \n");
+    print("priority: \n");
+    print("name: \n");
+}
+
 unsigned char getChar() {
 
     int64_t arg = RETURN_CHAR;

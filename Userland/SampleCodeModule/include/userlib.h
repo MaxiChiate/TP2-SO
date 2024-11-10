@@ -12,6 +12,8 @@
 
     void print2(char * str, unsigned int dim);
 
+    void print_ps(ps_t ps);
+
     void printUinteger(unsigned int n);
 
     void printUlong(unsigned long n);
