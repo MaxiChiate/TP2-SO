@@ -19,14 +19,36 @@ void print2(char * str, unsigned int dim)   {
 
 void print_ps(ps_t ps) {
 
-    print("sp: \n");
-    print("bp: \n");
-    print("id: \n");
-    print("parent_id: \n");
-    print("state: \n");
-    print("foreground: \n");
-    print("priority: \n");
-    print("name: \n");
+    print("sp: ");
+    printUinteger(ps.sp);
+    print("\n");
+
+    print("bp: ");
+    printUinteger(ps.bp);
+    print("\n");
+
+    print("id: ");
+    printUinteger(ps.id);
+    print("\n");
+
+    print("parent_id: ");
+    printUinteger(ps.parent_id);
+    print("\n");
+
+    print("state: ");
+    printUinteger(ps.state);
+    print("\n");
+
+    print("foreground: ");
+    printUinteger(ps.foreground);
+    print("\n");
+
+    print("priority: ");
+    printUinteger(ps.priority);
+    print("\n");
+
+    print("name: ");
+    print("\n");
 }
 
 unsigned char getChar() {
