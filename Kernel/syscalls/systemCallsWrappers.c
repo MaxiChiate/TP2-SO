@@ -10,7 +10,7 @@ syscall_wrapper syscalls[SYSCALL_COUNT] = {
     &waitpid_wrapper, &haltcpu_wrapper, &get_current_pid_wrapper, &give_up_cpu_wrapper,
     &wait_wrapper, &suicide_wrapper, &timeManager_wrapper,
 	&kill_sem_wrapper, &up_wrapper, &down_wrapper, &is_sem_alive_wrapper, &new_sem_wrapper,
-	&mm_malloc_wrapper, &mm_free_wrapper
+	&mm_malloc_wrapper, &mm_free_wrapper, &wait_stdin_wrapper
 };
 
 void call_syscall(int id, int64_t * args) {
@@ -120,6 +120,11 @@ void wait_wrapper(int64_t *args) {
 void waitpid_wrapper(int64_t *args) {
     
 	waitpid(args[0]);            
+}
+				
+void wait_stdin_wrapper(int64_t *args)	{
+
+	wait_stdin();
 }
 
 void suicide_wrapper(int64_t *args) {

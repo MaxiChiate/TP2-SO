@@ -9,7 +9,6 @@
 #include <process/ipc_management.h>
 #include <semaphore.h>
 
-
 uint64_t irqDispatcher(uint64_t irq, uint64_t rsp) {
 	
     switch (irq)    {
@@ -19,8 +18,8 @@ uint64_t irqDispatcher(uint64_t irq, uint64_t rsp) {
             
             char c = map(keyboard_handler());
             kernel_write(STDIN_FILENO, &c, 1); 
-            //HARDCODE!
-            unblock_process(1);
+            
+            signal_stdin();
 
             return 0;
         }

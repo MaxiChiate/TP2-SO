@@ -24,5 +24,8 @@
     void up(uint8_t sem_id);
     void down(uint8_t sem_id);
 
+    void wait_stdin();
+    void signal_stdin();
+
 
 #endif 

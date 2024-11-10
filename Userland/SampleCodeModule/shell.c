@@ -40,10 +40,10 @@ void read(char * buffer)   {
     print(LINE_STRING);
     int i=0;
 
-    int64_t my_pid = current_pid();
     char c;
 
-    blockp(my_pid);
+    wait_stdin();   // Espero a que haya algo en stdin
+
     getChar(&c);
 
     while(c!='\n')    {
@@ -78,7 +78,7 @@ void read(char * buffer)   {
             }
         }
 
-        blockp(my_pid);    // Espero hasta el siguiente caracter.
+        wait_stdin();   // Espero a que haya algo en stdin
         getChar(&c);        
     }
 
