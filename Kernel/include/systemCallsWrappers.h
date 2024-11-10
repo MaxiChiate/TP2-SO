@@ -50,5 +50,6 @@
     void down_wrapper(int64_t *args); 
     void mm_malloc_wrapper(int64_t * args);
     void mm_free_wrapper(int64_t * args);
+    void wait_stdin_wrapper(int64_t * args);
 
 #endif

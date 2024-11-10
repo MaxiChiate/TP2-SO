@@ -37,6 +37,7 @@
             SYS_NEW_SEM,
             SYS_MM_MALLOC,
             SYS_MM_FREE,
+            SYS_WAIT_STDIN,
 
             SYSCALL_COUNT
         } syscall_id;
@@ -58,7 +59,7 @@
 
 
 
-    typedef enum {STDIN_FILENO = 0, STDOUT_FILENO} std_fd;
+    typedef enum { STDIN_FILENO = 0, STDOUT_FILENO, STD_FD_COUNT} std_fd;
     typedef enum {NO, R, W, RW} rw_flags_t;
 
 
