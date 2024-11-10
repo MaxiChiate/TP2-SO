@@ -3,7 +3,9 @@
 
     #include <heaplib.h>
     #include <processlib.h>
+    #include <userlib.h>
 
     void mem(int argc, char ** argv);
+    void loop(int argc, char ** argv);
 
 #endif
