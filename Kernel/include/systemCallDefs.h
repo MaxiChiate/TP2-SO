@@ -58,7 +58,7 @@
 
 
 
-    typedef enum {STDIN_FILENO = 0, STDOUT_FILENO, STDERR} std_buffers;
+    typedef enum {STDIN_FILENO = 0, STDOUT_FILENO} std_fd;
     typedef enum {NO, R, W, RW} rw_flags_t;
 
 

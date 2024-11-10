@@ -1,97 +1,87 @@
 #include <buffers_manager.h>
 
-#define IN_RANGE(x) ((x) >= FIRST_BUFFER && (x) < MAX_FDS)
-
-#define STDOUT_BUFFER_DUMMY 0xFFFF
-#define STDERR_BUFFER_DUMMY 0xEEEE
+#define IN_RANGE(x) ((x) >= 0 && (x) < MAX_FDS)
 
 typedef enum {OPEN, CLOSED} state_t;
 
-typedef struct buffer {
-    char * start;
+typedef struct {
+
+    char * data;         
+    int current_index;  
+    bool std;   // Pensado para una posible futura impl de dup...
+} buffer_t;
+
+
+typedef struct fd {
+
+    buffer_t buffer;
     state_t state;
+} fd;
 
-} buffer;
-
-static char buffers_heap[MAX_FDS * BUFFER_SIZE];
-
+static char buffers[TOTAL_BUFFER_SIZE];
 static int flags[MAX_FDS];
+static fd descriptors[MAX_FDS];
+static int next_index = FIRST_BUFFER;
+static int currently_closed;
 
-static buffer buffers[MAX_FDS];
-
-static int last_index = FIRST_BUFFER;
-
-static buffer create_buffer(state_t state, char * start) {
-
-    buffer to_return = {
-        .start = start,
-        .state = state,
-    };
-
-    return to_return;
-}
+static char * calculate_buffer_start(int index);
+static rw_flags_t get_flags(int fd);
+static state_t get_state(int id);
+static bool is_open(int fd);
+static bool is_closed(int fd);
+static fd create_descriptor(state_t state, int index);
+static void memcpy_read(char *  dest, buffer_t *  src, int size, int *  bytes_read);
+static void memcpy_write(buffer_t * dest, char * src, int size, int * bytes_written);
+static int next();
 
 
-void init_buffers(int stdio_fd[2], int * stderr_fd) {
+void init_ipc() {
 
     for (int i = FIRST_BUFFER; i < MAX_FDS; i++) {
-        
-        buffers[i] = create_buffer(CLOSED, buffers_heap + (i * BUFFER_SIZE));
+
+        descriptors[i] = create_descriptor(CLOSED, i);
         flags[i] = NO;
     }
 
-    pipe(stdio_fd);                  // OMG: Stdio  pipe, hi!
-    *stderr_fd = open(R);            // OMG: Stderr, hi!
-    last_index = FIRST_BUFFER;
+    kernel_pipe(STDIN_FILENO, STDOUT_FILENO);
+
+    descriptors[STDIN_FILENO].buffer.std = descriptors[STDOUT_FILENO].buffer.std = true;
+
+    next_index = FIRST_BUFFER;
+    currently_closed = MAX_FDS - FIRST_BUFFER;
 }
 
 
-int open(rw_flags_t flags_fd) {
+int kernel_open(rw_flags_t flags_fd, int index, char * buffer)  {
 
-    if (last_index >= MAX_FDS) {
+    if (!IN_RANGE(index)) {
+
         return -1;   
     }
 
-    buffers[last_index].state = OPEN;
+    descriptors[index].state = OPEN;
 
-    if (last_index == STDOUT_FILENO)  {
+    descriptors[index].buffer.data = buffer;
 
-        buffers[last_index].start = (char *) STDOUT_BUFFER_DUMMY;    
-    }
-    else if (last_index == STDERR)   {
+    flags[index] = flags_fd;
 
-        buffers[last_index].start = (char *) STDERR_BUFFER_DUMMY;
-    }
-    else    {
+    currently_closed--; 
 
-        buffers[last_index].start = buffers_heap + (last_index * BUFFER_SIZE);
-    }
-
-    flags[last_index] = flags_fd;
-
-    return last_index++;
+    return index;
 }
 
-static inline rw_flags_t get_flags(int fd)  {
+int open(rw_flags_t flags_fd) {
 
-    return flags[fd];
-}
+    int my_index = next();
+    char * buffer = calculate_buffer_start(my_index);
 
-static state_t get_state(int id) {
-    return buffers[id].state;
-}
-
-static inline bool is_open(int fd) {
-    return get_state(fd) == OPEN;
-}
-
-static inline bool is_closed(int fd) {
-    return !is_open(fd);
+    return kernel_open(flags_fd, my_index, buffer);
 }
 
 void close(int fd) {
     
     if (!IN_RANGE(fd)) {
+
         return;
     }
 
@@ -100,28 +90,13 @@ void close(int fd) {
         char eof = EOF;
         write(fd, &eof, 1);
 
-        buffers[fd].state = CLOSED;
+        descriptors[fd].state = CLOSED;
         flags[fd] = NO;
     }
 
-    if (last_index == 0) {
-        return;
-    }
-
-    last_index--;
+    currently_closed++;
 }
 
-static void memcpy_write(char * dest, char * src, int size, int * bytes_written) {
-
-    int i;
-    for (i = 0; i < BUFFER_SIZE && i < size; i++) {
-        dest[i] = src[i];
-    }
-
-    dest[i] = '\0';
-    *bytes_written = i;
-
-}
 
 static inline bool validate_flags(int fd, const rw_flags_t * f, int flags_amount)    {
 
@@ -141,7 +116,7 @@ int write(int fd, char * buf, int size) {
 
     rw_flags_t f[] = {RW, W};
 
-    if(!validate_flags(fd, f, 2) || !IN_RANGE(fd) || is_closed(fd)) {
+    if(!IN_RANGE(fd) || is_closed(fd) || !validate_flags(fd, f, 2)) {
         
         return -1;    
     }
@@ -151,107 +126,198 @@ int write(int fd, char * buf, int size) {
 
 int kernel_write(int fd, char * buf, int size) {
 
-    switch((int64_t) buf)  {
+    if(buf == NULL) {
 
-        case STDOUT_BUFFER_DUMMY: printTextDefault(buf, STDOUT_COLOR, BACKGROUND_COLOR); break;
-        case STDERR_BUFFER_DUMMY: printTextDefault(buf, STDERR_COLOR, BACKGROUND_COLOR); break;
+        return 0;
+    }
 
-        default: break;
+    if(descriptors[fd].buffer.std)  {
+
+        printTextDefault2(buf, STDOUT_COLOR, BACKGROUND_COLOR, size);
     }
 
     int bytes_written;
 
-    memcpy_write(buffers[fd].start, buf, size, &bytes_written);
+    memcpy_write(&descriptors[fd].buffer, buf, size, &bytes_written);
 
     return bytes_written;
 }
 
-static void memcpy_read(char * dest, char * src, int size, int * bytes_read) {
 
-    int i;
-    for (i = 0; i < BUFFER_SIZE && i < size && src[i] != '\0' && src[i] != EOF; i++) {
-        dest[i] = src[i];
-    }
-    dest[i] = '\0';
-
-    *bytes_read = i;
-
-}
 
 int read(int fd, char * buf, int size) {
     
     rw_flags_t f[] = {RW, R};
 
-    if (!validate_flags(fd, f, 2) || !IN_RANGE(fd) || is_closed(fd)) {
+    if (!IN_RANGE(fd) || is_closed(fd) || !validate_flags(fd, f, 2)) {
         return -1;
     }
 
     int bytes_read;
 
-    memcpy_read(buf, buffers[fd].start, size, &bytes_read);
+    memcpy_read(buf, &descriptors[fd].buffer, size, &bytes_read);
 
     return bytes_read;
 
 }
 
+    int dup(int fd) {
 
-int dup(int old_fd) {
-
-    if (!IN_RANGE(old_fd)) {
-        return -1;
+        return 0;
     }
 
-    int new_fd = open(flags[old_fd]);
+    int dup2(int fd1, int fd2) {
 
-    if (new_fd == -1) {
-        return -1;
+        return 0;
     }
 
-    buffers[new_fd].start = buffers[old_fd].start;
+    int dup3(int old_fd, int new_fd, rw_flags_t new_flags)  {
 
-    return new_fd;
-
-}
-
-
-int dup2(int old_fd, int new_fd) {
-
-    if (!IN_RANGE(old_fd) || !IN_RANGE(new_fd)) {
-        return -1;
+        return 0;
     }
 
-    if (old_fd == new_fd) {
-        return new_fd;
-    }
+// int dup(int old_fd) {
 
-    if (is_closed(old_fd) || is_closed(new_fd)) {
-        return -1;
-    }
+//     if (!IN_RANGE(old_fd)) {
+//         return -1;
+//     }
 
-    buffers[new_fd].start = buffers[old_fd].start;
-    flags[new_fd] = flags[old_fd];
+//     int new_fd = open(flags[old_fd]);
 
-    return new_fd;
-}
+//     if (new_fd > 0) {
 
-int dup3(int old_fd, int new_fd, rw_flags_t new_flags)  {
+//         descriptors[new_fd].buffer = descriptors[old_fd].buffer;    
+//     }
 
-    int to_return = dup2(old_fd, new_fd);
+//     return new_fd;
+
+// }
+
+
+// int dup2(int old_fd, int new_fd) {
+
+//     if (!IN_RANGE(old_fd) || !IN_RANGE(new_fd)) {
+//         return -1;
+//     }
+
+//     if (old_fd == new_fd) {
+//         return new_fd;
+//     }
+
+//     if (is_closed(old_fd) || is_closed(new_fd)) {
+//         return -1;
+//     }
+
+//     descriptors[new_fd].buffer = descriptors[old_fd].buffer;
+//     flags[new_fd] = flags[old_fd];
+
+//     return new_fd;
+// }
+
+// int dup3(int old_fd, int new_fd, rw_flags_t new_flags)  {
+
+//     int to_return = dup2(old_fd, new_fd);
     
-    if(to_return > 0) {
-        flags[new_fd] = new_flags;
-    }
+//     if(to_return > 0) {
+//         flags[new_fd] = new_flags;
+//     }
 
-    return to_return;
+//     return to_return;
+// }
+
+void kernel_pipe(int fd1, int fd2)   {
+
+    if(IN_RANGE(fd1) && IN_RANGE(fd2))    {
+
+        kernel_open(R, fd1, calculate_buffer_start(fd1));
+        kernel_open(W, fd2, calculate_buffer_start(fd1));
+    }
 }
 
-int pipe(int fds[2]) {
+void pipe(int fds[2])    {
 
     fds[0] = open(R);
     fds[1] = open(W);
     
-    buffers[fds[1]].start = buffers[fds[0]].start;
+    descriptors[fds[1]].buffer = descriptors[fds[0]].buffer;    
+}
 
-    return 0;
+
+static inline char * calculate_buffer_start(int index)   {
+
+    return buffers + (index * BUFFER_SIZE);
+}
+
+static inline rw_flags_t get_flags(int fd)  {
+
+    return flags[fd];
+}
+
+static state_t get_state(int id) {
+    return descriptors[id].state;
+}
+
+static inline bool is_open(int fd) {
+    return get_state(fd) == OPEN;
+}
+
+static inline bool is_closed(int fd) {
+    return !is_open(fd);
+}
+
+static fd create_descriptor(state_t state, int index) {
+
+    fd to_return = {
+
+        .buffer = { 
+            
+            .data = calculate_buffer_start(index), 
+            .current_index = 0,
+            .std = false
+        },
+        .state = state,
+    };
+
+    return to_return;
+}
+
+static void memcpy_read(char *  dest, buffer_t *  src, int size, int *  bytes_read)   {
+
+    int i = 0;
+
+    while(i < size && src->current_index < BUFFER_SIZE && src->data[src->current_index] != '\0' && src->data[src->current_index] != EOF) {
+
+        dest[i++] = src->data[src->current_index++];
+    }
+
+    dest[i] = '\0';
+    * bytes_read = i;
+}
+
+static void memcpy_write(buffer_t * dest, char * src, int size, int * bytes_written)   {
+
+    int i;
+
+    for (i = 0; i < size && dest->current_index < BUFFER_SIZE; i++) {
+
+        dest->data[dest->current_index++] = src[i];
+    }
+
+    *bytes_written = i;
+}
+
+
+static int next()  {
+
+    if( currently_closed > 0) {
+
+        while(descriptors[next_index].state != CLOSED)  {
+
+            next_index = FIRST_BUFFER + ((next_index + 1 - FIRST_BUFFER) % (MAX_FDS - FIRST_BUFFER));
+        }
+
+        return next_index;
+    }
     
+    return -1;
 }

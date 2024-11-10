@@ -8,18 +8,15 @@
     #include <colours.h>
     #include <stringPrinter.h>
 
-    #define FIRST_BUFFER 3
+    #define FIRST_BUFFER 2
     #define MAX_FDS 256
     #define BUFFER_SIZE 32 
+    #define TOTAL_BUFFER_SIZE (MAX_FDS * BUFFER_SIZE)
 
     #define STDOUT_COLOR WHITE
-    #define STDERR_COLOR RED
     #define BACKGROUND_COLOR BLACK
 
-    typedef struct buffer * buffer_t;
-
-
-    void init_buffers(int stdio_fd[2], int * stderr_fd);
+    void init_ipc();
 
     int open(rw_flags_t flags_fd);
 
@@ -37,6 +34,8 @@
 
     int dup3(int old_fd, int new_fd, rw_flags_t new_flags);
 
-    int pipe(int fds[2]);
+    void pipe(int fds[2]);
+
+    void kernel_pipe(int fd1, int fd2);
 
 #endif //__BUFFERS_MANAGER_H

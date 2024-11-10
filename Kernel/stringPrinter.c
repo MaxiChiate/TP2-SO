@@ -1,7 +1,4 @@
-#include <videoDriver.h>
-#include <colours.h>
-#include <keyboard.h>
-#include <time.h>
+#include <stringPrinter.h>
 
 #define SCREEN_BUFFER_SIZE 3500
 char screenBuffer[SCREEN_BUFFER_SIZE];
@@ -16,6 +13,17 @@ void refillScreen();
 void printTextDefault(char* string, int fgcolor, int bgcolor) {
     blockBlink();
     for (int i = 0; string[i] != '\0'; i++) {
+        deleteSlash();
+        printCharDefault(string[i], fgcolor, bgcolor);
+        printCursor();
+    }
+    allowBlink();
+}
+
+
+void printTextDefault2(char* string, int fgcolor, int bgcolor, int size) {
+    blockBlink();
+    for (int i = 0; i < size; i++) {
         deleteSlash();
         printCharDefault(string[i], fgcolor, bgcolor);
         printCursor();
