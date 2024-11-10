@@ -13,5 +13,5 @@ void free(void * ptr) {
 }
 
 mem_t mem_data(){
-    _int80(SYS_MM_MEM,NULL);
+    return (mem_t) _int80(SYS_MM_MEM,NULL);
 }
