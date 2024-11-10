@@ -16,7 +16,9 @@ typedef struct buddy_tree {
 
 #define IN_RANGE(x) (x >= tree->head->chunk && x < tree->head->chunk + (1 << tree->head->order))
 
+static mem_struct mem;
 
+static mem_t mem_data = &mem;
 // Memoria preasignada para los bloques
 static buddy_block_descriptor blocks_heap[MAX_NODES];
 
@@ -30,6 +32,8 @@ static void init_block(buddy_block_descriptor_t block, int order){
     block->left = NULL;
     block->right = NULL;
 
+    mem_data->total_space= HEAP_SIZE;
+    mem_data->used_space = 0;
 }
 
 
@@ -151,6 +155,8 @@ void * buddy_alloc(size_t size) {
 
     tree->total_assignable_space -= (1 << order);
 
+    mem_data->used_space += (1<< order);
+
     return block->chunk;
 }
 
@@ -164,6 +170,7 @@ static void free_rec(buddy_block_descriptor_t block, void * ptr) {
     if (block->state == B_RED) {
         block->state = B_GREEN;
         tree->total_assignable_space += (1 << block->order);
+        mem_data->used_space -= (1<< block->order);
         return;
     }
 
@@ -223,4 +230,9 @@ void * mm_malloc(size_t size){
 
 void mm_free(void * p){
     buddy_free(p);
+}
+
+
+mem_t mm_mem(){
+    return mem_data;
 }

@@ -15,6 +15,9 @@ typedef struct {
 
 
 static char * heap;
+static mem_struct mem;
+
+static mem_t mem_data = &mem;
 
 // index del último bloque reservado
 static int last_alloced = 0;
@@ -35,7 +38,10 @@ static blocks_heapblock_t create_blocks_heapblock(void * initial_address, int id
 
 
 void mm_init(void * start_given) {
-  
+    
+    mem_data->total_space= HEAP_SIZE;
+    mem_data->used_space = 0;
+
 	heap = (char *) start_given;
 
 // Inicializo bloques "sin uso", sirven para crear bloques libres al hacer malloc.
@@ -48,11 +54,14 @@ static inline void free_block(int index)	{
 
 	blocks_heap[index].free = true;
     blocks_heap[index].link = -1;
+    mem_data->used_space -= BLOCK_SIZE;
 }
 
-static inline void lock_block(int index)	{
+static inline void lock_block(int index,int link_index)	{
 
-	blocks_heap[index].free = false;
+	blocks_heap[index].link = link_index;
+    blocks_heap[index].free=false;
+    mem_data->used_space += BLOCK_SIZE;
 }
 
 static inline bool is_free(int index)	{
@@ -129,8 +138,8 @@ void * mm_malloc(size_t dim)	{
 
     void * to_return = blocks_heap[to_alloc].initial_address;
     for (int i = to_alloc; i < to_alloc + blocks_to_alloc; i++) {
-        blocks_heap[i].link = to_alloc;
-        blocks_heap[i].free=false;
+        
+        lock_block(i,to_alloc);
     }
 
     last_alloced = to_alloc + blocks_to_alloc;
@@ -167,4 +176,8 @@ void mm_free(void * p)	{
     }
 
 
+}
+
+mem_t mm_mem(){
+    return mem_data;
 }

@@ -25,6 +25,15 @@ typedef enum {B_GREEN, B_YELLOW, B_RED, B_BLUE} block_state;
  * BLUE:   left and right are alloced but current isn't
  */
 
+typedef struct mem_struct{
+    
+    size_t total_space;
+    size_t used_space;
+
+} mem_struct;
+
+typedef struct mem_struct * mem_t;
+
 typedef struct buddy_block_descriptor * buddy_block_descriptor_t;
 
 typedef struct buddy_tree * buddy_tree_t;
@@ -34,6 +43,8 @@ void mm_init(void * start_given);
 void * mm_malloc(size_t size);
 
 void mm_free(void * p);
+
+mem_t mm_mem();
 
 #endif
 
