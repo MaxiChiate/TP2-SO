@@ -39,13 +39,14 @@ static pcb_t pcbs[PROCESS_AMOUNT];
 static uint64_t stacks[PROCESS_AMOUNT][STACK_SPACE];
 
 /*-------------------------------------------------------------------------------------------------------*/
-static unsigned int current_process = 0;
-static int64_t process_id_counter = INITIAL_PROCESS_ID;
-static unsigned int current_amount_process = 0;
-static unsigned int started_at = 0;
-static bool scheduler_on = false;
-static bool initializing = false;
-static bool force_next = false;
+static unsigned int current_process;
+static int64_t process_id_counter;
+static unsigned int current_amount_process;
+static unsigned int current_blocked_process;
+static unsigned int started_at;
+static bool scheduler_on;
+static bool initializing;
+static bool force_next;
 /*-------------------------------------------------------------------------------------------------------*/
 
 static bool can_change_state(process_state_t old, process_state_t new);
@@ -93,26 +94,45 @@ void scheduler_init(uint64_t init_address, int argc, char * argv[])   {
 
     if(!scheduler_on)   {
             
+        _cli();
+
         for (int i  = 0; i < PROCESS_AMOUNT; i++) {
 
             pcbs[i].state = TERMINATED;
-        }
+        }  
+
+        current_process = 0;
+        process_id_counter = INITIAL_PROCESS_ID;
+        current_amount_process = 0;
+        current_blocked_process = 0;
+        started_at = 0;
 
         current_process = new_process(init_address, argc, argv, QUANTUM_AMOUNT-1, true);
-        scheduler_on = true;
-        initializing = true;
-        force_next = true;
+
+        init_hlt();
+
+        scheduler_on =  true;
+        initializing =  true;
+        force_next =    true;
+        
+        current_blocked_process = 1;    //hlt está bloqueado
+
+        _sti();
         _force_timertick_int();
     }
 }
 
-#include <systemCalls.h> // Delete
 
 uint64_t schedule(uint64_t current_stack_pointer) {
 
     if(!scheduler_on)   return current_stack_pointer;
 
     if(current_amount_process == 0) return -1;
+
+    if(is_halting())    {
+
+        return current_stack_pointer;
+    }
 
     initializing ? (initializing = false) : update_pcb(current_process, current_stack_pointer); 
 
@@ -171,6 +191,8 @@ void suicide() {
 
     wake_up_processes_waiting_me();
 
+// Se liberan los argumentos copiados:
+
     for(int i=0;i <pcbs[current_process].argc ; i++)    {
 
         mm_free(pcbs[current_process].argv[i]);
@@ -200,6 +222,30 @@ bool unblock_process(int64_t pid)    {
     
     return unblock_process_by_index(get_index_by_pid(pid));
 }
+
+
+void force_block(int64_t pid)    {
+
+    int index = get_index_by_pid(pid);
+
+    if(index > 0)   {
+
+        pcbs[index].state = BLOCKED;
+    }
+}
+
+
+
+void force_unblock(int64_t pid)    {
+
+    int index = get_index_by_pid(pid);
+
+    if(index > 0)   {
+
+        pcbs[index].state = READY;
+    }
+}
+
 
 
 bool change_process_priority(int64_t pid, int prio)  {
@@ -259,12 +305,15 @@ ps_t * get_ps() {
 
     ps_t * to_return = mm_malloc(sizeof(to_return[0]) * current_amount_process);
     
-    int k=0;
-    for(int i=0; k<current_amount_process && i<PROCESS_AMOUNT; i++)   {
-        
-        if (is_alive(i)) {
+    if(to_return){
+    
+        int k=0;
+        for(int i=0; k<current_amount_process && i<PROCESS_AMOUNT; i++)   {
             
-            to_return[k++] = process_status(i);   
+            if (is_alive(i)) {
+                
+                to_return[k++] = process_status(i);   
+            }
         }
     }
 
@@ -317,22 +366,49 @@ static bool can_change_state(process_state_t old, process_state_t new)  {
 static bool change_state_process(int p, process_state_t state)    {
 
     if( IN_RANGE(p) && can_change_state(pcbs[p].state, state)) {
+    
+        if(state == BLOCKED )    {
+
+            if(pcbs[p].state != BLOCKED)    {
+
+                current_blocked_process++;
+            }
+        }
+        else if (pcbs[p].state == BLOCKED)    {
+
+            current_blocked_process--;
+        }
 
         pcbs[p].state = state;
+        
         return true;
     }
 
     return false;
 }
 
-static inline bool block_process_by_index(int p)  {
+static bool block_process_by_index(int p)  {
 
-    return change_state_process(p, BLOCKED);
+    bool done = change_state_process(p, BLOCKED);
+
+    if(current_amount_process == current_blocked_process && done)    {
+    // Todos los procesos bloqueados, recurro a halt:
+        unblock_hlt();
+    }
+
+    return done;
 }
 
-static inline bool unblock_process_by_index(int p)  {
+static bool unblock_process_by_index(int p)  {
 
-    return change_state_process(p, READY);
+    bool done = change_state_process(p, READY);
+
+    if(is_halting() && done)  {
+    // Se desbloqueó un proceso, bloqueo halt:
+        block_hlt();
+    }
+
+    return done;
 }
 
 static inline bool run_process_by_index(int p)  {
@@ -396,10 +472,15 @@ static void next_process()   {
 
         if(is_running(current_process)) unblock_process_by_index(current_process); // set ready
 
-        do  {
-            
-            current_process = (current_process + 1) % PROCESS_AMOUNT; 
-        }   while(not_alive(current_process) || not_ready(current_process));
+//Si soy el unico proceso desbloqueado, voy yo de vuelta.
+        if(current_blocked_process != current_amount_process - 1)   {
+        // Sino busco al siguiente:
+            do  {
+                
+                current_process = (current_process + 1) % PROCESS_AMOUNT; 
+            }   while(not_alive(current_process) || not_ready(current_process));
+
+        }
 
         run_process_by_index(current_process);
         chronometer();
@@ -468,9 +549,13 @@ static int new_process(uint64_t function_address, int argc, char ** argv, unsign
         .priority = priority
     };
 
-    for(int i=0; i<argc; i++)   {
+    if(new_pcb.argv)    {
+    
+    //Se copia los argumentos:
+        for(int i=0; i<argc; i++)   {
 
-        new_pcb.argv[i] = getcpy(argv[i], argc, sizeof(char));
+            new_pcb.argv[i] = strgetcpy(argv[i]);
+        }
     }
 
     pcbs[new_process_index] = new_pcb;
@@ -543,3 +628,4 @@ static void wake_up_processes_waiting_me()    {
 
     free_queue(waiting);
 }
+

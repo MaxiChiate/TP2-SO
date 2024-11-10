@@ -80,3 +80,19 @@ void * getcpy(const void * source, uint64_t length, uint16_t data_size)	{
 
 	return memcpy(mm_malloc(data_size*length), source, length);
 }
+
+
+char * strgetcpy(const char * source)	{
+
+	int len=0;
+	while(source[len++]);
+
+	char * cpy = (char *) mm_malloc(len);
+
+	if(cpy)	{
+
+		for(int i=0; (cpy[i] = source[i]); i++);
+	}
+
+	return cpy;
+}

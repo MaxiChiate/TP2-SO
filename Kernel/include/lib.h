@@ -8,6 +8,7 @@
     void * memcpy(void * destination, const void * source, uint64_t length);
     uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
     void * getcpy(const void * source, uint64_t length, uint16_t data_size);
+    char * strgetcpy(const char * source);
 
     // libasm:
 

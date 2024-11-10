@@ -64,17 +64,17 @@ void * initializeKernelBinary()
 
 int main() {
 
+	_cli();
+
 	mm_init(memoryHeapAddress, HEAP_SIZE);
 	init_semaphore_store();
-	
 	init_ipc();
-
 	load_idt();
 
 
 	int argc = 1;
 	char * argv[2] = {"shell", NULL};
-	scheduler_init((int64_t) sampleCodeModuleAddress, argc, argv);
+	scheduler_init((int64_t) sampleCodeModuleAddress, argc, argv); // Asumir que hace _sti
 
 	return 0;
 }
