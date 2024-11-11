@@ -77,7 +77,6 @@ void read(char * buffer)   {
                 putChar(buffer[i-1]);
             }
         }
-
         wait_stdin();   // Espero a que haya algo en stdin
         getChar(&c);        
     }

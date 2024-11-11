@@ -2,7 +2,6 @@
 
 #define BEGINNIN_PROCESS_ADDRESS(process_index) ((uint64_t) stacks + (process_index + 1) * STACK_SPACE)
 #define IN_RANGE(i) ((i) >= 0 && (i) < PROCESS_AMOUNT)
-#define VALID_FD(fd) ((fd) >= 0 || (fd) < MAX_FDS)
 
 // Complete with ticks as quantum, each position represents the priority status.
 
@@ -41,8 +40,8 @@ static uint64_t stacks[PROCESS_AMOUNT][STACK_SPACE];
 /*-------------------------------------------------------------------------------------------------------*/
 static unsigned int current_process;
 static int64_t process_id_counter;
-static unsigned int current_amount_process;
-static unsigned int current_blocked_process;
+static unsigned int current_amount_processes;
+static unsigned int current_blocked_processes;
 static unsigned int started_at;
 static bool scheduler_on;
 static bool initializing;
@@ -68,7 +67,8 @@ static bool not_running(int p);
 static bool not_alive(int p);
 
 static void next_process();
-    
+static void find_next();
+
 static unsigned int get_quantum(unsigned int priority);
 
 static void update_pcb(unsigned int p, uint64_t new_sp);
@@ -103,8 +103,8 @@ void scheduler_init(uint64_t init_address, int argc, char * argv[])   {
 
         current_process = 0;
         process_id_counter = INITIAL_PROCESS_ID;
-        current_amount_process = 0;
-        current_blocked_process = 0;
+        current_amount_processes = 0;
+        current_blocked_processes = 0;
         started_at = 0;
 
         current_process = new_process(init_address, argc, argv, QUANTUM_AMOUNT-1, true);
@@ -114,25 +114,28 @@ void scheduler_init(uint64_t init_address, int argc, char * argv[])   {
         scheduler_on =  true;
         initializing =  true;
         force_next =    true;
-        
-        current_blocked_process = 1;    //hlt está bloqueado
 
         _sti();
         _force_timertick_int();
     }
 }
 
-
+#include <stringPrinter.h>
 uint64_t schedule(uint64_t current_stack_pointer) {
 
     if(!scheduler_on)   return current_stack_pointer;
 
-    if(current_amount_process == 0) return -1;
+    if(current_amount_processes == 0) return -1;
 
     initializing ? (initializing = false) : update_pcb(current_process, current_stack_pointer); 
 
-    if( force_next ||  end_of_halt() ||
-            (!is_halting() && alarmAtTicks(pcbs[current_process].quantum + started_at)))   {
+// Si bien halt desactiva el timer tick, se contempla el caso en el caso en el que 
+// se dispare una int antes de que esta se bloquee.
+// No rompe la logica del halt ya que cuando se desbloquea o bloquea a este proceso
+// se activa force_next.
+
+    if( force_next || 
+             (!is_halting() && alarmAtTicks(pcbs[current_process].quantum + started_at)))   {
         
         force_next = false;
         next_process();
@@ -145,7 +148,7 @@ uint64_t schedule(uint64_t current_stack_pointer) {
 
 int64_t create_process(uint64_t function_address, int argc, char * argv[], unsigned int priority, bool foreground) {
 
-    if(current_amount_process == PROCESS_AMOUNT) return -1;
+    if(current_amount_processes == PROCESS_AMOUNT) return -1;
 
     int new_process_index = new_process(function_address, argc, argv, priority, foreground);
     pcbs[new_process_index].parent_process_id = get_current_pid();
@@ -170,7 +173,7 @@ bool kill_process_by_pid(int64_t pid)   {
 
 int64_t get_current_pid()  {
 
-    return current_amount_process == 0 ? -1 : pcbs[current_process].process_id;
+    return current_amount_processes == 0 ? -1 : pcbs[current_process].process_id;
 }
 
 
@@ -203,45 +206,56 @@ void suicide() {
 
 bool block_process(int64_t pid)    {
     
-    bool answer = block_process_by_index(get_index_by_pid(pid));
+    bool done = block_process_by_index(get_index_by_pid(pid));
 
-    if(answer && pid == pcbs[current_process].process_id) {
+    if(done)    {
 
-        give_up_cpu();
+        if(current_amount_processes == current_blocked_processes)    {
+        // Todos los procesos bloqueados, recurro a halt:
+            unblock_hlt();
+        }
+
+        if(pid == get_current_pid()) {
+
+            give_up_cpu();
+        }
     }
 
-    return answer;
+    return done;
 }
 
 
 bool unblock_process(int64_t pid)    {
     
-    return unblock_process_by_index(get_index_by_pid(pid));
+    bool done = unblock_process_by_index(get_index_by_pid(pid));
+    
+    if(is_halting() && done)  {
+    // Se desbloqueó un proceso, bloqueo halt y fuerzo ir al siguiente proceso:
+        block_hlt();
+        force_next = true;
+    }
+
+    return done;
 }
 
 
 void force_block(int64_t pid)    {
 
-    int index = get_index_by_pid(pid);
-
-    if(index > 0)   {
-
-        pcbs[index].state = BLOCKED;
-    }
+    block_process_by_index(get_index_by_pid(pid));
 }
 
 
 
 void force_unblock(int64_t pid)    {
 
-    int index = get_index_by_pid(pid);
-
-    if(index > 0)   {
-
-        pcbs[index].state = READY;
-    }
+    unblock_process_by_index(get_index_by_pid(pid));
 }
 
+
+bool is_blocked_by_pid(int64_t pid)   {
+
+    return is_blocked(get_index_by_pid(pid));
+}
 
 
 bool change_process_priority(int64_t pid, int prio)  {
@@ -299,12 +313,12 @@ bool get_scheduler_status() {
 
 ps_t * get_ps() {
 
-    ps_t * to_return = mm_malloc(sizeof(to_return[0]) * current_amount_process);
+    ps_t * to_return = mm_malloc(sizeof(to_return[0]) * current_amount_processes);
     
     if(to_return){
     
         int k=0;
-        for(int i=0; k<current_amount_process && i<PROCESS_AMOUNT; i++)   {
+        for(int i=0; k<current_amount_processes && i<PROCESS_AMOUNT; i++)   {
             
             if (is_alive(i)) {
                 
@@ -367,12 +381,12 @@ static bool change_state_process(int p, process_state_t state)    {
 
             if(pcbs[p].state != BLOCKED)    {
 
-                current_blocked_process++;
+                current_blocked_processes++;
             }
         }
         else if (pcbs[p].state == BLOCKED)    {
 
-            current_blocked_process--;
+            current_blocked_processes--;
         }
 
         pcbs[p].state = state;
@@ -385,26 +399,12 @@ static bool change_state_process(int p, process_state_t state)    {
 
 static bool block_process_by_index(int p)  {
 
-    bool done = change_state_process(p, BLOCKED);
-
-    if(current_amount_process == current_blocked_process && done)    {
-    // Todos los procesos bloqueados, recurro a halt:
-        unblock_hlt();
-    }
-
-    return done;
+    return change_state_process(p, BLOCKED);
 }
 
 static bool unblock_process_by_index(int p)  {
 
-    bool done = change_state_process(p, READY);
-
-    if(is_halting() && done)  {
-    // Se desbloqueó un proceso, bloqueo halt:
-        block_hlt();
-    }
-
-    return done;
+    return change_state_process(p, READY);
 }
 
 static inline bool run_process_by_index(int p)  {
@@ -464,19 +464,15 @@ static inline bool not_ready(int p) {
 
 static void next_process()   {
     
-    if(current_amount_process > 0)  {
+    if(current_amount_processes > 0)  {
 
         if(is_running(current_process)) unblock_process_by_index(current_process); // set ready
 
-//Si soy el unico proceso desbloqueado, voy yo de vuelta. A menos que sea hlt
-        if(is_halt_id(pcbs[current_process].process_id) 
-            || (current_blocked_process != current_amount_process - 1))   {
-        // Sino busco al siguiente:
-            do  {
-                
-                current_process = (current_process + 1) % PROCESS_AMOUNT; 
-            }   while(not_alive(current_process) || not_ready(current_process));
+//  Si hay otro proceso ready o solo hay uno pero no soy yo, busco al siguiente:
+        if ((current_blocked_processes < current_amount_processes - 1) 
+            || not_ready(current_process)) {   
 
+            find_next();
         }
 
         run_process_by_index(current_process);
@@ -514,7 +510,7 @@ static void load_stackcontext_from_pcb(unsigned int p)   {
 
 static int new_process(uint64_t function_address, int argc, char ** argv, unsigned int priority, bool foreground)  {
 
-    current_amount_process++;
+    current_amount_processes++;
 
     int new_process_index = 0;
     while(is_alive(new_process_index))  {
@@ -593,7 +589,7 @@ static bool kill_process(int p) {
     
     if(IN_RANGE(p) && terminate_process_by_index(p))    {
         
-        current_amount_process--;
+        current_amount_processes--;
         return true;
     }
 
@@ -626,3 +622,11 @@ static void wake_up_processes_waiting_me()    {
     free_queue(waiting);
 }
 
+static void find_next()    {
+
+    do  {
+                
+        current_process = (current_process + 1) % PROCESS_AMOUNT; 
+
+    }   while(not_alive(current_process) || not_ready(current_process));
+}

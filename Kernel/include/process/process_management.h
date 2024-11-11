@@ -101,5 +101,6 @@
 
     void force_block(int64_t pid);
     void force_unblock(int64_t pid);
+    bool is_blocked_by_pid(int64_t pid);
 
 #endif //__process__management

@@ -9,13 +9,18 @@
 #include <process/ipc_management.h>
 #include <semaphore.h>
 
+
+
 uint64_t irqDispatcher(uint64_t irq, uint64_t rsp) {
 	
     switch (irq)    {
 
-        case 0: return timer_handler(rsp); 
+        case 0:  {
+
+            return timer_handler(rsp);
+        } 
         case 1: {
-            
+
             char c = map(keyboard_handler());
             kernel_write(STDIN_FILENO, &c, 1); 
             
