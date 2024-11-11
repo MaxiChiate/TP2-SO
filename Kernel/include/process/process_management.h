@@ -28,6 +28,7 @@
 
     #define DEFAULT_PARENT_PID 0
     #define INITIAL_PROCESS_ID 1    
+    #define INITIAL_CURRENT_PROCESS_AMOUNT 2    // init (sh) y halt
 
     /*
     * Initializes scheduler

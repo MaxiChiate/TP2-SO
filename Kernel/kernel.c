@@ -62,17 +62,23 @@ void * initializeKernelBinary()
 
 int main() {
 
-	_cli();
-
-	mm_init(memoryHeapAddress);
-	init_semaphore_store();
-	init_ipc();
 	load_idt();
 
+	while(1)	{
 
-	int argc = 1;
-	char * argv[2] = {"shell", NULL};
-	scheduler_init((int64_t) sampleCodeModuleAddress, argc, argv); // Asumir que hace _sti
+		_cli();
+
+		mm_init(memoryHeapAddress);
+		init_semaphore_store();
+		init_ipc();
+
+		int argc = 1;
+		char * argv[2] = {"shell", NULL};
+
+		scheduler_init((int64_t) sampleCodeModuleAddress, argc, argv); // Asumir que hace _sti
+
+		printTextDefault("\n\nRestarting OS...\n\n", YELLOW, BLACK);
+	}
 
 	return 0;
 }
