@@ -1,5 +1,6 @@
 GLOBAL _cli
 GLOBAL _sti
+GLOBAL atomicPicMasterMask
 GLOBAL picMasterMask
 GLOBAL picSlaveMask
 GLOBAL haltcpu
@@ -115,6 +116,18 @@ _cli:
 _sti:
 	sti
 	ret
+
+atomicPicMasterMask:
+
+atomicPicMasterMask:
+
+    cli                   
+    mov al, dil           
+    out 0x21, al          
+    sti                   
+    ret                   
+           
+
 
 picMasterMask:
 	push rbp

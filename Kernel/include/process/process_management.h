@@ -7,9 +7,9 @@
     #include <memory_manager.h>
     #include <systemCalls.h>
     #include <systemCallDefs.h>
-    #include <interrupts.h>
     #include <collections/queue.h>
     #include <lib.h>
+    #include <process/halt.h>
     
     #define K 1024
     #define STACK_SPACE 4*K
@@ -98,5 +98,9 @@
     ps_t ** get_ps(ps_t ** to_assign);
 
     void suicide();
+
+    void force_block(int64_t pid);
+    void force_unblock(int64_t pid);
+    bool is_blocked_by_pid(int64_t pid);
 
 #endif //__process__management

@@ -8,12 +8,14 @@ int main() {
 
     initShell();
 
-    char buffer[254] = {'\0'};
+    char buffer[MAX_ARG_LONG*MAX_ARGS + 1] = {'\0'};
+
+    unsigned int len = MAX_ARG_LONG*MAX_ARGS + 1;
 
     while(1)	{
 
-        read(buffer);
-        getMenu(buffer);
+        read(buffer, len);
+        getMenu(buffer, len);
     }
 
 	return 0;

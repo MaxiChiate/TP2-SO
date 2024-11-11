@@ -4,10 +4,10 @@
 #include <moduleLoader.h>
 #include <idtLoader.h>
 #include <stringPrinter.h>
-#include <buffer.h>
 #include <colours.h>
 
 #include <process/process_management.h>
+#include <process/ipc_management.h>
 #include <memory_manager.h>
 #include <semaphore.h>
 
@@ -62,14 +62,17 @@ void * initializeKernelBinary()
 
 int main() {
 
+	_cli();
+
 	mm_init(memoryHeapAddress);
 	init_semaphore_store();
+	init_ipc();
 	load_idt();
 
 
 	int argc = 1;
 	char * argv[2] = {"shell", NULL};
-	scheduler_init((int64_t) sampleCodeModuleAddress, argc, argv);
+	scheduler_init((int64_t) sampleCodeModuleAddress, argc, argv); // Asumir que hace _sti
 
 	return 0;
 }

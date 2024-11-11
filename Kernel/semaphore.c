@@ -15,23 +15,13 @@ static uint8_t using_sem = 0;
 
 static sem_t semaphores[MAX_SEMAPHORES_AMOUNT];
 
-static inline void next_id() {
 
-    if (using_sem == MAX_SEMAPHORES_AMOUNT) {
+static void init_stdin_sync();
+static inline void next_id();
+static inline bool in_range(uint8_t id);
+static void wait_sem_access(uint8_t sem_id);
+static bool spawn_sem(uint8_t id, uint8_t count);
 
-        return;
-    }
-
-    while(semaphores[current_sem].alive)   {
-
-        current_sem = (current_sem + 1) % MAX_SEMAPHORES_AMOUNT;
-    }
-}
-
-static inline bool in_range(uint8_t id)     {
-    
-    return id < MAX_SEMAPHORES_AMOUNT;
-}
 
 
 void init_semaphore_store()  {
@@ -40,21 +30,11 @@ void init_semaphore_store()  {
 
         semaphores[i].alive = false;
     }
+
+    init_stdin_sync();
 }
 
-static bool spawn_sem(uint8_t id, uint8_t count)  {
 
-    if(!in_range(id))  {
-
-        return false;
-    }
-
-    semaphores[id].alive = true;
-    semaphores[id].count = count;
-    semaphores[id].locked = false;
-    semaphores[id].processes_queue = queue_init();
-    return true;
-}
 
 int8_t new_sem(uint8_t count)   {
 
@@ -73,10 +53,14 @@ int8_t new_sem(uint8_t count)   {
     return -1;
 }
 
+
+
 bool is_sem_alive(uint8_t sem_id)   {
 
     return in_range(sem_id) && semaphores[sem_id].alive;
 }
+
+
 
 bool kill_sem(uint8_t sem_id)   {
 
@@ -91,13 +75,7 @@ bool kill_sem(uint8_t sem_id)   {
     return false;
 }
 
-static void wait_sem_access(uint8_t sem_id)  {
 
-    while(enter_region(&semaphores[sem_id].locked))   {
-
-        give_up_cpu();
-    }
-}
 
 void down(uint8_t sem_id)   {
 
@@ -137,6 +115,7 @@ void down(uint8_t sem_id)   {
 }
 
 
+
 void up(uint8_t sem_id) {
 
     if(!is_sem_alive(sem_id))   {
@@ -157,3 +136,63 @@ void up(uint8_t sem_id) {
     leave_region(&semaphores[sem_id].locked);
 }
 
+
+
+static uint8_t stdin_semid;
+
+void wait_stdin()   {
+
+    down(stdin_semid);
+}
+
+
+void signal_stdin() {
+
+    up(stdin_semid);
+}
+
+
+static void init_stdin_sync()    {
+
+    stdin_semid = new_sem(0);
+}
+
+static inline void next_id() {
+
+    if (using_sem == MAX_SEMAPHORES_AMOUNT) {
+
+        return;
+    }
+
+    while(semaphores[current_sem].alive)   {
+
+        current_sem = (current_sem + 1) % MAX_SEMAPHORES_AMOUNT;
+    }
+}
+
+static inline bool in_range(uint8_t id)     {
+    
+    return id < MAX_SEMAPHORES_AMOUNT;
+}
+
+static void wait_sem_access(uint8_t sem_id)  {
+
+    while(enter_region(&semaphores[sem_id].locked))   {
+
+        give_up_cpu();
+    }
+}
+
+static bool spawn_sem(uint8_t id, uint8_t count)  {
+
+    if(!in_range(id))  {
+
+        return false;
+    }
+
+    semaphores[id].alive = true;
+    semaphores[id].count = count;
+    semaphores[id].locked = false;
+    semaphores[id].processes_queue = queue_init();
+    return true;
+}

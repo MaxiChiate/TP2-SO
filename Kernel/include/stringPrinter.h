@@ -1,10 +1,17 @@
 #ifndef STRINGPRINTER_H
 #define STRINGPRINTER_H
 
+#include <videoDriver.h>
+#include <colours.h>
+#include <keyboard.h>
+#include <time.h>
+
+
 //imprime texto c
 void printText(char* string, int fgcolor, int bgcolor, int charSize);
 //imprime texto tamaño estándar con color de fuente y de fondo enviados por parametros
 void printTextDefault(char* string, int fgcolor, int bgcolor);
+void printTextDefault2(char* string, int fgcolor, int bgcolor, int size);
 //imprime caracteres tamaño estándar con color de fuente y de fondo enviados por parametros
 void printCharDefault(char c,int fgcolor, int bgcolor);
 //imprime salto de línea

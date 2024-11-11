@@ -30,5 +30,5 @@
     void suicide();
 
     // ps_t * ps();
-
+    
 #endif // _PROCESSLIB_H

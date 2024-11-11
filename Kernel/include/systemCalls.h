@@ -10,18 +10,10 @@
     #include <systemCalls.h>
     #include <videoDriver.h>
     #include <stringPrinter.h>
-    #include <buffer.h>
     #include <rtcDriver.h>
     #include <time.h>
     #include <process_management.h>
 
-
-// Devuelve segun fd lo que hay en el buffer, count caracteres:
-    char sysWrite(unsigned int fd, unsigned int count);
-
-
-// Carga en el buffer lo que hay en @s:
-    void sysRead(unsigned int fd, const char * s, char c);
 
 // Borra toda la pantalla:
     void sysClear();

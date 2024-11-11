@@ -20,7 +20,7 @@
 
     void printUlong(unsigned long n);
 
-    unsigned char getChar();
+    unsigned char getChar(char * c);
 
     void putChar(char c);
 
@@ -40,7 +40,8 @@
 
     extern void invalidOpcode();
 
-    void _hlt();
+    void sleep(int64_t ms);
+
 
     void sleep(int64_t ms);
 
@@ -63,9 +64,9 @@
 
     int getUlongDigits(unsigned long n);
 
-    char* stringNormalizer(char * origString);
+    char* stringNormalizer(char * origString,unsigned int strlen);
 
-    int stringTrimmerBySpace( char * origString, char * function_name, char **argv);
+    int stringTrimmerBySpace( char * origString, char * function_name, char ** argv, unsigned int max_dim);
 
     void strcopy(char* dest, char* string);
 
@@ -100,4 +101,4 @@
     void * memset(void * destiny, int32_t c, uint64_t length);
 
 
-#endif
+#endif //_USERLIB_H
