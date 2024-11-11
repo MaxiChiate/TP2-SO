@@ -3,12 +3,12 @@
 void ps(int argc, char ** argv) {
 
 
-    ps_t * to_print;
-    int64_t args[] = {(int64_t) to_print};
+    ps_t ** to_print;
+    int64_t args[] = {(int64_t) &to_print};
 
     _int80(SYS_PS, args);
 
-    print_ps(to_print[0]);
+    print_all_ps(to_print);
 
     suicide();
 

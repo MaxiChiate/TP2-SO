@@ -98,7 +98,7 @@ void suicide_wrapper(int64_t *args) {
 
 void ps_wrapper(int64_t * args) {
 
-	get_ps((ps_t *) args[0]);
+	get_ps((ps_t **) args[0]);
 }
 
 void timeManager_wrapper(int64_t *args) {

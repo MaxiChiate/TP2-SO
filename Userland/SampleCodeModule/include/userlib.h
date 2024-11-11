@@ -12,7 +12,9 @@
 
     void print2(char * str, unsigned int dim);
 
-    void print_ps(ps_t ps);
+    void print_ps(ps_t * ps);
+
+    void print_all_ps(ps_t ** to_print);
 
     void printUinteger(unsigned int n);
 

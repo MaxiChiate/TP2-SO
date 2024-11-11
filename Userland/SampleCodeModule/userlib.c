@@ -17,38 +17,45 @@ void print2(char * str, unsigned int dim)   {
     _int80(SYS_WRITE, args);
 }
 
-void print_ps(ps_t ps) {
+void print_ps(ps_t * ps) {
 
     print("sp: ");
-    printUinteger(ps.sp);
+    printUinteger(ps->sp);
     print("\n");
 
     print("bp: ");
-    printUinteger(ps.bp);
+    printUinteger(ps->bp);
     print("\n");
 
     print("id: ");
-    printUinteger(ps.id);
+    printUinteger(ps->id);
     print("\n");
 
     print("parent_id: ");
-    printUinteger(ps.parent_id);
-    print("\n");
-
+    printUinteger(ps->parent_id);
+    print("\n");    
+                    
     print("state: ");
-    printUinteger(ps.state);
-    print("\n");
+    printUinteger(ps->state);
+    print("\n");    
 
     print("foreground: ");
-    printUinteger(ps.foreground);
+    printUinteger(ps->foreground);
     print("\n");
 
     print("priority: ");
-    printUinteger(ps.priority);
+    printUinteger(ps->priority);
     print("\n");
 
     print("name: ");
     print("\n");
+}
+
+void print_all_ps(ps_t ** to_print) {
+
+    for (int i = 0; to_print[i] != NULL; i++) {
+        print_ps(to_print[i]);
+    }
 }
 
 unsigned char getChar() {
