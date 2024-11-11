@@ -5,6 +5,7 @@
 
     #include <bool.h>
     #include <stdint.h>
+    #include <defs.h>
 
     typedef enum    {
 
@@ -61,6 +62,22 @@
     } ps_t;
 
 
+    typedef enum {
+    
+        KEY_SHIFT = 'S',
+        KEY_CTRL = 'C',
+        KEY_CAPS_LOCK = 'M',
+        KEY_UP_ARROW = 'U',
+        KEY_LEFT_ARROW = 'L',
+        KEY_RIGHT_ARROW = 'R',
+        KEY_DOWN_ARROW = 'D',
+        KEY_TAB = '\t',
+        KEY_ENTER = '\n',
+        KEY_BACKSPACE = '\b',
+        CTRL_C = 3,      
+        CTRL_D = EOF       
+
+    } SpecialKey;
 
     typedef enum { STDIN_FILENO = 0, STDOUT_FILENO, STD_FD_COUNT} std_fd;
     typedef enum {

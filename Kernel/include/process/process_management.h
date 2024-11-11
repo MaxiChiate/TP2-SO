@@ -27,8 +27,7 @@
     #define STACK_WIDTH 8
 
     #define DEFAULT_PARENT_PID 0
-    #define INITIAL_PROCESS_ID 1
-
+    #define INITIAL_PROCESS_ID 1    
 
     /*
     * Initializes scheduler
@@ -102,5 +101,7 @@
     void force_block(int64_t pid);
     void force_unblock(int64_t pid);
     bool is_blocked_by_pid(int64_t pid);
+
+    void kill_fg_process();
 
 #endif //__process__management

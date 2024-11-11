@@ -22,6 +22,12 @@ uint64_t irqDispatcher(uint64_t irq, uint64_t rsp) {
         case 1: {
 
             char c = map(keyboard_handler());
+
+            if(c == CTRL_C)    {
+
+                kill_fg_process();
+            }
+            
             kernel_write(STDIN_FILENO, &c, 1); 
             
             signal_stdin();

@@ -39,6 +39,7 @@ static uint64_t stacks[PROCESS_AMOUNT][STACK_SPACE];
 
 /*-------------------------------------------------------------------------------------------------------*/
 static unsigned int current_process;
+static unsigned int current_in_fg;
 static int64_t process_id_counter;
 static unsigned int current_amount_processes;
 static unsigned int current_blocked_processes;
@@ -52,6 +53,7 @@ static bool can_change_state(process_state_t old, process_state_t new);
 static bool block_process_by_index(int p);
 static bool unblock_process_by_index(int p);
 static bool run_process_by_index(int p);
+static bool terminate_process_by_index(int p);
 
 static void chronometer();
 
@@ -63,8 +65,6 @@ static bool is_ready(int p);
 static bool not_ready(int p);
 static bool is_running(int p);
 static bool not_running(int p);
-
-static bool not_alive(int p);
 
 static void next_process();
 static void find_next();
@@ -106,8 +106,9 @@ void scheduler_init(uint64_t init_address, int argc, char * argv[])   {
         current_amount_processes = 0;
         current_blocked_processes = 0;
         started_at = 0;
+        current_in_fg = -1; // No contamos la shell/init como fg, por simpleza.
 
-        current_process = new_process(init_address, argc, argv, QUANTUM_AMOUNT-1, true);
+        current_process = new_process(init_address, argc, argv, QUANTUM_AMOUNT-1, false);
 
         init_hlt();
 
@@ -120,7 +121,7 @@ void scheduler_init(uint64_t init_address, int argc, char * argv[])   {
     }
 }
 
-#include <stringPrinter.h>
+
 uint64_t schedule(uint64_t current_stack_pointer) {
 
     if(!scheduler_on)   return current_stack_pointer;
@@ -141,6 +142,11 @@ uint64_t schedule(uint64_t current_stack_pointer) {
         next_process();
     }
     
+    if (pcbs[current_process].foreground)   { 
+
+        current_in_fg = current_process;
+    }
+
     return pcbs[current_process].stack_pointer;
 }
 
@@ -187,17 +193,6 @@ void give_up_cpu()  {
 void suicide() {
 
     kill_process(current_process);
-
-    wake_up_processes_waiting_me();
-
-// Se liberan los argumentos copiados:
-
-    for(int i=0;i <pcbs[current_process].argc ; i++)    {
-
-        mm_free(pcbs[current_process].argv[i]);
-    }
-
-    mm_free(pcbs[current_process].argv);
 
     give_up_cpu();
 }
@@ -332,6 +327,12 @@ ps_t ** get_ps(ps_t ** to_assign) {
 }
 
 
+void kill_fg_process() {
+
+    kill_process(current_in_fg);
+}
+
+
 
 static ps_t process_status(int p)   {
 
@@ -415,7 +416,14 @@ static inline bool run_process_by_index(int p)  {
 
 static inline bool terminate_process_by_index(int p)    {
 
-    return change_state_process(p, TERMINATED);
+    bool terminated = change_state_process(p, TERMINATED);
+
+    if(terminated)  {
+
+        current_in_fg = -1;
+    }
+
+    return terminated;
 }
 
 static inline bool is_blocked(int p)    {
@@ -590,6 +598,17 @@ static bool kill_process(int p) {
     
     if(IN_RANGE(p) && terminate_process_by_index(p))    {
         
+        wake_up_processes_waiting_me();
+
+    // Se liberan los argumentos copiados:
+
+        for(int i=0;i <pcbs[current_process].argc ; i++)    {
+
+            mm_free(pcbs[current_process].argv[i]);
+        }
+
+        mm_free(pcbs[current_process].argv);
+
         current_amount_processes--;
         return true;
     }

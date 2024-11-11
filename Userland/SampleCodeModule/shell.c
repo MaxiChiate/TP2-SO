@@ -42,6 +42,12 @@ void initShell()    {
     print(INIT_MESSAGE);
 }
 
+static void new_line()  {
+
+    putEnter();
+    print(LINE_STRING);
+}
+
 void read(char * buffer, unsigned int buflen)   {
 
     if(buflen < 1 || buffer == NULL)  {
@@ -53,7 +59,7 @@ void read(char * buffer, unsigned int buflen)   {
     int i=0;
     char c;
 
-    print(LINE_STRING);
+    new_line();
 
     while(true) {
 
@@ -68,7 +74,12 @@ void read(char * buffer, unsigned int buflen)   {
             }
             else if (c!='\0')    {
 
-                if(c=='\b' )    {
+                if (c == CTRL_C)     {
+
+                    buffer[0] = '\0';
+                    new_line();
+                }
+                else if(c=='\b' )    {
 
                     if(i!=0)    {
                     
@@ -97,8 +108,7 @@ void read(char * buffer, unsigned int buflen)   {
         else  {
 
         // No escribieron nada, meto un enter y vamos de vuelta:
-            putEnter();
-            print(LINE_STRING);
+            new_line();
         }
     }    
 }
@@ -152,11 +162,11 @@ static bool check_and_run_process( process_f * p,  char ** names, int argc, char
 
                 if(background)  {
    
-                    spawn_process((int64_t) p[i], argc-1, argv, 1, true);
+                    spawn_process((int64_t) p[i], argc-1, argv, 1, false);
                 }
                 else    {
 
-                    int64_t cpid = run_process((int64_t) p[i], argc, argv, 1, false);
+                    int64_t cpid = run_process((int64_t) p[i], argc, argv, 1, true);
                     waitpid(cpid);
                 }
 
