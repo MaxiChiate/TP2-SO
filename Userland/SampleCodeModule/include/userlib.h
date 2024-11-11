@@ -73,6 +73,9 @@
 
     void itoa(int value, char* buff);
 
+    int abs(int value);
+
+
 //  Al no tener memoria dinamica uIntToString depende de que se le pase la cantidad de digitos
 //  del numero a transformar. Para eso se dispone de la funcion getUintDigits.
 
