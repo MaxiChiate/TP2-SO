@@ -10,10 +10,14 @@ void block(int argc, char ** argv) {
 
     } else {
         int64_t to_block = satoi(argv[0]);
-        if (blockp(to_block)) {
+        if (to_block == SHELL_PID) {
+            puts("Cannot block shell");
+
+        } else if (blockp(to_block)) {
             print("Blocking process ");
             printUinteger(to_block);
             puts("");
+
         } else {
             print("Process "); printUinteger(to_block); puts(" not found");
         }

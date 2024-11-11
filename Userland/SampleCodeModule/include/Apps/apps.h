@@ -10,6 +10,7 @@
 
     #define ERROR_MESSAGE_FEW "ERROR: too few arguments\n"
     #define ERROR_MESSAGE_MANY "ERROR: too many arguments\n"
+    #define SHELL_PID 1
 
     void mem(int argc, char ** argv);
     void loop(int argc, char ** argv);

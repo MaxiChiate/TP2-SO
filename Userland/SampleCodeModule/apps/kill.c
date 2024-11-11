@@ -10,7 +10,10 @@ void kill(int argc, char ** argv) {
 
     } else {
         int64_t to_kill = satoi(argv[0]);
-        if (killp(to_kill)) {
+        if (to_kill == SHELL_PID) {
+            puts("Cannot kill shell");
+            
+        } else if (killp(to_kill)) {
             print("Killing process ");
             printUinteger(to_kill);
         } 

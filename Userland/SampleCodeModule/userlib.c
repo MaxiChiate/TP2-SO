@@ -20,31 +20,31 @@ void puts(char * str) {
 void print_ps(ps_t * ps) {
 
     print("sp: ");
-    printUinteger(ps->sp);
+    printUinteger((unsigned int) ps->sp);
     print("\t");
 
     print("bp: ");
-    printUinteger(ps->bp);
+    printUinteger((unsigned int) ps->bp);
     print("\t");
 
     print("id: ");
-    printUinteger(ps->id);
-    print("\n");
+    printUinteger((unsigned int) ps->id);
+    print("\t");
 
-    print("parent_id: ");
-    printUinteger(ps->parent_id);
+    print("parent: ");
+    printUinteger((unsigned int) ps->parent_id);
     print("\t");    
                     
     print("state: ");
-    printUinteger(ps->state);
+    printUinteger((unsigned int) ps->state);
     print("\t");    
 
-    print("foreground: ");
-    printUinteger(ps->foreground);
-    print("\n");
+    print("fg: ");
+    printUinteger((unsigned int) ps->foreground);
+    print("\t");
 
-    print("priority: ");
-    printUinteger(ps->priority);
+    print("prio: ");
+    printUinteger((unsigned int) ps->priority);
     print("\t");
 
     print("name: ");
