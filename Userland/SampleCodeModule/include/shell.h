@@ -6,7 +6,7 @@
 
     #define INIT_MESSAGE "Welcome to shell, write help if you want to know the available options\n"
     // #define OVERFLOW_MESSAGE "\nYou're trying to overflow the buffer, aren't you? By the way, that's an Unknown Command\n"
-    #define OVERFLOW_MESSAGE "\nIncorrect argument format: maximum number of arguments is 3 with a length of 14 characters each\n"
+    #define OVERFLOW_MESSAGE "\n\nIncorrect argument format: maximum number of arguments is 3 with a length of 14 characters each\n\n"
 
     #define SECTIONS 3
 
@@ -17,7 +17,8 @@
 
     #define BACKGROUND_CHARACTER '&'
     #define LINE_STRING "$> "
-    #define INVALID_INPUT_MESSAGE "\nUnknown Command\n"
+    #define INVALID_INPUT_MESSAGE "\n\nUnknown Command\n\n"
+    #define BUFFER_ARGS_ERROR_MESSAGE "\n\nBuffer error\n\n"
 
     #define MAX_ARGS    4
     #define MAX_ARG_LONG 15
@@ -26,8 +27,8 @@
     typedef void (*process_f)(int, char **);
 
     void initShell();
-    void read(char * buffer);
-    void getMenu(char * buffer);
+    void read(char * buffer, unsigned int buflen);
+    void getMenu(char * buffer, unsigned int buflen);
     void help(int argc, char ** argv);
     void time(int argc, char ** argv);
     void div0(int argc, char ** argv);

@@ -62,9 +62,9 @@ void putBackSpace() {
 void putTab()   {
     putChar('\t');
 }
-char* stringNormalizer(char* origString){
+char* stringNormalizer(char* origString, unsigned int strlen){
     int i=0, j=0;
-    while (origString[i]!='\0'){
+    while (origString[i]!='\0' && j < strlen - 1){
         if (isUpper(origString[i])){
             origString[j++]=origString[i++]+32;
         } else if (origString[i]==' '){
@@ -78,13 +78,18 @@ char* stringNormalizer(char* origString){
     return origString;
 }
 
-static int get_arg( char * origString, char * arg)    {
+static int get_arg( char * origString, char * arg, unsigned int max_dim)    {
  
     int i=0, k=0;
 
     if (origString[i] != '\0' && arg != NULL)   {
 
         while (origString[i] != ' ' && origString[i] != '\0')   {
+
+            if(i == max_dim)    {
+
+                return -1;
+            }
 
             arg[k++] = origString[i++];
         }
@@ -96,7 +101,7 @@ static int get_arg( char * origString, char * arg)    {
 }
 
 
-int stringTrimmerBySpace( char * origString, char * function_name, char ** argv) {
+int stringTrimmerBySpace( char * origString, char * function_name, char ** argv, unsigned int max_dim) {
     
     int i = 0, argc = 0;
 
@@ -104,6 +109,11 @@ int stringTrimmerBySpace( char * origString, char * function_name, char ** argv)
 
         while (origString[i] != ' ' && origString[i] != '\0') {
          
+            if(i == max_dim)    {
+
+                return -1;
+            }
+
             function_name[i] = origString[i];
             i++;
         }
@@ -115,9 +125,9 @@ int stringTrimmerBySpace( char * origString, char * function_name, char ** argv)
             i += (origString[i] == ' '); // Si hay espacio, lo saco
 
             int arg_lenght;
-            while( (arg_lenght = get_arg(origString + i, argv[argc])) )  { 
+            while( (arg_lenght = get_arg(origString + i, argv[argc], max_dim)) )  { 
 
-                if(arg_lenght > 14 + 1) {
+                if(arg_lenght < 0 || arg_lenght >= max_dim) {
 
                     return -1;
                 }

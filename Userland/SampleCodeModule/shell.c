@@ -35,51 +35,65 @@ void initShell()    {
     print(INIT_MESSAGE);
 }
 
-void read(char * buffer)   {
+void read(char * buffer, unsigned int buflen)   {
 
-    print(LINE_STRING);
-    int i=0;
+    if(buflen < 1 || buffer == NULL)  {
 
-    char c;
-
-    wait_stdin();   // Espero a que haya algo en stdin
-
-    getChar(&c);
-
-    while(c!='\n')    {
-        
-        if(c == EOF)    {
-
-            suicide();
-        }
-
-        else if (c!='\0')    {
-            
-            if(c=='\b' ) {
-
-                if(i!=0)    {
-                
-                    int pixelsToDelete = (buffer[i-1] == '\t')? 3 : 1; //Si borro un tab queda en 3 sino queda en 1
-                    
-                    for(int j=0; j<pixelsToDelete; ++j) {
-
-                        putChar('\b');
-                    }
-                                        
-                    buffer[--i] = '\0';
-                }   
-            }
-            else    {
-
-                buffer[i++] = c;
-                putChar(buffer[i-1]);
-            }
-        }
-        wait_stdin();   // Espero a que haya algo en stdin
-        getChar(&c);        
+        print(BUFFER_ARGS_ERROR_MESSAGE);
+        return;
     }
 
-    buffer[i] = '\0';
+    int i=0;
+    char c;
+
+    print(LINE_STRING);
+
+    while(true) {
+
+        wait_stdin();   // Espero a que haya algo en stdin
+        getChar(&c);
+
+        if(c!='\n')    {
+            
+            if(c == EOF)    {
+
+                suicide();
+            }
+            else if (c!='\0')    {
+
+                if(c=='\b' )    {
+
+                    if(i!=0)    {
+                    
+                        int pixelsToDelete = (buffer[i-1] == '\t')? 3 : 1; //Si borro un tab queda en 3 sino queda en 1
+                        
+                        for(int j=0; j<pixelsToDelete; ++j) {
+
+                            putChar('\b');
+                        }
+                                            
+                        buffer[--i] = '\0';
+                    }   
+                }
+                else if (i < buflen - 1)    {
+                        
+                    buffer[i++] = c;
+                    putChar(buffer[i-1]);
+                }
+            }
+        }
+        else if(i > 0)   {
+
+            buffer[i] = '\0';
+            return;
+        }
+        else  {
+
+        // No escribieron nada, meto un enter y vamos de vuelta:
+            putEnter();
+            print(LINE_STRING);
+        }
+    }    
 }
 
 
@@ -149,9 +163,9 @@ static bool check_and_run_process( process_f * p,  char ** names, int argc, char
 }
 
 
-void getMenu(char* buffer)  {
+void getMenu(char * buffer, unsigned int buflen)  {
    
-    buffer = stringNormalizer(buffer);
+    buffer = stringNormalizer(buffer, buflen);
 
     char function[MAX_ARG_LONG]={'\0'};
 
@@ -161,7 +175,7 @@ void getMenu(char* buffer)  {
 
     char * argv[MAX_ARGS+1] = {arg1, arg2, arg3, NULL};
 
-    int argc = stringTrimmerBySpace(buffer, function, argv);
+    int argc = stringTrimmerBySpace(buffer, function, argv, MAX_ARG_LONG);
 
     if (argc>=4 || argc < 0 || function[MAX_ARG_LONG-1]!='\0') {
 

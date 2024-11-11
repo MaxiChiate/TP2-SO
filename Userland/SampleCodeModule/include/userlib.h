@@ -56,9 +56,9 @@
 
     int getUlongDigits(unsigned long n);
 
-    char* stringNormalizer(char * origString);
+    char* stringNormalizer(char * origString,unsigned int strlen);
 
-    int stringTrimmerBySpace( char * origString, char * function_name, char **argv);
+    int stringTrimmerBySpace( char * origString, char * function_name, char ** argv, unsigned int max_dim);
     
 //  Al no tener memoria dinamica uIntToString depende de que se le pase la cantidad de digitos
 //  del numero a transformar. Para eso se dispone de la funcion getUintDigits.

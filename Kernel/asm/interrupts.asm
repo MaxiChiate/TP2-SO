@@ -119,11 +119,14 @@ _sti:
 
 atomicPicMasterMask:
 
-    cli                  
-    mov al, dil          
-    out 0x21, al         
-    sti                  
-    retn                 
+atomicPicMasterMask:
+
+    cli                   
+    mov al, dil           
+    out 0x21, al          
+    sti                   
+    ret                   
+           
 
 
 picMasterMask:
