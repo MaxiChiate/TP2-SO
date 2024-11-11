@@ -8,8 +8,7 @@ void loop(int argc, char ** argv){
         print("\nHola, este es mi pid : ");
         printUinteger(pid);
 
-        int64_t args[] = {1000}; // 1 segundo
-        _int80(SYS_SLEEP, args);
+        sleep(1000);
     }
 
     suicide();
