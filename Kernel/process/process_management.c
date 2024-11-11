@@ -313,10 +313,10 @@ bool get_scheduler_status() {
 
 ps_t ** get_ps(ps_t ** to_assign) {
 
-    ps_t ** to_return = mm_malloc(sizeof(to_return[0]) * current_amount_process);
+    ps_t ** to_return = mm_malloc(sizeof(to_return[0]) * current_amount_processes);
     
     int k=0;
-    for(int i=0; k<current_amount_process && i<PROCESS_AMOUNT; i++)   {
+    for(int i=0; k<current_amount_processes && i<PROCESS_AMOUNT; i++)   {
         
         if (is_alive(i)) {
             

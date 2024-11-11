@@ -6,6 +6,7 @@
     #include <memory_manager.h>
     #include <lib.h>
     #include <stdint.h>
+    #include <defs.h>
 
     typedef struct buffer * buffer_t;
 

@@ -37,10 +37,10 @@
             SYS_DOWN,
             SYS_IS_SEM_ALIVE,
             SYS_NEW_SEM,
+            SYS_WAIT_STDIN,
             SYS_MM_MALLOC,
             SYS_MM_FREE,
             SYS_MM_MEM,
-            SYS_WAIT_STDIN,
 
             SYSCALL_COUNT
         } syscall_id;
