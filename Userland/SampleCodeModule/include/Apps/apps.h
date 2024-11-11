@@ -4,6 +4,8 @@
     #include <heaplib.h>
     #include <processlib.h>
     #include <userlib.h>
+    #include <semlib.h>
+    #include <randlib.h>
 
     void mem(int argc, char ** argv);
     void loop(int argc, char ** argv);
@@ -11,5 +13,6 @@
     void block(int argc, char ** argv);
     void kill(int argc, char ** argv);
     void nice(int argc, char ** argv);
+    void phylo(int argc, char ** argv);
 
 #endif
