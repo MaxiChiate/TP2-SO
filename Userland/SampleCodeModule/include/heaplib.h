@@ -18,5 +18,8 @@
     void * malloc(uint32_t size);
     void free(void * ptr);
     mem_t mem_data();
+    void memcpy(void *dest, void *src, uint32_t n);
+    void * dum_realloc(void *ptr,uint32_t old_size, uint32_t new_size);
+
 
 #endif
