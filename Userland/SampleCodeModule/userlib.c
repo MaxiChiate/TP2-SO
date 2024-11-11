@@ -89,6 +89,12 @@ void time_getter()  {
     _int80(SYS_TIME, NULL);
 }
 
+void sleep(int64_t ms){
+    
+    int64_t args[] = {ms}; 
+    _int80(SYS_SLEEP, args);
+}
+
 void putEnter() {
     putChar('\n');
 }

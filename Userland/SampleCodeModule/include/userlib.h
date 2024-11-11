@@ -42,6 +42,9 @@
 
     void _hlt();
 
+    void sleep(int64_t ms);
+
+
 //  Strings:
 
     unsigned int strLength( char * str);
