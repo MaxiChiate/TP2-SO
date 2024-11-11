@@ -64,6 +64,10 @@ int main() {
 
 	load_idt();
 
+	welcome();
+	sleep(2000);
+	refillScreen();
+
 	while(1)	{
 
 	_cli();
