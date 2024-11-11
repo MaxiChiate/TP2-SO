@@ -7,6 +7,8 @@
     #include <stdint.h>
     #include <systemCallDefs.h>
     #include <systemCalls.h>
+    #include <colours.h>
+    #include <systemCalls.h>
     #include <videoDriver.h>
     #include <stringPrinter.h>
     #include <process/ipc_management.h>

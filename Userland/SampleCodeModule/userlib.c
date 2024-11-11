@@ -1,59 +1,13 @@
 #include <userlib.h>
 
-void printColor(char * str, int color)  {
-    
-    print2(str, strLength(str), color);
-}
-
 void print(char * str)  {
 
-    printColor(str, WHITE);
+    print2(str, strLength(str));
 }
 
-void printBlue(char * str)  {
+void print2(char * str, unsigned int dim)   {
 
-    printColor(str, BLUE);
-}
-
-void printViolet(char * str)  {
-
-    printColor(str, VIOLET);
-}
-
-void printGreen(char * str)  {
-
-    printColor(str, GREEN);
-}
-
-void printRed(char * str)  {
-
-    printColor(str, RED);
-}
-
-void printMagenta(char * str)  {
-
-    printColor(str, MAGENTA);
-}
-
-void printYellow(char * str)  {
-
-    printColor(str, YELLOW);
-}
-
-void printOrange(char * str)  {
-
-    printColor(str, ORANGE);
-}
-
-void printWhite(char * str)  {
-
-    printColor(str, WHITE);
-}
-
-
-void print2(char * str, unsigned int dim, uint32_t color)   {
-
-    int64_t args[] = {(int64_t) STDOUT_FILENO, (int64_t) str, (int64_t) dim, (int64_t) color};
+    int64_t args[] = {(int64_t) STDOUT_FILENO, (int64_t) str, (int64_t) dim};
 
     _int80(SYS_WRITE, args);
 }

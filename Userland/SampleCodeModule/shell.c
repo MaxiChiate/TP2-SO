@@ -240,12 +240,14 @@ void help(int argc, char ** argv) {
         
         for (int i = 0; i<amount[k]; i++) {
         
-            printYellow(names[k][i]);
-            print(": ");
+            print(names[k][i]);
+            print(":");
             print(descriptions[k][i]);
             putnEnters(2);
         }
     }
+    
+    putEnter();
 }
 
 void time(int argc, char ** argv){

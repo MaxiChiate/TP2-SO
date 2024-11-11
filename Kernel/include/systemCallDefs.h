@@ -6,7 +6,6 @@
     #include <bool.h>
     #include <stdint.h>
     #include <defs.h>
-    #include <colours.h>
 
     typedef enum    {
 

@@ -89,7 +89,7 @@ void close(int fd) {
 
 
 
-int write(int fd, char * buf, int size, uint32_t color) {
+int write(int fd, char * buf, int size) {
 
     rw_flags_t f[] = {RW, W};
 
@@ -102,7 +102,7 @@ int write(int fd, char * buf, int size, uint32_t color) {
 
     if(buffer_is_standard(descriptors[fd].buffer))  {
 
-        printTextDefault2(buf, color, BACKGROUND_COLOR, size);
+        printTextDefault2(buf, STDOUT_COLOR, BACKGROUND_COLOR, size);
 
     // Ya se "escribio" en pantalla, no hay necesidad de escribirlo en buffer.
         return size;

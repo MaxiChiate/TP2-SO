@@ -18,7 +18,7 @@
 
     #define BACKGROUND_CHARACTER '&'
     #define LINE_STRING "$> "
-    #define INVALID_INPUT_MESSAGE "\n\nUnknown Command\n"
+    #define INVALID_INPUT_MESSAGE "\n\nUnknown Command\n\n"
     #define BUFFER_ARGS_ERROR_MESSAGE "\n\nBuffer error\n\n"
 
     #define MAX_ARGS    4

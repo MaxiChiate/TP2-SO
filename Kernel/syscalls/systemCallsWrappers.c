@@ -28,7 +28,7 @@ void haltcpu_wrapper(int64_t *args) {
 
 void write_wrapper(int64_t *args) {
     
-	write((unsigned int) args[0], (char *) args[1], (unsigned int) args[2], (uint32_t) args[3]);
+	write((unsigned int) args[0], (char *) args[1], (unsigned int) args[2]);
 }
 
 void read_wrapper(int64_t *args) {
