@@ -3,7 +3,7 @@
 
 
 build_in_f build_in_functions[AVAILABLE_BUILDIN_F]={&help, &time, &clear, &div0, &invalidOpcode};
-process_f  process_functions[AVAILABLE_PROCESS_F]={&mem,&loop, &ps, &block, &nice};
+process_f  process_functions[AVAILABLE_PROCESS_F]={&mem,&loop, &ps, &block, &kill, &nice};
 process_f  test_functions[AVAILABLE_TESTS]={&test_processes, &test_prio, &test_sync, &test_mm};
 
 

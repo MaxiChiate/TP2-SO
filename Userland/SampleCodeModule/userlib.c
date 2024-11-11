@@ -21,11 +21,11 @@ void print_ps(ps_t * ps) {
 
     print("sp: ");
     printUinteger(ps->sp);
-    print("\n");
+    print("\t");
 
     print("bp: ");
     printUinteger(ps->bp);
-    print("\n");
+    print("\t");
 
     print("id: ");
     printUinteger(ps->id);
@@ -33,11 +33,11 @@ void print_ps(ps_t * ps) {
 
     print("parent_id: ");
     printUinteger(ps->parent_id);
-    print("\n");    
+    print("\t");    
                     
     print("state: ");
     printUinteger(ps->state);
-    print("\n");    
+    print("\t");    
 
     print("foreground: ");
     printUinteger(ps->foreground);
@@ -45,9 +45,11 @@ void print_ps(ps_t * ps) {
 
     print("priority: ");
     printUinteger(ps->priority);
-    print("\n");
+    print("\t");
 
     print("name: ");
+    print("\n");
+
     print("\n");
 }
 
