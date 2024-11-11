@@ -6,6 +6,11 @@
 #include <keyboard.h>
 #include <time.h>
 
+#define OS_NAME "unsignedOS"
+#define LOAD_MESSAGE "Loading..."
+#define OS_CHARSIZE 24
+#define LOADING_CHARSIZE 16
+#define OFFSET 16
 
 //imprime texto c
 void printText(char* string, int fgcolor, int bgcolor, int charSize);
@@ -31,6 +36,8 @@ void changeColors(int fgcolor);
 //mueve la variable que recorre el buffer hasta la posición inicial para reiniciarlo
 void resetBuffer();
 
+// Imprime el nombre del SO
+void welcome();
 
 
 #endif //STRINGPRINTER_H

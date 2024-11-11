@@ -66,11 +66,14 @@ int main() {
 
 	while(1)	{
 
-		_cli();
+	_cli();
 
-		mm_init(memoryHeapAddress);
-		init_semaphore_store();
-		init_ipc();
+
+	mm_init(memoryHeapAddress);
+	init_semaphore_store();
+	init_ipc();
+	load_idt();
+
 
 		int argc = 1;
 		char * argv[2] = {"shell", NULL};

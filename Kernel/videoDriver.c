@@ -243,6 +243,31 @@ void drawCharOnPreviousPosition(unsigned char c,int fgcolor, int bgcolor){
     }
 }
 
+static int strlength(char * str) {
+    int len = 0;
+    while(str[len++] != '\0');
+    return len;
+}
+static void SO(char * word) {
+    int charSize = OS_CHARSIZE;
+    int xpos = (WIDTH - (charSize * strlength(word))) / 2;
+    for (int i = 0; word[i] != '\0'; i++) {
+        unsigned char c = word[i];
+        render(font8x8_basic[c], WHITE, BLACK, HEIGHT/2 - OFFSET, xpos += charSize, charSize);
+    }
+}
+static void load(char * word) {
+   int charSize = LOADING_CHARSIZE;
+    int xpos = (WIDTH - (charSize * strlength(word))) / 2;
+    for (int i = 0; word[i] != '\0'; i++) {
+        unsigned char c = word[i];
+        render(font8x8_basic[c], WHITE, BLACK, HEIGHT/2 + OFFSET, xpos += charSize, charSize);
+    } 
+}
+void welcome() {
+    SO(OS_NAME);
+    load(LOAD_MESSAGE);
+}
 
 
 void newline(){
