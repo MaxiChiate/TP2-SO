@@ -69,7 +69,10 @@
 
     void strcopy(char* dest, char* string);
 
-    
+    int atoi(char* value);
+
+    void itoa(int value, char* buff);
+
 //  Al no tener memoria dinamica uIntToString depende de que se le pase la cantidad de digitos
 //  del numero a transformar. Para eso se dispone de la funcion getUintDigits.
 

@@ -342,3 +342,57 @@ void strcopy(char* dest, char* string){
     }
     dest[i] = '\0';
 }
+
+void itoa(int value, char* buff){
+    int i = 0;
+    int val = abs(value);
+
+    if(val == 0){
+        buff[i++] = '0';
+    }
+
+    while(val != 0){
+        int resto = val % 10;
+        if(resto < 10){
+            buff[i++] = resto + '0';
+        }else {
+            buff[i++] = resto + 'A' - 10;
+        }
+        val /= 10;
+    }
+
+    if (value < 0) {
+        buff[i++] = '-';
+    }
+    int dim = i;
+
+    int j = 0;
+    i -= 1;
+    char aux;
+    while(j < i){
+        aux = buff[j];
+        buff[j] = buff[i];
+        buff[i] = aux;
+        j++;
+        i--;
+    }
+    buff[dim] = 0;
+}
+
+int atoi(char* value){
+    int is_negative = 0;
+    int aux = 0;
+    if(value[0] == '-'){
+        is_negative = 1;
+    }
+    for (int i = is_negative; value[i] != '\0'; ++i){
+        if(value[i] >= '0' && value[i] <= '9'){
+            aux = aux * 10 + value[i] - '0';
+        }
+    }
+
+    if(is_negative){
+        aux = -aux;
+    }
+    return aux;
+}
