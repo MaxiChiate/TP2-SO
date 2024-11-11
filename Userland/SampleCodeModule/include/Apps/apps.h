@@ -7,6 +7,9 @@
     #include <semlib.h>
     #include <randlib.h>
 
+    #define ERROR_MESSAGE_FEW "ERROR: too few arguments\n"
+    #define ERROR_MESSAGE_MANY "ERROR: too many arguments\n"
+
     void mem(int argc, char ** argv);
     void loop(int argc, char ** argv);
     void ps(int argc, char ** argv);
