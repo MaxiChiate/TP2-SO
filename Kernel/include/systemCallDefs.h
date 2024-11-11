@@ -63,7 +63,13 @@
 
 
     typedef enum { STDIN_FILENO = 0, STDOUT_FILENO, STD_FD_COUNT} std_fd;
-    typedef enum {NO, R, W, RW} rw_flags_t;
+    typedef enum {
+        
+        NONE = 0b000, 
+        R    = 0b001, 
+        W    = 0b010, 
+        RW   = 0b100
+    } rw_flags_t;
 
 
 #endif

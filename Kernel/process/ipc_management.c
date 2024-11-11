@@ -30,13 +30,13 @@ void init_ipc() {
     for (int i = 0; i < MAX_FDS; i++) {
 
         descriptors[i] = create_descriptor(CLOSED);
-        flags[i] = NO;
+        flags[i] = NONE;
     }
-
-    kernel_pipe(STDIN_FILENO, STDOUT_FILENO, buffer_init(STD_BUFFER_SIZE, true));
 
     next_index = FIRST_BUFFER;
     currently_closed = MAX_FDS - STD_FD_COUNT;
+
+    kernel_pipe(STDIN_FILENO, STDOUT_FILENO, buffer_init(STD_BUFFER_SIZE, true));
 }
 
 
@@ -81,7 +81,7 @@ void close(int fd) {
         }
 
         descriptors[fd].state = CLOSED;
-        flags[fd] = NO;
+        flags[fd] =NONE;
     
         currently_closed++;   
     }
@@ -135,20 +135,47 @@ int read(int fd, char * buf, int size)  {
     return buffer_read(descriptors[fd].buffer, buf, size);
 }
 
-int dup(int fd) {
 
-    return 0;
+
+int dup(int old_fd)  {
+    
+    return dup2(old_fd, next());
 }
 
-int dup2(int fd1, int fd2) {
 
-    return 0;
+int dup2(int old_fd, int new_fd)    {
+    
+    return dup3(old_fd, new_fd, flags[old_fd]);
 }
+
 
 int dup3(int old_fd, int new_fd, rw_flags_t new_flags)  {
+    
+    if (!IN_RANGE(old_fd) || !IN_RANGE(new_fd) || is_closed(old_fd))    {
+        
+        return -1;
+    }
+    
+    if (old_fd == new_fd) {
+        
+        return new_fd;
+    }
+    
+    if (is_open(new_fd)) {
+        
+        close(new_fd);
+    }
 
-    return 0;
+    int fd = kernel_open(new_flags, new_fd, descriptors[old_fd].buffer);
+    
+    if (fd > 0) {
+        
+        buffer_ref(descriptors[fd].buffer);
+    }
+    
+    return fd;
 }
+
 
 
 void kernel_pipe(int fd1, int fd2, buffer_t buffer)   {
@@ -228,56 +255,3 @@ static bool validate_flags(int fd, const rw_flags_t * f, int flags_amount)    {
 
     return false;
 }
-
-
-
-// int dup(int old_fd) {
-
-//     if (!IN_RANGE(old_fd)) {
-//         return -1;
-//     }
-
-//     int new_fd = open(flags[old_fd]);
-
-//     if (new_fd > 0) {
-
-//         descriptors[new_fd].buffer = descriptors[old_fd].buffer;    
-//     }
-
-//     return new_fd;
-
-// }
-
-
-// int dup2(int old_fd, int new_fd) {
-
-//     if (!IN_RANGE(old_fd) || !IN_RANGE(new_fd)) {
-//         return -1;
-//     }
-
-//     if (old_fd == new_fd) {
-//         return new_fd;
-//     }
-
-//     if (is_closed(old_fd) || is_closed(new_fd)) {
-//         return -1;
-//     }
-
-//     descriptors[new_fd].buffer = descriptors[old_fd].buffer;
-//     flags[new_fd] = flags[old_fd];
-
-//     return new_fd;
-// }
-
-// int dup3(int old_fd, int new_fd, rw_flags_t new_flags)  {
-
-//     int to_return = dup2(old_fd, new_fd);
-    
-//     if(to_return > 0) {
-//         flags[new_fd] = new_flags;
-//     }
-
-//     return to_return;
-// }
-
-
