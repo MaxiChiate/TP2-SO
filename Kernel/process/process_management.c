@@ -129,14 +129,10 @@ uint64_t schedule(uint64_t current_stack_pointer) {
 
     if(current_amount_process == 0) return -1;
 
-    if(is_halting())    {
-
-        return current_stack_pointer;
-    }
-
     initializing ? (initializing = false) : update_pcb(current_process, current_stack_pointer); 
 
-    if(force_next || alarmAtTicks(pcbs[current_process].quantum + started_at))   {
+    if( force_next ||  end_of_halt() ||
+            (!is_halting() && alarmAtTicks(pcbs[current_process].quantum + started_at)))   {
         
         force_next = false;
         next_process();
@@ -472,8 +468,9 @@ static void next_process()   {
 
         if(is_running(current_process)) unblock_process_by_index(current_process); // set ready
 
-//Si soy el unico proceso desbloqueado, voy yo de vuelta.
-        if(current_blocked_process != current_amount_process - 1)   {
+//Si soy el unico proceso desbloqueado, voy yo de vuelta. A menos que sea hlt
+        if(is_halt_id(pcbs[current_process].process_id) 
+            || (current_blocked_process != current_amount_process - 1))   {
         // Sino busco al siguiente:
             do  {
                 

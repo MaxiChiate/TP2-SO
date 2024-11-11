@@ -15,5 +15,7 @@
     void block_hlt();
 
     bool is_halting();
+    bool is_halt_id(int64_t pid);
+    bool end_of_halt();
 
 #endif
