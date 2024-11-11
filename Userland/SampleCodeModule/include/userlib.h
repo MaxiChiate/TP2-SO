@@ -12,6 +12,8 @@
 
     void print2(char * str, unsigned int dim);
 
+    void puts(char * str);
+
     void print_ps(ps_t * ps);
 
     void print_all_ps(ps_t ** to_print);

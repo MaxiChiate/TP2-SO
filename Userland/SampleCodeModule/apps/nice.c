@@ -1,5 +1,7 @@
 #include <Apps/apps.h>
 
+#define IN_RANGE(x, y, z) (x >= 0 && x < z)
+
 void nice(int argc, char ** argv) {
 
     if (argc < 2) {
@@ -9,12 +11,25 @@ void nice(int argc, char ** argv) {
         print(ERROR_MESSAGE_MANY);
 
     } else {
-        print("Changing process ");
-        printUinteger((unsigned int) *argv[1]);
-        print(" priority to ");
-        printUinteger((unsigned int) *argv[1]);
-        print("\n");
-        nicep((int64_t) *argv[1], (int) *argv[2]);
+
+        int64_t pid = satoi(argv[0]);
+        int new_priority = satoi(argv[1]);
+
+        if (!IN_RANGE(new_priority, 0, 3)) {
+            print("Priority ");
+            printUinteger(new_priority);
+            puts(" is inexistent");
+
+        } else if (nicep(pid, new_priority)) {
+            print("Changing process ");
+            printUinteger(pid);
+            print(" priority to ");
+            printUinteger(new_priority);
+            puts("");
+
+        } else {
+            print("Process "); printUinteger(pid); puts(" not found");
+        }
     }
 
     suicide();

@@ -9,10 +9,14 @@ void kill(int argc, char ** argv) {
         print(ERROR_MESSAGE_MANY);
 
     } else {
-        print("Killing process ");
-        printUinteger((unsigned int) *argv[1]);
-        print("\n");
-        killp((int64_t) *argv[1]);
+        int64_t to_kill = satoi(argv[0]);
+        if (killp(to_kill)) {
+            print("Killing process ");
+            printUinteger(to_kill);
+        } 
+        else {
+            print("Process "); print(argv[0]); puts(" not found");
+        }
     }
 
     suicide();

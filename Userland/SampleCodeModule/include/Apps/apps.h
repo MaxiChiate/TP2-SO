@@ -4,6 +4,7 @@
     #include <heaplib.h>
     #include <processlib.h>
     #include <userlib.h>
+    #include <test_util.h>
     #include <semlib.h>
     #include <randlib.h>
 

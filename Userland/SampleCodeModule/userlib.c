@@ -12,6 +12,11 @@ void print2(char * str, unsigned int dim)   {
     _int80(SYS_WRITE, args);
 }
 
+void puts(char * str) {
+    print(str);
+    print("\n");
+}
+
 void print_ps(ps_t * ps) {
 
     print("sp: ");

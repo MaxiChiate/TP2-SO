@@ -9,10 +9,15 @@ void block(int argc, char ** argv) {
         print(ERROR_MESSAGE_MANY);
 
     } else {
-        print("Blocking process ");
-        printUinteger((unsigned int) *argv[1]);
-        print("\n");
-        blockp((int64_t) *argv[1]);
+        int64_t to_block = satoi(argv[0]);
+        if (blockp(to_block)) {
+            print("Blocking process ");
+            printUinteger(to_block);
+            puts("");
+        } else {
+            print("Process "); printUinteger(to_block); puts(" not found");
+        }
+
     }
 
     suicide();
