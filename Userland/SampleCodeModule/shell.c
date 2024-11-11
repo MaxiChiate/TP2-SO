@@ -65,9 +65,7 @@ void read(char * buffer)   {
 
                         putChar('\b');
                     }
-                    
-                    putChar('\b');
-                    
+                                        
                     buffer[--i] = '\0';
                 }   
             }
