@@ -7,6 +7,7 @@ void kill(int argc, char ** argv) {
     } else {
         print("Killin process ");
         printUinteger((unsigned int) *argv[1]);
+        print("\n");
         killp((int) *argv[1]);
     }
 
