@@ -13,7 +13,7 @@
 static uint32_t N = 0;
 static uint32_t size = INIT_PHILOS;
 
-int philosopher(int argc, char ** argv);
+void philosopher(int argc, char ** argv);
 
 
 typedef struct {
@@ -62,13 +62,13 @@ static void add_philosopher(){
         char number[4];
         itoa(N, number);
         char *argv[] = {number, NULL};
-        philos[N].pid= spawn_process(&philosopher,1,argv,1,true);
+        philos[N].pid= spawn_process((int64_t) &philosopher,1,argv,1,true);
         N++;
 
     up(update_mutex);
 }
 
-int philosopher(int argc, char ** argv) {
+void philosopher(int argc, char ** argv) {
 
 
 }

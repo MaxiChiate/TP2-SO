@@ -24,8 +24,6 @@ void memcpy(void *dest, void *src, uint32_t n) {
     for (uint64_t i = 0; i < n; i++) {
         d[i] = s[i];
     }
-
-    return dest;
 }
 
 void * dum_realloc(void *ptr,uint32_t old_size, uint32_t new_size) {
