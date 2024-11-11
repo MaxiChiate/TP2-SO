@@ -6,7 +6,7 @@
 // Complete with ticks as quantum, each position represents the priority status.
 
 #define QUANTUM_AMOUNT 3
-static unsigned int quantum[QUANTUM_AMOUNT] = {0b001, 0b010, 0b100};
+static const unsigned int quantum[QUANTUM_AMOUNT] = {0b001, 0b010, 0b100};
 
 typedef enum process_state {BLOCKED, READY, RUNNING, TERMINATED} process_state_t;
 
@@ -35,11 +35,12 @@ typedef struct pcb {
 } pcb_t;
 
 static pcb_t pcbs[PROCESS_AMOUNT];
-static uint64_t stacks[PROCESS_AMOUNT][STACK_SPACE];
+static uint64_t stacks[PROCESS_AMOUNT][STACK_SPACE] = {0};
 
 /*-------------------------------------------------------------------------------------------------------*/
 static unsigned int current_process;
 static unsigned int current_in_fg;
+static int64_t kernel_rsp_backup;
 static int64_t process_id_counter;
 static unsigned int current_amount_processes;
 static unsigned int current_blocked_processes;
@@ -121,14 +122,27 @@ void scheduler_init(uint64_t init_address, int argc, char * argv[])   {
     }
 }
 
-
 uint64_t schedule(uint64_t current_stack_pointer) {
 
     if(!scheduler_on)   return current_stack_pointer;
 
-    if(current_amount_processes == 0) return -1;
+// Se asume scheduler inicializado:
+    if(current_amount_processes < INITIAL_CURRENT_PROCESS_AMOUNT) {
+        
+        _cli();
+        scheduler_on = false;
+        return kernel_rsp_backup;
+    }
 
-    initializing ? (initializing = false) : update_pcb(current_process, current_stack_pointer); 
+    if(initializing)    {
+        
+        initializing = false; 
+        kernel_rsp_backup = current_stack_pointer;
+    }
+    else    {
+
+        update_pcb(current_process, current_stack_pointer); 
+    }
 
 // Si bien halt desactiva el timer tick, se contempla el caso en el caso en el que 
 // se dispare una int antes de que esta se bloquee.

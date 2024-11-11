@@ -18,12 +18,12 @@ typedef struct buddy_tree {
 
 static mem_struct mem;
 
-static mem_t mem_data = &mem;
+static mem_t mem_data;
 // Memoria preasignada para los bloques
 static buddy_block_descriptor blocks_heap[MAX_NODES];
 
 static buddy_tree tree_struct;
-static buddy_tree_t tree = &tree_struct;
+static buddy_tree_t tree;
 
 static void init_block(buddy_block_descriptor_t block, int order){
 
@@ -208,6 +208,9 @@ void buddy_free(void *ptr) {
 //Aloca el head en blocks_heap y llama recursivamente a split_block
 void init_buddy(void * start_given) {
 
+    mem_data = &mem;
+    tree = &tree_struct;
+    
     tree->descriptor_counter = 0;
     tree->total_assignable_space = HEAP_SIZE;
     tree->head = create_new_block_descriptor(MAX_ORDER);

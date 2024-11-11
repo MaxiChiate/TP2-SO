@@ -17,10 +17,10 @@ typedef struct {
 static char * heap;
 static mem_struct mem;
 
-static mem_t mem_data = &mem;
+static mem_t mem_data;
 
 // index del último bloque reservado
-static int last_alloced = 0;
+static int last_alloced;
 
 static blocks_heapblock_t blocks_heap[BLOCKS_HEAP_SIZE];
 
@@ -39,6 +39,8 @@ static blocks_heapblock_t create_blocks_heapblock(void * initial_address, int id
 
 void mm_init(void * start_given) {
     
+    last_alloced = 0;
+    mem_data = &mem;
     mem_data->total_space= HEAP_SIZE;
     mem_data->used_space = 0;
 

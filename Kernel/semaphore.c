@@ -10,8 +10,8 @@ struct sem  {
 
 } typedef sem_t;
 
-static uint8_t current_sem = 0;
-static uint8_t using_sem = 0;
+static uint8_t current_sem;
+static uint8_t using_sem;
 
 static sem_t semaphores[MAX_SEMAPHORES_AMOUNT];
 
@@ -30,6 +30,9 @@ void init_semaphore_store()  {
 
         semaphores[i].alive = false;
     }
+
+    current_sem = 0;
+    using_sem = 0;
 
     init_stdin_sync();
 }
