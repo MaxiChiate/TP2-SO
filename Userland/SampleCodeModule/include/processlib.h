@@ -11,7 +11,7 @@
 
     int64_t spawn_process(int64_t function_address, int argc, char ** argv, unsigned int priority, bool foreground);
 
-    bool kill(int64_t pid);
+    bool killp(int64_t pid);
 
     int64_t current_pid();
 
@@ -21,7 +21,7 @@
 
     bool unblockp(int64_t pid);
 
-    bool nice(int64_t pid, int prio);
+    bool nicep(int64_t pid, int prio);
 
     void waitp();
 

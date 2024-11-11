@@ -3,12 +3,12 @@
 
 
 build_in_f build_in_functions[AVAILABLE_BUILDIN_F]={&help, &time, &clear, &div0, &invalidOpcode};
-process_f  process_functions[AVAILABLE_PROCESS_F]={&mem,&loop, &ps, &block};
+process_f  process_functions[AVAILABLE_PROCESS_F]={&mem,&loop, &ps, &block, &nice};
 process_f  test_functions[AVAILABLE_TESTS]={&test_processes, &test_prio, &test_sync, &test_mm};
 
 
 char* build_in_names[AVAILABLE_BUILDIN_F+1]= {"help", "time", "clear", "div0", "invalidopcode", 0};
-char* process_names[AVAILABLE_PROCESS_F+1]={"mem","loop", "ps", "block", '\0'};
+char* process_names[AVAILABLE_PROCESS_F+1]={"mem","loop", "ps", "block", "kill", "nice", '\0'};
 char* test_names[AVAILABLE_TESTS+1]={"test_processes", "test_prio", "test_sync", "test_mm", '\0'};
 
 char* build_in_descriptions[AVAILABLE_BUILDIN_F+1]={
@@ -24,6 +24,8 @@ char* process_descriptions[AVAILABLE_PROCESS_F+1]={
                             "Prints the process id in a loop",
                             "Prints the status of every process in execution",
                             "Blocks a process by it's pid",
+                            "Kills a process by it's pid",
+                            "Changes a process' priority by it's pid",
                             '\0'
                             };
 char* test_descriptions[AVAILABLE_TESTS+1]={

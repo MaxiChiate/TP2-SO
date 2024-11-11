@@ -30,7 +30,7 @@ void test_prio(int argc, char ** argv) {
   print("\nCHANGING PRIORITIES...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    nice(pids[i], prio[i]);
+    nicep(pids[i], prio[i]);
 
   bussy_wait(WAIT);
   print("\nBLOCKING...\n");
@@ -41,7 +41,7 @@ void test_prio(int argc, char ** argv) {
   print("CHANGING PRIORITIES WHILE BLOCKED...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    nice(pids[i], MEDIUM);
+    nicep(pids[i], MEDIUM);
 
   print("UNBLOCKING...\n");
 
@@ -52,7 +52,7 @@ void test_prio(int argc, char ** argv) {
   print("\nKILLING...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    kill(pids[i]);
+    killp(pids[i]);
 
   print(END_MESSAGE);
   suicide();

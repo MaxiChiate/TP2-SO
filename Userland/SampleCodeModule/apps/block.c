@@ -2,11 +2,14 @@
 
 void block(int argc, char ** argv) {
 
-    int64_t args[] = {(int64_t) argv[0]};
-    print("Blocking process ");
-    printUinteger(argv[0]);
-    print('\n');
-    _int80(SYS_BLOCK_PROCESS, args);
+    if (argc == 0) {
+        print("pid is required\n");
+    } else {
+        print("Blocking process ");
+        printUinteger((unsigned int) *argv[1]);
+        print("\n");
+        blockp((int) *argv[1]);
+    }
 
     suicide();
 }

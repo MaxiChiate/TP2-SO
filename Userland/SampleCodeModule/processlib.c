@@ -14,7 +14,7 @@ int64_t spawn_process(int64_t function_address, int argc, char ** argv, unsigned
     return (int64_t) _int80(SYS_CREATE_PROCESS, args);
 }
 
-bool kill(int64_t pid)  {
+bool killp(int64_t pid)  {
 
     return (bool) _int80(SYS_KILL_PROCESS, &pid);
 }
@@ -39,7 +39,7 @@ bool unblockp(int64_t pid)  {
     return (bool) _int80(SYS_UNBLOCK_PROCESS, &pid);
 }
 
-bool nice(int64_t pid, int prio)    {
+bool nicep(int64_t pid, int prio)    {
 
     int64_t args [] = { pid, (int64_t) prio };
 

@@ -73,7 +73,7 @@ void test_processes(int argc, char ** argv) {
               if(show)
                 print("Killing process...");
 
-              if (kill(p_rqs[rq].pid) == -1) {
+              if (killp(p_rqs[rq].pid) == -1) {
                 print("test_processes: ERROR killing process\n");
                 suicide();
               }
