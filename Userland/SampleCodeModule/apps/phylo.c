@@ -6,10 +6,14 @@
 #define THINKING  0
 #define EATING  1
 #define HUNGRY  2
+#define KILLED 3
 #define INIT_PHILOS 5
 #define TIME_EAT 3000 //miliseconds
 #define TIME_THINK 500 //miliseconds
 #define PHILOS_BLOCK 5
+#define ADD_CHAR 'a'
+#define DEL_CHAR 'r'
+#define EXIT_CHAR 'q'
 
 static uint32_t N = 0;
 static uint32_t size = INIT_PHILOS;
@@ -90,16 +94,29 @@ static void add_philosopher(){
         char number[4];
         itoa(N, number);
         char *argv[] = {number, NULL};
-        philos[N].pid= spawn_process((int64_t) &philosopher,1,argv,1,true);
+        spawn_process((int64_t) &philosopher,1,argv,1,true);
         N++;
 
     up(update_mutex);
 }
 
+static void remove_philosopher(){
+
+    down(update_mutex);
+
+        N--;
+        kill_sem(philos[N].left_fork);
+        kill_sem(philos[N].right_fork);
+        philos[N].state=KILLED;
+
+    up(update_mutex);
+}
+
+
 void philosopher(int argc, char ** argv) {
 
     int i = atoi(argv[0]);
-
+    philos[i].pid= current_pid();
     while (1) {
         think(i);
         down(mutex);
@@ -111,6 +128,9 @@ void philosopher(int argc, char ** argv) {
             down(mutex);
             return_forks(i);
             up(mutex);
+        }
+        else if (philos[i].state== KILLED){
+            suicide();
         }
     }
 
@@ -126,11 +146,44 @@ void phylo(int argc, char ** argv){
     for(int i=0;i<INIT_PHILOS;i++){
         add_philosopher();
     }
-
-    while (1)
+    char c;
+    char last_c= '0';
+    bool flag=true;
+    while (flag)
     {
+        getChar(&c);
+
+        if(c == ADD_CHAR && c!=last_c){
+            add_philosopher();
+            print("Add Philopher\n");
+        }
+        else if(c == DEL_CHAR && c!=last_c){
+            
+            if(N> INIT_PHILOS){
+                remove_philosopher();
+                print("Delete Philopher\n");
+            }
+            else{
+                print("Reached minimun amount of philosophers\n");
+            }
+        }
+        else if(c== EXIT_CHAR && c!=last_c){
+            print("Exit phylo\n");
+            flag=false;
+        }
+        last_c=c;
+
     }
+
+    while(N>0){
+        remove_philosopher();
+    }
+
+    kill_sem(mutex);
+    kill_sem(update_mutex);
     
+    sleep(5000);
+    free(philos);
 
     suicide();
 }
