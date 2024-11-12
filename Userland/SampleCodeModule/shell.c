@@ -121,6 +121,7 @@ static bool check_and_run( build_in_f * f,  char ** names, int argc, char ** arg
         for(int i=0; names[i]; i++)   {
             
             if (strEquals(names[i], function)) {
+                argv[0]=names[i];
                 putEnter();
                 f[i](argc, argv);
                 putEnter();
@@ -139,6 +140,7 @@ static bool check_and_run_process( process_f * p,  char ** names, int argc, char
         for(int i=0; names[i]; i++)   {
             
             if (strEquals(names[i], function))  {
+                argv[0]=names[i];
 
                 bool background = false;
                 int back_index = 0;
@@ -186,13 +188,14 @@ void getMenu(char * buffer, unsigned int buflen)  {
 
     char function[MAX_ARG_LONG]={'\0'};
 
+    char name[MAX_ARG_LONG]={'\0'};
     char arg1[MAX_ARG_LONG]={'\0'};
     char arg2[MAX_ARG_LONG]={'\0'};
     char arg3[MAX_ARG_LONG]={'\0'};
 
-    char * argv[MAX_ARGS+1] = {arg1, arg2, arg3, NULL};
+    char * argv[MAX_ARGS+2] = {name,arg1, arg2, arg3, NULL};
 
-    int argc = stringTrimmerBySpace(buffer, function, argv, MAX_ARG_LONG);
+    int argc = stringTrimmerBySpace(buffer, function, argv+1, MAX_ARG_LONG)+1;
 
     if (argc>=4 || argc < 0 || function[MAX_ARG_LONG-1]!='\0') {
 
