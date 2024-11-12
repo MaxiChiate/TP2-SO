@@ -58,7 +58,7 @@
         char state;
         bool foreground;
         int priority;
-        char name[PROCESS_NAME_LENGTH+1];
+        char * name;
     } ps_t;
 
 

@@ -85,7 +85,7 @@ static bool kill_process(int p);
 static bool wait4(int64_t pid);
 static void wake_up_processes_waiting_me();
 
-static ps_t process_status(int p);
+static void process_status(int p,ps_t * to_return);
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
@@ -320,24 +320,22 @@ bool get_scheduler_status() {
     return scheduler_on;
 }
 
-ps_t ** get_ps(ps_t ** to_assign) {
+void get_ps(ps_t ** to_assign) {
 
-    ps_t ** to_return = mm_malloc(sizeof(to_return[0]) * current_amount_processes);
+    *to_assign = (ps_t *) mm_malloc(sizeof(to_assign[0]) * current_amount_processes);
     
     int k=0;
-    for(int i=0; k<current_amount_processes && i<PROCESS_AMOUNT; i++)   {
+    process_status(0,to_assign[k++]);
+    for(int i=1; k<current_amount_processes && i<PROCESS_AMOUNT; i++)   {
         
         if (is_alive(i)) {
             
-            *to_return[k++] = process_status(i);
+            process_status(i,to_assign[k++]);
         }
     }
 
-    to_return[k] = NULL;
+    to_assign[k] = NULL;
 
-    to_assign = to_return;
-
-    return to_return;
 }
 
 
@@ -348,28 +346,25 @@ void kill_fg_process() {
 
 
 
-static ps_t process_status(int p)   {
+static void process_status(int p,ps_t * to_return)   {
 
-    ps_t to_return = {
-            .bp = pcbs[p].base_pointer,
-            .sp = pcbs[p].stack_pointer,
-            .id = pcbs[p].process_id,
-            .parent_id = pcbs[p].parent_process_id,
-            .state = pcbs[p].state == RUNNING ? 'R' : (pcbs[p].state == READY ? 'r' : (pcbs[p].state == BLOCKED ? 'b' : 't')),
-            .foreground = pcbs[p].foreground,
-            .priority = pcbs[p].priority
-    };
-
+    to_return->bp=pcbs[p].base_pointer;
+    to_return->sp= pcbs[p].stack_pointer;
+    to_return->id= pcbs[p].process_id;
+    to_return->parent_id= pcbs[p].parent_process_id;
+    to_return->state = pcbs[p].state == RUNNING ? 'R' : (pcbs[p].state == READY ? 'r' : (pcbs[p].state == BLOCKED ? 'b' : 't'));
+    to_return->foreground =pcbs[p].foreground;
+    to_return->priority= pcbs[p].priority;
     int i;
 
-    for(i=0; i<PROCESS_NAME_LENGTH&& pcbs[p].argv[0][i]!=0; i++)    {
+    // for(i=0; i<PROCESS_NAME_LENGTH&& pcbs[p].argv[0][i]!=0; i++)    {
 
-        to_return.name[i] = pcbs[p].argv[0][i];
-    }
+    //     to_return->name[i] = pcbs[p].argv[0][i];
+    // }
+    to_return->name = pcbs[p].argv[0];
 
-    to_return.name[i] = '\0';
+    // to_return->name[i] = '\0';
 
-    return to_return;
 }
 
 
@@ -467,7 +462,7 @@ static inline void chronometer() {
 
 static inline bool is_alive(int p)  {
 
-    return pcbs[(p)].state != TERMINATED;
+    return pcbs[p].state != TERMINATED;
 }
 
 static inline bool not_alive(int p)    {
