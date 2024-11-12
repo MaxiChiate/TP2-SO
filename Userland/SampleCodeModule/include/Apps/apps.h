@@ -11,6 +11,7 @@
     #define ERROR_MESSAGE_FEW "ERROR: too few arguments\n"
     #define ERROR_MESSAGE_MANY "ERROR: too many arguments\n"
     #define SHELL_PID 1
+    #define HLT_PID 2
 
 
     /*Physicial Memory Management*/
