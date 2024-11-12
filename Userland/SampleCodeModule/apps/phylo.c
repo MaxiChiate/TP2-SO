@@ -8,8 +8,8 @@
 #define HUNGRY  2
 #define KILLED 3
 #define INIT_PHILOS 5
-#define TIME_EAT 3000 //miliseconds
-#define TIME_THINK 500 //miliseconds
+#define TIME_THINK 1000 //miliseconds
+#define TIME_EAT 500 //miliseconds
 #define PHILOS_BLOCK 5
 #define ADD_CHAR 'a'
 #define DEL_CHAR 'r'
@@ -17,7 +17,6 @@
 
 static uint32_t N = 0;
 static uint32_t size = INIT_PHILOS;
-
 void philosopher(int argc, char ** argv);
 
 
@@ -34,11 +33,11 @@ int8_t mutex;
 int8_t update_mutex;
 
 static void think(int i) {
-    sleep(rand() % TIME_EAT);
+    sleep(TIME_THINK);
 }
 
 static void eat(int i) {
-    sleep(rand() % TIME_THINK);
+    sleep(TIME_EAT);
 }
 
 static int can_eat(int i) {
@@ -46,11 +45,17 @@ static int can_eat(int i) {
     return philos[LEFT(i)].state != EATING && philos[RIGHT(i)].state != EATING;
 }
 static void return_forks(int i) {
+    if(philos[i].state== KILLED){
+        return;
+    }
     philos[i].state = THINKING; 
     up(philos[i].left_fork);
     up(philos[i].right_fork);
 }
 static void take_forks(int i) {
+    if(philos[i].state== KILLED){
+        return;
+    }
     philos[i].state = HUNGRY;
     if (can_eat(i)) {
         philos[i].state = EATING;
@@ -103,7 +108,6 @@ static void add_philosopher(){
 static void remove_philosopher(){
 
     down(update_mutex);
-
         N--;
         kill_sem(philos[N].left_fork);
         kill_sem(philos[N].right_fork);
@@ -117,22 +121,26 @@ void philosopher(int argc, char ** argv) {
 
     int i = atoi(argv[0]);
     philos[i].pid= current_pid();
-    while (1) {
+    bool flag=true;
+    while (flag) {
         think(i);
         down(mutex);
         take_forks(i);
         up(mutex);
         if (philos[i].state == EATING) {
-            show_state();
+            down(update_mutex);
+                show_state(); 
+            up(update_mutex);
             eat(i);
             down(mutex);
-            return_forks(i);
+                return_forks(i);
             up(mutex);
         }
         else if (philos[i].state== KILLED){
-            suicide();
+            flag= false;
         }
     }
+    suicide();
 
 }
 
@@ -161,13 +169,13 @@ void phylo(int argc, char ** argv){
             
             if(N> INIT_PHILOS){
                 remove_philosopher();
-                print("Delete Philopher\n");
+                print("Remove Philopher\n");
             }
             else{
                 print("Reached minimun amount of philosophers\n");
             }
         }
-        else if(c== EXIT_CHAR && c!=last_c){
+        else if(last_c== EXIT_CHAR && c!=last_c){
             print("Exit phylo\n");
             flag=false;
         }
@@ -179,11 +187,10 @@ void phylo(int argc, char ** argv){
         remove_philosopher();
     }
 
+    sleep(TIME_EAT*3);
     kill_sem(mutex);
     kill_sem(update_mutex);
-    
-    sleep(5000);
     free(philos);
-
+    putEnter();
     suicide();
 }
