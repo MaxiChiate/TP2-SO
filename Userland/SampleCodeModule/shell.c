@@ -7,7 +7,7 @@ process_f  test_functions[AVAILABLE_TESTS]={&test_processes, &test_prio, &test_s
 
 
 char* build_in_names[AVAILABLE_BUILDIN_F+1]= {"help", "time", "clear", "div0", "invalidopcode", 0};
-char* process_names[AVAILABLE_PROCESS_F+1]={"mem","loop", "ps", "block", "kill", "nice","phylo" ,'\0'};
+char* process_names[AVAILABLE_PROCESS_F+1]={"mem","loop", "ps", "block", "kill", "nice", "phylo", "cat", "filter", "wc",'\0'};
 char* test_names[AVAILABLE_TESTS+1]={"test_processes", "test_prio", "test_sync", "test_mm", '\0'};
 
 char* build_in_descriptions[AVAILABLE_BUILDIN_F+1]={
