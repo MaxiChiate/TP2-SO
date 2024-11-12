@@ -10,6 +10,7 @@ typedef struct P_rq {
 } p_rq;
 
 void test_processes(int argc, char ** argv) {
+  argv++;
 
   uint8_t rq;
   uint8_t alive = 0;
@@ -18,7 +19,7 @@ void test_processes(int argc, char ** argv) {
   uint8_t show;
   char *argvAux[] = {0};
 
-  if (argc != 2)  {
+  if (argc != 3)  {
 
     print("test_processes: ERROR incorrect argument amount\nUsage: test_processes <max processes> <show process, 1 or 0>\n");
     suicide();

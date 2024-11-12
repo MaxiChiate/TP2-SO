@@ -12,8 +12,8 @@
 int64_t prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM, HIGHEST};
 
 void test_prio(int argc, char ** argv) {
-
-  if(argc != 0) {
+  argv++;
+  if(argc != 1) {
 
       print("test_prio: ERROR argument amount\nUsage: test_prio\n");
       suicide();

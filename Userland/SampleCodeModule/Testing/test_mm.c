@@ -8,13 +8,13 @@ typedef struct MM_rq {
 } mm_rq;
 
 void test_mm(int argc, char ** argv) {
-
+  argv++;
   mm_rq mm_rqs[MAX_BLOCKS];
   uint8_t rq;
   uint32_t total;
   uint64_t max_memory;
 
-  if (argc != 1)    {
+  if (argc != 2)    {
 
     print("test_mm: ERROR argument amount\nUsage: test_mm <max_memory>\n");
     suicide();

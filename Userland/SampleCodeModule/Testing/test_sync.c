@@ -51,10 +51,11 @@ void my_process_inc(uint64_t argc, char *argv[])    {
 }
 
 void test_sync(int argc, char ** argv) { //{n, use_sem, 0}
+  argv++;
 
   uint64_t pids[2 * TOTAL_PAIR_PROCESSES];
 
-  if (argc != 2)    {
+  if (argc != 3)    {
 
     print("Error: Incorrect argc in test_sync. Only 2 args\n");
     suicide();

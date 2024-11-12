@@ -118,7 +118,7 @@ static void remove_philosopher(){
 
 
 void philosopher(int argc, char ** argv) {
-
+    argv++;
     int i = atoi(argv[0]);
     philos[i].pid= current_pid();
     bool flag=true;

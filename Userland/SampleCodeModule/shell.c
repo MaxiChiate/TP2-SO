@@ -229,8 +229,8 @@ void getMenu(char * buffer, unsigned int buflen)  {
 
 void help(int argc, char ** argv) {
 
-    if (argc){
-        print("Function doesn't have arguments");
+    if (argc!=1){
+        print("help: ERROR argument amount\n");
         return;
     }
     putnEnters(2);
@@ -254,8 +254,8 @@ void help(int argc, char ** argv) {
 }
 
 void time(int argc, char ** argv){
-    if (argc){
-        print("Function doesn't have arguments");
+    if (argc!= 1){
+        print("time: ERROR argument amount\n");
         return;
     }
     time_getter();

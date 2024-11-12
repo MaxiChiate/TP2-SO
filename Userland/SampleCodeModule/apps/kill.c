@@ -1,11 +1,11 @@
 #include <Apps/apps.h>
 
 void kill(int argc, char ** argv) {
-
+    argv++;
     if (argc == 0) {
         print(ERROR_MESSAGE_FEW);
 
-    } else if (argc > 1) {
+    } else if (argc > 2) {
         print(ERROR_MESSAGE_MANY);
 
     } else {
