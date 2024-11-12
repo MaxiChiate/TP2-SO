@@ -36,7 +36,8 @@ void init_ipc() {
     next_index = FIRST_BUFFER;
     currently_closed = MAX_FDS - STD_FD_COUNT;
 
-    kernel_pipe(STDIN_FILENO, STDOUT_FILENO, buffer_init(STD_BUFFER_SIZE, true));
+    kernel_pipe(STDIN_FILENO, STDOUT_FILENO, buffer_init(STD_BUFFER_SIZE));
+    kernel_open(W, DEV_NULL, NULL);
 }
 
 
@@ -63,7 +64,7 @@ int kernel_open(rw_flags_t flags_fd, int index, buffer_t buffer)  {
 int open(rw_flags_t flags_fd) {
 
     int my_index = next();
-    buffer_t buffer = buffer_init(BUFFER_SIZE, false);
+    buffer_t buffer = buffer_init(BUFFER_SIZE);
 
     return kernel_open(flags_fd, my_index, buffer);
 }
@@ -93,14 +94,21 @@ int write(int fd, char * buf, int size) {
 
     rw_flags_t f[] = {RW, W};
 
-    if(!IN_RANGE(fd) || is_closed(fd) || !validate_flags(fd, f, 2)) {
-        
-        return -1;    
+    return validate_flags(fd, f, 2) ? kernel_write(fd, buf, size) : -1;
+}
+
+
+int kernel_write(int fd, char * buf, int size) {
+
+    if (!IN_RANGE(fd) || is_closed(fd) || buf == NULL)  {
+
+        return -1;
     }
 
-//Por seguridad, solo se imprime con permisos de escritura (kernel_write no lo valida):
+// No hay duplicates, globalemente STDOUT siempre imprime.
+// Los procesos para imprimir en panatalla no saben el fd global de stdout, usan su propia "tabla"
 
-    if(buffer_is_standard(descriptors[fd].buffer))  {
+    if(fd == STDOUT_FILENO)  {  
 
         printTextDefault2(buf, STDOUT_COLOR, BACKGROUND_COLOR, size);
 
@@ -108,14 +116,9 @@ int write(int fd, char * buf, int size) {
         return size;
     }
 
-    return kernel_write(fd, buf, size);
-}
+    if(fd == DEV_NULL)  {
 
-int kernel_write(int fd, char * buf, int size) {
-
-    if(buf == NULL) {
-
-        return -1;
+        return size;
     }
 
     return buffer_write(descriptors[fd].buffer, buf, size);
@@ -136,48 +139,6 @@ int read(int fd, char * buf, int size)  {
 }
 
 
-
-int dup(int old_fd)  {
-    
-    return dup2(old_fd, next());
-}
-
-
-int dup2(int old_fd, int new_fd)    {
-    
-    return dup3(old_fd, new_fd, flags[old_fd]);
-}
-
-
-int dup3(int old_fd, int new_fd, rw_flags_t new_flags)  {
-    
-    if (!IN_RANGE(old_fd) || !IN_RANGE(new_fd) || is_closed(old_fd))    {
-        
-        return -1;
-    }
-    
-    if (old_fd == new_fd) {
-        
-        return new_fd;
-    }
-    
-    if (is_open(new_fd)) {
-        
-        close(new_fd);
-    }
-
-    int fd = kernel_open(new_flags, new_fd, descriptors[old_fd].buffer);
-    
-    if (fd > 0) {
-        
-        buffer_ref(descriptors[fd].buffer);
-    }
-    
-    return fd;
-}
-
-
-
 void kernel_pipe(int fd1, int fd2, buffer_t buffer)   {
 
     if(IN_RANGE(fd1) && IN_RANGE(fd2) && buffer != NULL)    {
@@ -194,7 +155,7 @@ void pipe(int fds[2])    {
 
     if((fds != NULL) && ((fds[0] = next()) >= 0) && ((fds[1] = next()) >= 0))    {
 
-        kernel_pipe(fds[0], fds[1], buffer_init(BUFFER_SIZE, false));
+        kernel_pipe(fds[0], fds[1], buffer_init(BUFFER_SIZE));
     }
 }
 

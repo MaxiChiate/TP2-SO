@@ -4,12 +4,12 @@
 
 syscall_wrapper syscalls[SYSCALL_COUNT] = {
 	
-    &write_wrapper, &read_wrapper, &open_wrapper, &close_wrapper, &dup_wrapper, &dup2_wrapper, &dup3_wrapper, &pipe_wrapper, &sysClear_wrapper, 
+    &write_wrapper, &read_wrapper, &open_wrapper, &close_wrapper, &pipe_wrapper, &sysClear_wrapper, 
     &rand_wrapper, &create_process_wrapper, &kill_process_by_pid_wrapper,
     &block_process_wrapper, &unblock_process_wrapper, &change_process_priority_wrapper,
     &waitpid_wrapper, &haltcpu_wrapper, &get_current_pid_wrapper, &give_up_cpu_wrapper,
     &wait_wrapper, &suicide_wrapper, &ps_wrapper, &timeManager_wrapper, &sleep_wrapper,
-	&kill_sem_wrapper, &up_wrapper, &down_wrapper, &is_sem_alive_wrapper, &new_sem_wrapper, &wait_stdin_wrapper,
+	&kill_sem_wrapper, &up_wrapper, &down_wrapper, &is_sem_alive_wrapper, &new_sem_wrapper,
 	&mm_malloc_wrapper, &mm_free_wrapper, &mm_mem_wrapper
 };
 
@@ -44,21 +44,6 @@ void open_wrapper(int64_t * args) {
 void close_wrapper(int64_t * args) {
 
 	close((int) args[0]);
-}
-
-void dup_wrapper(int64_t * args) {
-
-	dup((int) args[0]);
-}
-
-void dup2_wrapper(int64_t * args) {
-
-	dup2((int) args[0], (int) args[1]);
-}
-
-void dup3_wrapper(int64_t * args)	{
-
-	dup3((int) args[0], (int) args[1], (rw_flags_t) args[2]);
 }
 
 void pipe_wrapper(int64_t * args) {
@@ -121,11 +106,6 @@ void waitpid_wrapper(int64_t *args) {
     
 	waitpid(args[0]);            
 }
-				
-void wait_stdin_wrapper(int64_t *args)	{
-
-	wait_stdin();
-}
 
 void suicide_wrapper(int64_t *args) {
     
@@ -185,4 +165,14 @@ void mm_free_wrapper(int64_t * args)	{
 void mm_mem_wrapper(int64_t * args)	{
 
 	mm_mem();
+}
+
+void set_stdout_fd_wrapper(int64_t * args)	{
+
+	set_stdout_fd(args[0], (int) args[1]);
+}
+
+void set_stdin_fd_wrapper(int64_t * args)	{
+
+    set_stdin_fd(args[0], (int) args[1]);
 }

@@ -24,8 +24,3 @@ void down(uint8_t sem_id)   {
     
     _int80(SYS_DOWN, (int64_t *) &sem_id);
 }
-
-void wait_stdin()   {
-
-    _int80(SYS_WAIT_STDIN, NULL);
-}

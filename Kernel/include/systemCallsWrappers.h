@@ -25,9 +25,6 @@
     void read_wrapper(int64_t * args);
     void open_wrapper(int64_t * args);
     void close_wrapper(int64_t * args);
-    void dup_wrapper(int64_t * args);
-    void dup2_wrapper(int64_t * args);
-    void dup3_wrapper(int64_t * args);
     void pipe_wrapper(int64_t * args);
     void sysClear_wrapper(int64_t * args);
     void rand_wrapper(int64_t * args);
@@ -52,7 +49,9 @@
     void down_wrapper(int64_t *args); 
     void mm_malloc_wrapper(int64_t * args);
     void mm_free_wrapper(int64_t * args);
-    void wait_stdin_wrapper(int64_t * args);
     void mm_mem_wrapper(int64_t * args);
+    void set_stdout_fd_wrapper(int64_t * args);
+    void set_stdin_fd_wrapper(int64_t * args);
+
 
 #endif

@@ -1,5 +1,6 @@
 #include <process/process_management.h>
 
+
 #define BEGINNIN_PROCESS_ADDRESS(process_index) ((uint64_t) stacks + (process_index + 1) * STACK_SPACE)
 #define IN_RANGE(i) ((i) >= 0 && (i) < PROCESS_AMOUNT)
 
@@ -29,6 +30,9 @@ typedef struct pcb {
 
     unsigned int quantum;
     unsigned int priority;
+
+    int stdin_fileno;
+    int stdout_fileno;
 
     int argc;      //rsi
     char ** argv; //rdi
@@ -172,6 +176,10 @@ int64_t create_process(uint64_t function_address, int argc, char * argv[], unsig
 
     int new_process_index = new_process(function_address, argc, argv, priority, foreground);
     pcbs[new_process_index].parent_process_id = get_current_pid();
+    
+    pcbs[new_process_index].stdin_fileno = pcbs[current_process].stdin_fileno;
+    pcbs[new_process_index].stdout_fileno = pcbs[current_process].stdout_fileno;
+
     return pcbs[new_process_index].process_id;
 }
 
@@ -346,6 +354,27 @@ void kill_fg_process() {
     kill_process(current_in_fg);
 }
 
+
+void set_stdout_fd(int64_t pid, int new_fd)    {
+
+    pcbs[get_index_by_pid(pid)].stdout_fileno = new_fd;
+}
+
+
+void set_stdin_fd(int64_t pid, int new_fd)    {
+
+    pcbs[get_index_by_pid(pid)].stdin_fileno = new_fd;
+}
+
+void standard_write(char * buf, int size)   {
+
+    write(pcbs[current_process].stdout_fileno, buf, size);
+}
+
+void standard_read(char * buf, int size)   {
+
+    read(pcbs[current_process].stdin_fileno, buf, size);
+}
 
 
 static ps_t process_status(int p)   {
@@ -558,6 +587,10 @@ static int new_process(uint64_t function_address, int argc, char ** argv, unsign
         .parent_process_id = DEFAULT_PARENT_PID,
         .state = TERMINATED, // Not ready yet
         .foreground = foreground,
+        
+    // Por default, luego puede pisarse:
+        .stdin_fileno = STDIN_FILENO,
+        .stdout_fileno = STDOUT_FILENO,
         
         .waiting_me = queue_init(),
 

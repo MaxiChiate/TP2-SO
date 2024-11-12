@@ -30,8 +30,6 @@ uint64_t irqDispatcher(uint64_t irq, uint64_t rsp) {
             
             kernel_write(STDIN_FILENO, &c, 1); 
             
-            signal_stdin();
-
             return 0;
         }
         default: return -1;

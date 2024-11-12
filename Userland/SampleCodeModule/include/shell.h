@@ -4,6 +4,7 @@
     #include <userlib.h>
     #include <Testing/tests.h>
     #include <Apps/apps.h>
+    #include <ipclib.h>	
 
     #define INIT_MESSAGE "Welcome to shell, write help if you want to know the available options\n"
     // #define OVERFLOW_MESSAGE "\nYou're trying to overflow the buffer, aren't you? By the way, that's an Unknown Command\n"
@@ -17,6 +18,7 @@
     #define AVAILABLE_TESTS     4
 
     #define BACKGROUND_CHARACTER '&'
+    #define PIPE_CHARACTER '|'
     #define LINE_STRING "$> "
     #define INVALID_INPUT_MESSAGE "\n\nUnknown Command\n\n"
     #define BUFFER_ARGS_ERROR_MESSAGE "\n\nBuffer error\n\n"

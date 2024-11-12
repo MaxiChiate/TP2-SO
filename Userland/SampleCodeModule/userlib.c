@@ -5,13 +5,6 @@ void print(char * str)  {
     print2(str, strLength(str));
 }
 
-void print2(char * str, unsigned int dim)   {
-
-    int64_t args[] = {(int64_t) STDOUT_FILENO, (int64_t) str, (int64_t) dim};
-
-    _int80(SYS_WRITE, args);
-}
-
 void puts(char * str) {
     print(str);
     print("\n");
