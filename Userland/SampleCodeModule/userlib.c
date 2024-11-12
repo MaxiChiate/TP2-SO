@@ -36,7 +36,7 @@ void print_ps(ps_t * ps) {
     print("\t");    
                     
     print("state: ");
-    printUinteger((unsigned int) ps->state);
+    putChar((char) ps->state);
     print("\t");    
 
     print("fg: ");
@@ -48,6 +48,7 @@ void print_ps(ps_t * ps) {
     print("\t");
 
     print("name: ");
+    print((char *) ps->name);
     print("\n");
 
     print("\n");

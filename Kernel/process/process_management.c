@@ -355,15 +355,8 @@ static void process_status(int p,ps_t * to_return)   {
     to_return->state = pcbs[p].state == RUNNING ? 'R' : (pcbs[p].state == READY ? 'r' : (pcbs[p].state == BLOCKED ? 'b' : 't'));
     to_return->foreground =pcbs[p].foreground;
     to_return->priority= pcbs[p].priority;
-    int i;
-
-    // for(i=0; i<PROCESS_NAME_LENGTH&& pcbs[p].argv[0][i]!=0; i++)    {
-
-    //     to_return->name[i] = pcbs[p].argv[0][i];
-    // }
+    
     to_return->name = pcbs[p].argv[0];
-
-    // to_return->name[i] = '\0';
 
 }
 
