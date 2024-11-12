@@ -13,6 +13,9 @@ void block(int argc, char ** argv) {
         if (to_block == SHELL_PID) {
             puts("Cannot block shell");
 
+        } else if (to_block == HLT_PID) {
+            puts("Cannot block halt");
+
         } else if (blockp(to_block)) {
             print("Blocking process ");
             printUinteger(to_block);
