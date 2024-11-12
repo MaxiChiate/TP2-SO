@@ -64,20 +64,19 @@ int main() {
 
 	load_idt();
 
-	welcome();
-	sleep(2000);
-	refillScreen();
 
 	while(1)	{
 
-	_cli();
+		_cli();
 
+		welcome();
+		sleep(2000);
+		refillScreen();
 
-	mm_init(memoryHeapAddress);
-	init_semaphore_store();
-	init_ipc();
-	load_idt();
-
+		mm_init(memoryHeapAddress);
+		init_semaphore_store();
+		init_ipc();
+		load_idt();
 
 		int argc = 1;
 		char * argv[2] = {"shell", NULL};
@@ -85,6 +84,11 @@ int main() {
 		scheduler_init((int64_t) sampleCodeModuleAddress, argc, argv); // Asumir que hace _sti
 
 		printTextDefault("\n\nRestarting OS...\n\n", YELLOW, BLACK);
+
+		sleep(1000);		
+		fillScreen(BLACK);
+    	resetPosition();
+    	resetBuffer();
 	}
 
 	return 0;
