@@ -1,4 +1,4 @@
-#include <memory_manager.h>
+#include "memory_manager.h"
 
 typedef struct buddy_block_descriptor {
 	int order; /*Potencia de 2 que representa el tamaño del bloque*/
@@ -142,6 +142,9 @@ void * buddy_alloc(size_t size) {
     int order = get_order(size);
     if (order > MAX_ORDER) {
         return NULL;
+    }
+    else if(order<MIN_CHUNK_ORDER){
+        order=MIN_CHUNK_ORDER;
     }
 
     if (tree->total_assignable_space < size) {
