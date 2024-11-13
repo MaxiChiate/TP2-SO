@@ -23,3 +23,8 @@ void close(int fd)  {
 
     _int80(SYS_CLOSE, (int64_t *) &fd);
 }
+
+int consume_stdin()   {
+
+    return (int) _int80(SYS_CONSUME_STDIN, NULL);
+}

@@ -23,4 +23,6 @@
     bool buffer_unref(buffer_t buffer);
     void buffer_ref(buffer_t buffer);
 
+    int buffer_read_all(buffer_t buffer, char *dest);
+
 #endif // BUFFER_H

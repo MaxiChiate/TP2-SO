@@ -64,14 +64,11 @@ int main() {
 
 	load_idt();
 
-
 	while(1)	{
 
 		_cli();
 
 		welcome();
-		sleep(2000);
-		refillScreen();
 
 		mm_init(memoryHeapAddress);
 		init_semaphore_store();
@@ -80,6 +77,9 @@ int main() {
 
 		int argc = 1;
 		char * argv[2] = {"shell", NULL};
+
+		sleep(2000);
+		refillScreen();	
 
 		scheduler_init((int64_t) sampleCodeModuleAddress, argc, argv); // Asumir que hace _sti
 

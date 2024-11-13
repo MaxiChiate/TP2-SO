@@ -52,6 +52,9 @@
     void mm_mem_wrapper(int64_t * args);
     void set_stdout_fd_wrapper(int64_t * args);
     void set_stdin_fd_wrapper(int64_t * args);
-
+    void set_stdio_wrapper(int64_t * args);
+    void standard_write_wrapper(int64_t * args);
+    void standard_read_wrapper(int64_t * args);
+    void consume_stdin_wrapper(int64_t * args);
 
 #endif

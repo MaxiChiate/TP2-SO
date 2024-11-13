@@ -100,7 +100,7 @@ int write(int fd, char * buf, int size) {
 
 int kernel_write(int fd, char * buf, int size) {
 
-    if (!IN_RANGE(fd) || is_closed(fd) || buf == NULL)  {
+    if (!IN_RANGE(fd) || is_closed(fd) || buf == NULL || size < 0)  {
 
         return -1;
     }
@@ -130,14 +130,20 @@ int read(int fd, char * buf, int size)  {
 
     rw_flags_t f[] = {RW, R};
 
-    if (!IN_RANGE(fd) || is_closed(fd) || buf == NULL || !validate_flags(fd, f, 2)) {
+    if (!IN_RANGE(fd) || is_closed(fd) || buf == NULL 
+        || !validate_flags(fd, f, 2) || fd == DEV_NULL || size < 0) {
 
-        return -1;
+        return EOF;
     }
 
     return buffer_read(descriptors[fd].buffer, buf, size);
 }
 
+
+int read_all(int fd, char * buf)    {
+
+    return buffer_read_all(descriptors[fd].buffer, buf);
+}
 
 void kernel_pipe(int fd1, int fd2, buffer_t buffer)   {
 

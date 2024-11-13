@@ -7,5 +7,6 @@
     void set_stdout_fd(int64_t pid, int new_fd);
     void set_stdin_fd(int64_t pid, int new_fd);
     void close(int fd);
+    int consume_stdin();
     
 #endif //IPCLIB_H

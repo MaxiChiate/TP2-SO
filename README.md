@@ -11,6 +11,7 @@ Run the script with the following flags:
 - `-w` : Warnings mode (compiles and displays only warnings).
 - `-e` : Error mode (compiles and display only errors).
 - `-a` : All mode (compiles and display both warnings and errors).
+- `-b` : Buddy run mode (compiles with buddy mm and runs the project).
 
 ## Problems
 

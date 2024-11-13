@@ -15,7 +15,7 @@
 // Se asume que los fd standard están en las primeras STD_FD_COUNT posiciones
     #define FIRST_BUFFER (STD_FD_COUNT + 1)
     #define MAX_FDS 32
-    #define BUFFER_SIZE 128
+    #define BUFFER_SIZE 256
     #define STD_BUFFER_SIZE 1024 
     #define TOTAL_BUFFER_SIZE (MAX_FDS * BUFFER_SIZE)
 
@@ -36,5 +36,7 @@
 
     void pipe(int fds[2]);
     void kernel_pipe(int fd1, int fd2, buffer_t buffer);
+
+    int read_all(int fd, char * buf);
 
 #endif //__BUFFERS_MANAGER_H

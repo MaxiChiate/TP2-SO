@@ -9,13 +9,17 @@
 
     typedef enum    {
 
-            SYS_WRITE = 0,
+            SYS_SET_STDOUT_FD = 0,
+            SYS_SET_STDIN_FD,
+            SYS_SET_STDIO,
+            SYS_STANDARD_WRITE,
+            SYS_STANDARD_READ,
+            SYS_CONSUME_STDIN,
+            SYS_WRITE,
             SYS_READ,
             SYS_OPEN,
             SYS_CLOSE,
             SYS_PIPE,
-            SYS_SET_STDOUT_FD,
-            SYS_SET_STDIN_FD,
             SYS_CLEAR,
             SYS_RAND,
             SYS_CREATE_PROCESS,
@@ -61,7 +65,7 @@
 
 
     typedef enum {
-    
+
         KEY_SHIFT = 'S',
         KEY_CTRL = 'C',
         KEY_CAPS_LOCK = 'M',

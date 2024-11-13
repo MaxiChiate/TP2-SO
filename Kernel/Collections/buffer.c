@@ -4,10 +4,17 @@
 #define MUTEX_INITIAL 	1                              
 #define SYNC_INITIAL 	0
 
+#define AVAILABLE_SPACE(s, x, y) (((x) >= (y)) ? ((s) - (x) + (y)) : ((y) - (x)))
+#define AVAILABLE_DATA(s, x, y) (((x) >= (y)) ? ((x) - (y)) : ((s) - (y) + (x)))
+
+
 struct buffer {
 
     char * data;
-    int current_index;
+
+    int write_index;
+    int read_index;
+
     uint32_t size;
 
     int8_t mutex;	
@@ -19,6 +26,8 @@ struct buffer {
 
 static inline bool buffer_is_null(buffer_t buffer);
 static inline bool buffer_not_null(buffer_t buffer);
+
+static int read_memcpy(char * dest, const char * src, unsigned int size);
 
 
 buffer_t buffer_init(uint32_t size) {
@@ -48,9 +57,11 @@ buffer_t buffer_init(uint32_t size) {
         return NULL;
     }
 
-    buffer->current_index = 0;
+    buffer->write_index = 0;
+    buffer->read_index = 0;
     buffer->size = size;
     buffer->processes_referencing_it = 1;
+
 
     return buffer;
 }
@@ -78,16 +89,30 @@ int buffer_write(buffer_t buffer, const char *src, int size)   {
     }
 
     down(buffer->mutex);
+    
+        if (size > AVAILABLE_SPACE(buffer->size, buffer->write_index, buffer->read_index)) {
 
-        if ((buffer->current_index + size) > buffer->size) {
-
-            size = buffer->size - buffer->current_index;
+            up(buffer->mutex);
+            return -1;
         }
 
+    // Si quiere escribir mas del espacio que queda, escribe hasta el final 
+    // y escribe el resto desde el princpio de data. Actuando como buffer circular:
 
-        memcpy(buffer->data + buffer->current_index, src, size);
+        if(size > buffer->size - buffer->write_index    )   {
+    
+            int left_space = buffer->size - buffer->write_index;
+
+            memcpy(buffer->data + buffer->write_index, src, left_space);    
+
+            size -= left_space;
+            src += left_space;
+            buffer->write_index = 0;
+        }
+
+        memcpy(buffer->data + buffer->write_index, src, size);
         
-        buffer->current_index += size;
+        buffer->write_index += size;
 
     up(buffer->mutex);
 
@@ -98,38 +123,38 @@ int buffer_write(buffer_t buffer, const char *src, int size)   {
 
 
 
-int buffer_read(buffer_t buffer, char *dest, int size) {
+int buffer_read(buffer_t buffer, char *dest, int size)  {
 
-    if(buffer_is_null(buffer) || dest == NULL) {
+    if (buffer_is_null(buffer) || dest == NULL) {
 
         return -1;
     }
-
-    down(buffer->mutex);
-
-        if (size > buffer->current_index)   {
-
-            size = buffer->current_index;
-        }
-
-    up(buffer->mutex);
 
     downNtimes(buffer->sync, size);
 
     down(buffer->mutex);
 
-        int bytes_read;
+    // Si el tamaño a leer excede el espacio hasta el final del buffer, realiza lectura circular:
 
-    // Copia todo el size y frena si hay un EOF (tambien lo copia):
-        for (bytes_read = 0; bytes_read < size && 
-            (dest[bytes_read] = buffer->data[bytes_read]) != EOF; bytes_read++);
+        if (size > buffer->size - buffer->read_index)   {
+            
+            int left_space = buffer->size - buffer->read_index;
 
-        buffer->current_index -= bytes_read;
-    
+            read_memcpy(dest, buffer->data + buffer->read_index, left_space);    
+
+            size -= left_space;
+            dest += left_space;
+            buffer->read_index = 0;
+        }
+
+        read_memcpy(dest, buffer->data + buffer->read_index, size);
+        buffer->read_index += size;
+        
     up(buffer->mutex);
 
-    return bytes_read;
+    return size;
 }
+
 
 
 
@@ -170,6 +195,23 @@ void buffer_ref(buffer_t buffer)    {
     }
 }
 
+
+int buffer_read_all(buffer_t buffer, char *dest)    {
+
+    if (buffer_is_null(buffer) || dest == NULL) {
+
+        return -1;  
+    }
+
+    int available_data = AVAILABLE_DATA(buffer->size, buffer->write_index, buffer->read_index);
+
+    return buffer_read(buffer, dest, available_data);
+}
+
+
+
+
+
 static inline bool buffer_is_null(buffer_t buffer) {
 
     return buffer == NULL; 
@@ -178,4 +220,14 @@ static inline bool buffer_is_null(buffer_t buffer) {
 static inline bool buffer_not_null(buffer_t buffer)    {
 
     return !buffer_is_null(buffer);
+}
+
+static int read_memcpy(char * dest, const char * src, unsigned int size)   {
+
+    int bytes_cpy;
+
+// Copia todo el size y frena si hay un EOF (tambien lo copia):
+    for (bytes_cpy = 0; bytes_cpy < size && (dest[bytes_cpy] = src[bytes_cpy]) != EOF; bytes_cpy++);
+
+    return bytes_cpy;
 }

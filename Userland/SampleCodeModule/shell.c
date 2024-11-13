@@ -1,9 +1,7 @@
 #include <shell.h>
 
 // Fd globales que solo sabe la shell:
-
 #include <../../../Kernel/include/process/globalfd.h>
-
 
 build_in_f build_in_functions[AVAILABLE_BUILDIN_F]={&help, &time, &clear, &div0, &invalidOpcode};
 process_f  process_functions[AVAILABLE_PROCESS_F]={&mem,&loop, &ps, &block,&kill, &nice,&phylo};
@@ -46,13 +44,6 @@ void initShell()    {
     print(INIT_MESSAGE);
 }
 
-void print2(char * str, unsigned int dim)   {
-
-    int64_t args[] = {(int64_t) STDOUT_FILENO, (int64_t) str, (int64_t) dim};
-
-    _int80(SYS_WRITE, args);
-}
-
 static void new_line()  {
 
     putEnter();
@@ -72,11 +63,14 @@ void read(char * buffer, unsigned int buflen)   {
 
     new_line();
 
+// Por si escribieron en stdin durante la ejecucion de un proceso que no la leyó:
+    consume_stdin();
+
     while(true) {
 
-        getChar(&c);
+        c = getChar();
 
-        if(c!='\n')    {
+        if(c!=KEY_ENTER)    {
             
             if(c == EOF)    {
 
@@ -89,15 +83,15 @@ void read(char * buffer, unsigned int buflen)   {
                     buffer[0] = '\0';
                     new_line();
                 }
-                else if(c=='\b' )    {
+                else if(c==KEY_BACKSPACE )    {
 
                     if(i!=0)    {
                     
-                        int pixelsToDelete = (buffer[i-1] == '\t')? 3 : 1; //Si borro un tab queda en 3 sino queda en 1
+                        int pixelsToDelete = (buffer[i-1] == KEY_TAB)? 3 : 1; //Si borro un tab queda en 3 sino queda en 1
                         
                         for(int j=0; j<pixelsToDelete; ++j) {
 
-                            putChar('\b');
+                            putChar(KEY_BACKSPACE);
                         }
                                             
                         buffer[--i] = '\0';
@@ -124,40 +118,16 @@ void read(char * buffer, unsigned int buflen)   {
 }
 
 
-static void setting_stdio(int fdin, int fdout)    {
-
-    if(fdin >= 0)   {
-
-        set_stdin_fd(current_pid(), fdin);
-    }
-    if(fdout >= 0) {
-
-        set_stdout_fd(current_pid(), fdout);
-    }
-}
-
-static void default_stdio() {
-
-    set_stdin_fd(current_pid(), STDIN_FILENO);
-    set_stdout_fd(current_pid(), STDOUT_FILENO);
-}
-
-static bool check_and_run( build_in_f * f,  char ** names, int argc, char ** argv, char * function, int fdin, int fdout) {
+static bool check_and_run( build_in_f * f,  char ** names, int argc, char ** argv, char * function) {
 
     if(f != NULL)   {
 
         for(int i=0; names[i]; i++)   {
             
             if (strEquals(names[i], function)) {
-
-                setting_stdio(fdin, fdout);
-
                 putEnter();
                 f[i](argc, argv);
                 putEnter();
-
-                default_stdio();
-
                 return true;
             }
         }
@@ -166,91 +136,51 @@ static bool check_and_run( build_in_f * f,  char ** names, int argc, char ** arg
     return false;
 }
 
-static inline bool is_piping(int fdin, int fdout)   {
-
-    return (fdin != STDIN_FILENO) || (fdout != STDOUT_FILENO);
-}
-
-static int64_t check_and_run_process( process_f * p,  char ** names, int argc, char ** argv,  char * function, int fdin, int fdout )  {
+static bool check_and_run_process( process_f * p,  char ** names, int argc, char ** argv,  char * function)  {
 
     if(p != NULL && names != NULL)   {
 
         for(int i=0; names[i]; i++)   {
             
             if (strEquals(names[i], function))  {
-                    
-                    setting_stdio(fdin, fdout);
-                    
-                    bool background = false;
-                    int back_index = 0;
 
-                // Busco el BACKGROUND_CHARACTER:
-                    for (int i = 0; i < argc && !background; i++)   {
+                bool background = false;
+                int back_index = 0;
 
-                        if (argv[i][0] == BACKGROUND_CHARACTER) {
+            // Busco el BACKGROUND_CHARACTER:
+                for (back_index = 0; back_index < argc && !background; back_index++)   {
+
+                    background = (bool) (argv[back_index][0] == BACKGROUND_CHARACTER);
+                }
+
+                if(back_index < argc-1) {
+
+                    char s[2] = {argc-1-back_index + '0', '\0'};
+
+                    print("\nWaring: Ignoring ");
+                    print(s);
+                    print(" arguments after &\n");
+                }
                 
-                            background = true;
-                            back_index = i;
-                        }
-                    }
-
-                    if(background && is_piping(fdin, fdout))  {
-
-                        print("\n\nError: Can not pipe background processes\n\n");
-                        return 0;
-                    }
-
-                    if(back_index < argc-1) {
-
-                        char s[2] = {argc-1-back_index + '0', '\0'};
-
-                        print("\nWaring: Ignoring ");
-                        print(s);
-                        print(" arguments after &\n");
-                    }
-                
-
                 putEnter();
 
                 if(background)  {
    
                     spawn_process((int64_t) p[i], argc-1, argv, 1, false);
                 }
-                else  if(!is_piping(fdin, fdout))  {
+                else    {
 
                     int64_t cpid = run_process((int64_t) p[i], argc, argv, 1, true);
                     waitpid(cpid);
                 }
-                else    {// pipe!
-
-                    bool is_fg = fdout == STDOUT_FILENO;
-
-                    return spawn_process((int64_t) p[i], argc-1, argv, 1, is_fg);
-                }
 
                 putEnter();
-                return 1;
+                return true;
             }
         }
     }
 
     return false;
-}
-
-static int64_t runIt(int argc, char ** argv, char * function, int fdin, int fdout) {
-
-    // Si es build-in:
-
-    if(check_and_run(build_in_functions, build_in_names, argc, argv, function, fdin, fdout))   {
-
-        return 0;
-    }
-
-    // Si es programa o test:
-
-    return check_and_run_process(process_functions, process_names, argc, argv, function, fdin, fdout) ||
-        check_and_run_process(test_functions, test_names, argc, argv, function, fdin, fdout);
-
 }
 
 
@@ -263,13 +193,12 @@ void getMenu(char * buffer, unsigned int buflen)  {
     char arg1[MAX_ARG_LONG]={'\0'};
     char arg2[MAX_ARG_LONG]={'\0'};
     char arg3[MAX_ARG_LONG]={'\0'};
-    char arg4[MAX_ARG_LONG]={'\0'};
 
-    char * argv[MAX_ARGS+1] = {arg1, arg2, arg3, arg4, NULL};
+    char * argv[MAX_ARGS+1] = {arg1, arg2, arg3, NULL};
 
     int argc = stringTrimmerBySpace(buffer, function, argv, MAX_ARG_LONG);
 
-    if (argc>MAX_ARGS || argc < 0 || function[MAX_ARG_LONG-1]!='\0') {
+    if (argc>=4 || argc < 0 || function[MAX_ARG_LONG-1]!='\0') {
 
         print(OVERFLOW_MESSAGE);
         return;
@@ -280,47 +209,19 @@ void getMenu(char * buffer, unsigned int buflen)  {
         argv[i] = NULL;
     }
 
-    bool piping = false;
-    int pipe_pos = 0;
+// Si es build-in:
 
-    for (int i = 0; i < argc && !piping; i++) {
-        
-        if (argv[i][0] == PIPE_CHARACTER) {
-            piping = true;
-            pipe_pos = i;
-        }
+    if(check_and_run(build_in_functions, build_in_names, argc, argv,  function))   {
+
+        return;
     }
 
-    if(piping)    {
 
-        argv[pipe_pos] = NULL;
-        
-        int fd[2];
-        pipe(fd);
+// Si es programa o test:
 
-        int64_t pid1 = runIt(argc, argv, function, fd[0], STDOUT_FILENO);
-        int64_t pid2 = runIt(argc, argv, function, STDIN_FILENO, fd[1]);
+    if(check_and_run_process(process_functions, process_names, argc, argv, function) ||
+        check_and_run_process(test_functions, test_names, argc, argv, function)) {
 
-        if(pid1 && pid2)    {
-
-            waitpid(pid1);
-            waitpid(pid2);
-        }
-        else    {
-
-            close(fd[0]);
-            close(fd[1]);
-        }
-    }   
-    else    {
-
-        int pid;
-
-        if(pid = runIt(argc, argv, function, STDIN_FILENO, STDOUT_FILENO))  {
-
-            waitpid(pid);
-        }
-        
         return;
     }
 

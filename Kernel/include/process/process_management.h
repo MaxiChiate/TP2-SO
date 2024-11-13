@@ -109,7 +109,10 @@
     void set_stdout_fd(int64_t pid, int new_fd);
     void set_stdin_fd(int64_t pid, int new_fd);
 
-    void standard_write(char * buf, int size);
-    void standard_read(char * buf, int size);
+    void set_stdio(int64_t pid, int fdin, int fdout);
+
+    int standard_write(char * buf, int size);
+    int standard_read(char * buf, int size);
+    int consume_stdin();
 
 #endif //__process__management
