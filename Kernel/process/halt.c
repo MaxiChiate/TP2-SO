@@ -39,7 +39,6 @@ void block_hlt() {
     force_block(hlt_pid);
 }
 
-#include <stringPrinter.h>
 void run_hlt(int argc, char ** argv)    {
     
     while(true)     {

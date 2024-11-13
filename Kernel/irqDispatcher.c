@@ -24,7 +24,8 @@ uint64_t irqDispatcher(uint64_t irq, uint64_t rsp) {
             char c = map(keyboard_handler());
     
         // El init no se puede matar con ctrl+C (probablemente el shell)
-            if(c == CTRL_C && get_current_pid() != INITIAL_PROCESS_ID)    {
+        // Tampoco al halt
+            if(c == CTRL_C && (get_current_pid() != INITIAL_PROCESS_ID) && !is_halting())    {
 
                 kill_fg_process();
             }
