@@ -10,6 +10,7 @@ void ps(int argc, char ** argv) {
 
     print_all_ps(&to_print);
 
+    free(to_print);
     suicide();
 
 
