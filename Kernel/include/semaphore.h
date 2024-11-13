@@ -2,8 +2,8 @@
 #define __SEM_H
 
     #include <bool.h>
-    #include <process_management.h>
     #include <Collections/queue.h>
+    // #include <process/process_management.h>
 
     #define MAX_PROCESS_AMOUNT 10
     #define MAX_SEMAPHORES_AMOUNT 100
@@ -24,8 +24,7 @@
     void up(uint8_t sem_id);
     void down(uint8_t sem_id);
 
-    void wait_stdin();
-    void signal_stdin();
-
+    void downNtimes(uint8_t sem_id, uint8_t n);
+    void upNtimes(uint8_t sem_id, uint8_t n);
 
 #endif 

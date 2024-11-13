@@ -1,14 +1,13 @@
-#include <stdint.h>
-#include <string.h>
-#include <lib.h>
-#include <buffer.h>
-#include <bool.h>
-#include <buddy_library.h>
-
 //memory_manager.h
 
 #ifndef MM_MANAGER_H
 #define MM_MANAGER_H
+
+#include <stdint.h>
+#include <string.h>
+#include <lib.h>
+#include <bool.h>
+#include <buddy_library.h>
 
 #define MAX_ORDER 20
 #define MIN_CHUNK_ORDER 6

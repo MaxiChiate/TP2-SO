@@ -16,7 +16,6 @@ static uint8_t using_sem;
 static sem_t semaphores[MAX_SEMAPHORES_AMOUNT];
 
 
-static void init_stdin_sync();
 static inline void next_id();
 static inline bool in_range(uint8_t id);
 static void wait_sem_access(uint8_t sem_id);
@@ -33,8 +32,6 @@ void init_semaphore_store()  {
 
     current_sem = 0;
     using_sem = 0;
-
-    init_stdin_sync();
 }
 
 
@@ -82,7 +79,12 @@ bool kill_sem(uint8_t sem_id)   {
 
 void down(uint8_t sem_id)   {
 
-    if(!is_sem_alive(sem_id))   {
+    downNtimes(sem_id, 1);
+}
+
+void downNtimes(uint8_t sem_id, uint8_t n)   {
+
+    if(!is_sem_alive(sem_id) || n == 0)   {
 
         return;
     }
@@ -93,35 +95,44 @@ void down(uint8_t sem_id)   {
 
     wait_sem_access(sem_id);
 
-    while(semaphores[sem_id].count == 0)   {
+    while(n>0)  {
 
-        pid = get_current_pid();
+        while(semaphores[sem_id].count == 0)   {
 
-        if(pid == -1)   {
+            pid = get_current_pid();
 
+            if(pid == -1)   {
+
+                leave_region(&semaphores[sem_id].locked);
+                return;
+            }
+
+            enqueue(semaphores[sem_id].processes_queue, pid);
             leave_region(&semaphores[sem_id].locked);
-            return;
+
+        // Pierde el cpu:
+            block_process(pid);
+
+            wait_sem_access(sem_id);
         }
 
-        enqueue(semaphores[sem_id].processes_queue, pid);
-        leave_region(&semaphores[sem_id].locked);
-
-    // Pierde el cpu:
-        block_process(pid);
-
-        wait_sem_access(sem_id);
+        semaphores[sem_id].count--;
+        n--;
     }
 
-    semaphores[sem_id].count--;
     leave_region(&semaphores[sem_id].locked);
-
 }
-
 
 
 void up(uint8_t sem_id) {
 
-    if(!is_sem_alive(sem_id))   {
+    upNtimes(sem_id, 1);
+}
+
+
+void upNtimes(uint8_t sem_id, uint8_t n) {
+
+    if(!is_sem_alive(sem_id) || n == 0)   {
 
         return;
     }
@@ -129,36 +140,21 @@ void up(uint8_t sem_id) {
 // Accesso exclusivo al semaphore store:
     wait_sem_access(sem_id);
 
-    semaphores[sem_id].count++;
+    while(n>0)  {
 
-    if(!queue_is_empty(semaphores[sem_id].processes_queue))  {
+        semaphores[sem_id].count++;
 
-        unblock_process(dequeue(semaphores[sem_id].processes_queue));
+        if(!queue_is_empty(semaphores[sem_id].processes_queue))  {
+
+            unblock_process(dequeue(semaphores[sem_id].processes_queue));
+        }
+
+        n--;
     }
 
     leave_region(&semaphores[sem_id].locked);
 }
 
-
-
-static uint8_t stdin_semid;
-
-void wait_stdin()   {
-
-    down(stdin_semid);
-}
-
-
-void signal_stdin() {
-
-    up(stdin_semid);
-}
-
-
-static void init_stdin_sync()    {
-
-    stdin_semid = new_sem(0);
-}
 
 static inline void next_id() {
 

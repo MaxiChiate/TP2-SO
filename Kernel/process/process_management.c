@@ -1,5 +1,6 @@
 #include <process/process_management.h>
 
+
 #define BEGINNIN_PROCESS_ADDRESS(process_index) ((uint64_t) stacks + (process_index + 1) * STACK_SPACE)
 #define IN_RANGE(i) ((i) >= 0 && (i) < PROCESS_AMOUNT)
 
@@ -29,6 +30,9 @@ typedef struct pcb {
 
     unsigned int quantum;
     unsigned int priority;
+
+    int stdin_fileno;
+    int stdout_fileno;
 
     int argc;      //rsi
     char ** argv; //rdi
@@ -109,7 +113,7 @@ void scheduler_init(uint64_t init_address, int argc, char * argv[])   {
         started_at = 0;
         current_in_fg = -1; // No contamos la shell/init como fg, por simpleza.
 
-        current_process = new_process(init_address, argc, argv, QUANTUM_AMOUNT-1, false);
+        current_process = new_process(init_address, argc, argv, QUANTUM_AMOUNT-1, true);
 
         init_hlt();
 
@@ -172,6 +176,10 @@ int64_t create_process(uint64_t function_address, int argc, char * argv[], unsig
 
     int new_process_index = new_process(function_address, argc, argv, priority, foreground);
     pcbs[new_process_index].parent_process_id = get_current_pid();
+    
+    pcbs[new_process_index].stdin_fileno = foreground ? pcbs[current_process].stdin_fileno : DEV_NULL;
+    pcbs[new_process_index].stdout_fileno = pcbs[current_process].stdout_fileno;
+
     return pcbs[new_process_index].process_id;
 }
 
@@ -291,7 +299,7 @@ void wait()     {
         if(is_alive(i) && 
             pcbs[i].parent_process_id == pcbs[current_process].process_id)  {
                                             //TODO
-                waiting = wait4(pcbs[i].process_id); // Solo se borra de un proceso cuando lo libera, TODO implementar una funcion cp en node y que no acepte repetidos y listo
+                waiting = wait4(pcbs[i].process_id); // Solo se borra de un proceso cuando lo libera
         }
 
         i++;
@@ -344,6 +352,44 @@ void kill_fg_process() {
     kill_process(current_in_fg);
 }
 
+
+
+void set_stdout_fd(int64_t pid, int new_fd)    {
+
+    pcbs[get_index_by_pid(pid)].stdout_fileno = new_fd;
+}
+
+
+void set_stdin_fd(int64_t pid, int new_fd)    {
+
+    pcbs[get_index_by_pid(pid)].stdin_fileno = new_fd;
+}
+
+
+void set_stdio(int64_t pid, int fdin, int fdout)    {
+
+    set_stdin_fd(pid, fdin);
+    set_stdout_fd(pid, fdout);
+}
+
+int standard_write(char * buf, int size)   {
+
+    return write(pcbs[current_process].stdout_fileno, buf, size);
+}
+
+int standard_read(char * buf, int size)   {
+
+    return read(pcbs[current_process].stdin_fileno, buf, size);
+}
+
+int consume_stdin()   {
+
+    char buf[STD_BUFFER_SIZE];
+
+    int count = read_all(pcbs[current_process].stdin_fileno, buf);
+
+    return standard_write(buf, count);
+}
 
 
 static void process_status(int p,ps_t * to_return)   {
@@ -547,7 +593,11 @@ static int new_process(uint64_t function_address, int argc, char ** argv, unsign
         .state = TERMINATED, // Not ready yet
         .foreground = foreground,
         
-        .waiting_me = queue_init(),
+    // Por default, luego puede pisarse:
+        .stdin_fileno = STDIN_FILENO,
+        .stdout_fileno = STDOUT_FILENO,
+        
+        .waiting_me = NULL,
 
         .quantum = get_quantum(priority),
         .priority = priority
@@ -627,6 +677,11 @@ static bool wait4(int64_t pid)  {
         return false;
     }
 
+    if(!pcbs[process_index].waiting_me) {
+
+        pcbs[process_index].waiting_me = queue_init();
+    }
+    
     enqueue(pcbs[process_index].waiting_me, current_process);
 
     return true;
@@ -636,12 +691,15 @@ static void wake_up_processes_waiting_me()    {
 
     queue_t waiting = pcbs[current_process].waiting_me;
 
-    while(!queue_is_empty(waiting))    {
+    if(waiting)  {
 
-        unblock_process_by_index(dequeue(waiting));
+        while(!queue_is_empty(waiting))    {
+
+            unblock_process_by_index(dequeue(waiting));
+        }
+
+        free_queue(waiting);
     }
-
-    free_queue(waiting);
 }
 
 static void find_next()    {

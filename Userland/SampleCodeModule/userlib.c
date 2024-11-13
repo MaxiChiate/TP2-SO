@@ -7,14 +7,15 @@ void print(char * str)  {
 
 void print2(char * str, unsigned int dim)   {
 
-    int64_t args[] = {(int64_t) STDOUT_FILENO, (int64_t) str, (int64_t) dim};
+    int64_t args[] = {(int64_t) str, (int64_t) strLength(str)};
 
-    _int80(SYS_WRITE, args);
+    _int80(SYS_STANDARD_WRITE, args);
 }
 
-void puts(char * str) {
+void puts(char * str)   {
+
     print(str);
-    print("\n");
+    putEnter();
 }
 
 void print_ps(ps_t * ps) {
@@ -61,16 +62,20 @@ void print_all_ps(ps_t ** to_print) {
     }
 }
 
-unsigned char getChar(char * c) {
+int getChar() {
 
-    int64_t args[] = {0, (int64_t) c, 1};
+    char s[1];
 
-    return (unsigned char) _int80(SYS_READ, args);
+    int64_t args[] = {(int64_t) s, 1};
+
+    int read = (int) _int80(SYS_STANDARD_READ, args);
+
+    return read > 0 ? s[0] : EOF;
 }
 
 void putChar(char c)    {
 
-    char s [] = {c, '\0'};
+    char s [2] = {c, '\0'};
 
     print2(s, 1);
 }
@@ -78,8 +83,7 @@ void putChar(char c)    {
 char getAndPrintChar()  {
 
     char c;
-    getChar(&c);
-    putChar(c);
+    putChar(c = getChar());
     return c;
 }
 
@@ -100,7 +104,7 @@ void sleep(int64_t ms){
 }
 
 void putEnter() {
-    putChar('\n');
+    putChar(KEY_ENTER);
 }
 
 void putnEnters(unsigned int n)    {
@@ -115,7 +119,7 @@ void putBackSpace() {
 }
 
 void putTab()   {
-    putChar('\t');
+    putChar(KEY_TAB);
 }
 char* stringNormalizer(char* origString, unsigned int strlen){
     int i=0, j=0;

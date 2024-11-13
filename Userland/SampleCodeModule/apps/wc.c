@@ -41,7 +41,6 @@ void read_wc(char * buffer, unsigned int buflen, int * len)   {
 
     while(true) {
 
-        wait_stdin();   // Espero a que haya algo en stdin
         getChar(&c);
 
         if(c!='\n')    {
