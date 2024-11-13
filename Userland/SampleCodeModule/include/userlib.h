@@ -22,7 +22,7 @@
 
     void printUlong(unsigned long n);
 
-    unsigned char getChar(char * c);
+    int getChar();
 
     void putChar(char c);
 

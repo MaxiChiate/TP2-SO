@@ -1,5 +1,7 @@
 #include <shell.h>
 
+// Fd globales que solo sabe la shell:
+#include <../../../Kernel/include/process/globalfd.h>
 
 build_in_f build_in_functions[AVAILABLE_BUILDIN_F]={&help, &time, &clear, &div0, &invalidOpcode};
 process_f  process_functions[AVAILABLE_PROCESS_F]={&mem,&loop, &ps, &block,&kill, &nice,&phylo,&cat};
@@ -61,12 +63,14 @@ void read(char * buffer, unsigned int buflen)   {
 
     new_line();
 
+// Por si escribieron en stdin durante la ejecucion de un proceso que no la leyó:
+    consume_stdin();
+
     while(true) {
 
-        wait_stdin();   // Espero a que haya algo en stdin
-        getChar(&c);
+        c = getChar();
 
-        if(c!='\n')    {
+        if(c!=KEY_ENTER)    {
             
             if(c == EOF)    {
 
@@ -79,15 +83,15 @@ void read(char * buffer, unsigned int buflen)   {
                     buffer[0] = '\0';
                     new_line();
                 }
-                else if(c=='\b' )    {
+                else if(c==KEY_BACKSPACE )    {
 
                     if(i!=0)    {
                     
-                        int pixelsToDelete = (buffer[i-1] == '\t')? 3 : 1; //Si borro un tab queda en 3 sino queda en 1
+                        int pixelsToDelete = (buffer[i-1] == KEY_TAB)? 3 : 1; //Si borro un tab queda en 3 sino queda en 1
                         
                         for(int j=0; j<pixelsToDelete; ++j) {
 
-                            putChar('\b');
+                            putChar(KEY_BACKSPACE);
                         }
                                             
                         buffer[--i] = '\0';

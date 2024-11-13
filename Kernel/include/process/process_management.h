@@ -10,6 +10,7 @@
     #include <collections/queue.h>
     #include <lib.h>
     #include <process/halt.h>
+    #include <process/ipc_management.h>
     
     #define K 1024
     #define STACK_SPACE 4*K
@@ -104,5 +105,14 @@
     bool is_blocked_by_pid(int64_t pid);
 
     void kill_fg_process();
+
+    void set_stdout_fd(int64_t pid, int new_fd);
+    void set_stdin_fd(int64_t pid, int new_fd);
+
+    void set_stdio(int64_t pid, int fdin, int fdout);
+
+    int standard_write(char * buf, int size);
+    int standard_read(char * buf, int size);
+    int consume_stdin();
 
 #endif //__process__management

@@ -9,13 +9,16 @@
 
     typedef enum    {
 
-            SYS_WRITE = 0,
+            SYS_SET_STDOUT_FD = 0,
+            SYS_SET_STDIN_FD,
+            SYS_SET_STDIO,
+            SYS_STANDARD_WRITE,
+            SYS_STANDARD_READ,
+            SYS_CONSUME_STDIN,
+            SYS_WRITE,
             SYS_READ,
             SYS_OPEN,
             SYS_CLOSE,
-            SYS_DUP,
-            SYS_DUP2,
-            SYS_DUP3,
             SYS_PIPE,
             SYS_CLEAR,
             SYS_RAND,
@@ -38,7 +41,6 @@
             SYS_DOWN,
             SYS_IS_SEM_ALIVE,
             SYS_NEW_SEM,
-            SYS_WAIT_STDIN,
             SYS_MM_MALLOC,
             SYS_MM_FREE,
             SYS_MM_MEM,
@@ -63,7 +65,7 @@
 
 
     typedef enum {
-    
+
         KEY_SHIFT = 'S',
         KEY_CTRL = 'C',
         KEY_CAPS_LOCK = 'M',
@@ -79,7 +81,6 @@
 
     } SpecialKey;
 
-    typedef enum { STDIN_FILENO = 0, STDOUT_FILENO, STD_FD_COUNT} std_fd;
     typedef enum {
         
         NONE = 0b000, 
