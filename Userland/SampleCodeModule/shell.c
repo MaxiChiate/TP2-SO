@@ -80,7 +80,8 @@ void read(char * buffer, unsigned int buflen)   {
 
                 if (c == CTRL_C)     {
 
-                    buffer[0] = '\0';
+                    i = 0;
+                    buffer[i] = '\0';
                     new_line();
                 }
                 else if(c==KEY_BACKSPACE )    {
