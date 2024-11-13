@@ -24,8 +24,6 @@ void philosopher(int argc, char ** argv);
 
 typedef struct {
     int state;
-    int8_t left_fork;
-    int8_t right_fork;
     int64_t pid;
 } philosopher_t;
 
@@ -51,8 +49,6 @@ static void return_forks(int i) {
         return;
     }
     philos[i].state = THINKING; 
-    up(philos[i].left_fork);
-    up(philos[i].right_fork);
 }
 static void take_forks(int i) {
     if(philos[i].state== KILLED){
@@ -61,8 +57,6 @@ static void take_forks(int i) {
     philos[i].state = HUNGRY;
     if (can_eat(i)) {
         philos[i].state = EATING;
-        down(philos[i].left_fork);
-        down(philos[i].right_fork);
         down(update_mutex);
             change_state=true;
         up(update_mutex);
@@ -89,18 +83,6 @@ static void add_philosopher(){
         }
         philos[N].state = THINKING;
             
-        if(N>0){
-            philos[N].left_fork= new_sem(1);
-            philos[N].right_fork= new_sem(1);
-            philos[RIGHT(N)].right_fork = philos[N].right_fork;
-            up(mutex);
-        }
-        else{
-            down(mutex);
-                philos[N].left_fork= new_sem(1);
-                philos[N].right_fork= new_sem(1);
-            up(mutex);
-        }
         char number[4];
         itoa(N, number);
         char *argv[] = {number, NULL};
@@ -114,8 +96,6 @@ static void remove_philosopher(){
 
     down(update_mutex);
         N--;
-        kill_sem(philos[N].left_fork);
-        kill_sem(philos[N].right_fork);
         philos[N].state=KILLED;
     up(update_mutex);
 }
