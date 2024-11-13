@@ -11,12 +11,14 @@
 #define TIME_THINK 1000 //miliseconds
 #define TIME_EAT 500 //miliseconds
 #define PHILOS_BLOCK 5
+#define PHILOSOPHER_PRIORITY 0
 #define ADD_CHAR 'a'
 #define DEL_CHAR 'r'
 #define EXIT_CHAR 'q'
 
 static uint32_t N = 0;
-static uint32_t size = INIT_PHILOS;
+static uint32_t size = 2* INIT_PHILOS;
+static bool change_state=true;
 void philosopher(int argc, char ** argv);
 
 
@@ -61,6 +63,9 @@ static void take_forks(int i) {
         philos[i].state = EATING;
         down(philos[i].left_fork);
         down(philos[i].right_fork);
+        down(update_mutex);
+            change_state=true;
+        up(update_mutex);
     }
 }
 static void show_state() {
@@ -79,7 +84,7 @@ static void add_philosopher(){
     down(update_mutex);
 
         if(N> size){
-            philos= dum_realloc(philos,size,size+PHILOS_BLOCK);
+            philos= (philosopher_t *)dum_realloc(philos,sizeof(philosopher_t) * INIT_PHILOS,sizeof(philosopher_t)* (size+PHILOS_BLOCK));
             size+=PHILOS_BLOCK;
         }
         philos[N].state = THINKING;
@@ -99,7 +104,7 @@ static void add_philosopher(){
         char number[4];
         itoa(N, number);
         char *argv[] = {number, NULL};
-        spawn_process((int64_t) &philosopher,1,argv,1,true);
+        spawn_process((int64_t) &philosopher,1,argv,PHILOSOPHER_PRIORITY,true);
         N++;
 
     up(update_mutex);
@@ -112,7 +117,6 @@ static void remove_philosopher(){
         kill_sem(philos[N].left_fork);
         kill_sem(philos[N].right_fork);
         philos[N].state=KILLED;
-
     up(update_mutex);
 }
 
@@ -127,9 +131,6 @@ void philosopher(int argc, char ** argv) {
         take_forks(i);
         up(mutex);
         if (philos[i].state == EATING) {
-            down(update_mutex);
-                show_state(); 
-            up(update_mutex);
             eat(i);
             down(mutex);
                 return_forks(i);
@@ -146,8 +147,7 @@ void philosopher(int argc, char ** argv) {
 void phylo(int argc, char ** argv){
     argv++;
 
-    philos = malloc(sizeof(philosopher_t)* INIT_PHILOS);
-
+    philos =(philosopher_t *) malloc(sizeof(philosopher_t)* INIT_PHILOS);
     mutex= new_sem(1);
     update_mutex= new_sem(1);
 
@@ -181,6 +181,12 @@ void phylo(int argc, char ** argv){
         }
         last_c=c;
 
+        if(change_state){
+            down(update_mutex);
+                show_state(); 
+            up(update_mutex);
+            change_state=false;
+        }
     }
 
     while(N>0){
