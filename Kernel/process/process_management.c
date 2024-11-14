@@ -318,7 +318,7 @@ void waitpid(int64_t pid) {
 
     if(wait4(pid))    {
 
-        block_process_by_index(current_process);
+        block_process(pcbs[current_process].process_id);
         give_up_cpu();
     }
 }

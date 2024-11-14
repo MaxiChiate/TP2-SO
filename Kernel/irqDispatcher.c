@@ -22,6 +22,11 @@ uint64_t irqDispatcher(uint64_t irq, uint64_t rsp) {
         case 1: {
 
             char c = map(keyboard_handler());
+
+            if(c == '\0')   {
+
+                return '\0';
+            }
     
         // El init no se puede matar con ctrl+C (probablemente el shell)
         // Tampoco al halt
