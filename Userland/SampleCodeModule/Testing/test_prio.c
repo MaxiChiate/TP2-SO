@@ -12,7 +12,7 @@
 int64_t prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM, HIGHEST};
 
 void test_prio(int argc, char ** argv) {
-  argv++;
+
   if(argc != 1) {
 
       print("test_prio: ERROR argument amount\nUsage: test_prio\n");
@@ -24,7 +24,7 @@ void test_prio(int argc, char ** argv) {
   uint64_t i;
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    pids[i] = spawn_process((int64_t) &endless_loop_print, 1, argvAux, MEDIUM, false);
+    pids[i] = spawn_process((int64_t) &endless_loop_print, 1, argvAux, MEDIUM, true);
 
   bussy_wait(WAIT);
   print("\nCHANGING PRIORITIES...\n");
@@ -54,6 +54,7 @@ void test_prio(int argc, char ** argv) {
   for (i = 0; i < TOTAL_PROCESSES; i++)
     killp(pids[i]);
 
-  print(END_MESSAGE);
+  print(argv[0]);
+  print(": OK!\n");
   suicide();
 }

@@ -10,7 +10,6 @@ typedef struct P_rq {
 } p_rq;
 
 void test_processes(int argc, char ** argv) {
-  argv++;
 
   uint8_t rq;
   uint8_t alive = 0;
@@ -25,13 +24,13 @@ void test_processes(int argc, char ** argv) {
     suicide();
   }
 
-  if ((max_processes = satoi(argv[0])) <= 0)  {
+  if ((max_processes = satoi(argv[1])) <= 0)  {
    
     print("test_processes: ERROR incorrect first argument value");
     suicide();
   }
 
-  if ((show = satoi(argv[1])) > 1)  {
+  if ((show = satoi(argv[2])) > 1)  {
    
     print("test_processes: ERROR incorrect second argument value");
     suicide();
@@ -48,7 +47,7 @@ void test_processes(int argc, char ** argv) {
 
         print("Spawning process...");
       }
-      p_rqs[rq].pid = spawn_process((int64_t) &endless_loop, 0, argvAux, 1, false);
+      p_rqs[rq].pid = spawn_process((int64_t) &endless_loop, 0, argvAux, 1, true);
 
       if (p_rqs[rq].pid == -1) {
         print("test_processes: ERROR creating process\n");
@@ -118,5 +117,8 @@ void test_processes(int argc, char ** argv) {
           p_rqs[rq].state = RUNNING;
         }
     }
+
+    print(argv[0]);
+    print(": OK!\n");
   }
 }

@@ -51,13 +51,12 @@ void my_process_inc(uint64_t argc, char *argv[])    {
 }
 
 void test_sync(int argc, char ** argv) { //{n, use_sem, 0}
-  argv++;
 
   uint64_t pids[2 * TOTAL_PAIR_PROCESSES];
 
   if (argc != 3)    {
 
-    print("Error: Incorrect argc in test_sync. Only 2 args\n");
+    print("Error: Incorrect argc in test_sync. \nOnly 2 args: number of iterations and use_sem?\n");
     suicide();
   }
     
@@ -72,8 +71,8 @@ void test_sync(int argc, char ** argv) { //{n, use_sem, 0}
     char mutex_toString[digits+1];
     uIntToString(mutex, mutex_toString, digits);
 
-  char *argvDec[] = {argv[0], "-1", argv[1], mutex_toString, NULL};
-  char *argvInc[] = {argv[0], "1", argv[1], mutex_toString, NULL};
+  char *argvDec[] = {argv[1], "-1", argv[2], mutex_toString, NULL};
+  char *argvInc[] = {argv[1], "1", argv[2], mutex_toString, NULL};
 
   global = 0;
 
@@ -89,15 +88,15 @@ void test_sync(int argc, char ** argv) { //{n, use_sem, 0}
   }
 
 
-    digits = getUintDigits(global);
     char global_toString[digits+1];
-    uIntToString(global, global_toString, digits);
+    itoa(global, global_toString);
 
-    print("Final value: ");
+    print(argv[0]);
+    print(": Final value ");
     print(global_toString);
     putEnter();
 
-    print(END_MESSAGE);
+    
 
     suicide();
 }

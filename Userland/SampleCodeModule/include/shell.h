@@ -13,7 +13,7 @@
     #define SECTIONS 3
 
     #define AVAILABLE_FUNCTIONS ((AVAILABLE_BUILDIN_F)+(AVAILABLE_PROCESS_F)+(AVAILABLE_TESTS))
-    #define AVAILABLE_BUILDIN_F 2
+    #define AVAILABLE_BUILDIN_F 3
     #define AVAILABLE_PROCESS_F 10
     #define AVAILABLE_TESTS     4
 
@@ -33,5 +33,6 @@
     void read(char * buffer, unsigned int buflen);
     void getMenu(char * buffer, unsigned int buflen);
     void help(int argc, char ** argv);
+    void test_all(int argc, char ** argv);
 
 #endif

@@ -3,18 +3,19 @@
 // Fd globales que solo sabe la shell:
 #include <../../../Kernel/include/process/globalfd.h>
 
-build_in_f build_in_functions[AVAILABLE_BUILDIN_F]={&help, &clear};
+build_in_f build_in_functions[AVAILABLE_BUILDIN_F]={&help, &clear, &test_all};
 process_f  process_functions[AVAILABLE_PROCESS_F]={&mem,&loop, &ps, &block,&kill, &nice,&phylo, &cat, &filter, &wc};
 process_f  test_functions[AVAILABLE_TESTS]={&test_processes, &test_prio, &test_sync, &test_mm};
 
 
-char* build_in_names[AVAILABLE_BUILDIN_F+1]= {"help", "clear", 0};
+char* build_in_names[AVAILABLE_BUILDIN_F+1]= {"help", "clear", "test_all", 0};
 char* process_names[AVAILABLE_PROCESS_F+1]={"mem","loop", "ps", "block", "kill", "nice", "phylo", "cat", "filter", "wc",'\0'};
 char* test_names[AVAILABLE_TESTS+1]={"test_processes", "test_prio", "test_sync", "test_mm", '\0'};
 
 char* build_in_descriptions[AVAILABLE_BUILDIN_F+1]={
                             "Gives information about the available commands to execute",
                             "Cleans the terminal",
+                            "Run all tests together",
                             '\0'
                             };
 char* process_descriptions[AVAILABLE_PROCESS_F+1]={
@@ -25,6 +26,9 @@ char* process_descriptions[AVAILABLE_PROCESS_F+1]={
                             "Kills a process by it's pid",
                             "Changes a process' priority by it's pid",
                             "Simulates the Philosophers problem solved with semaphores",
+                            "Prints input from stdin",
+                            "Filter vocals from stdin input",
+                            "Count enters amount from stdin input",
                             '\0'
                             };
 char* test_descriptions[AVAILABLE_TESTS+1]={
@@ -235,7 +239,6 @@ void help(int argc, char ** argv) {
         print("help: ERROR argument amount\n");
         return;
     }
-    putnEnters(2);
 
     char ** names[SECTIONS] = {build_in_names, process_names, test_names};
     char ** descriptions[SECTIONS] = {build_in_descriptions, process_descriptions, test_descriptions};
@@ -252,8 +255,33 @@ void help(int argc, char ** argv) {
         }
     }
     
-    putEnter();
 }
 
 
 
+void test_all(int argc, char ** argv)   {
+
+    int argc1 = 2;
+    int argc2 = 1;
+    int argc3 = 3;
+    int argc4 = 3;
+    int argc5 = 3;
+
+    char * argv1[] = {"test_mm", "128", NULL};
+    char * argv2[] = {"test_prio", NULL};
+    char * argv3[] = {"test_processes", "2", "1", NULL};
+    char * argv4[] = {"test_sync", "5", "1", NULL};
+    char * argv5[] = {"test_async", "5", "0", NULL};
+
+    int64_t p1 = spawn_process((int64_t) &test_mm, argc1, argv1, 0, 1);
+    int64_t p2 = spawn_process((int64_t) &test_prio, argc2, argv2, 0, 1);
+    int64_t p3 = spawn_process((int64_t) &test_processes, argc3, argv3, 0, 1);
+    int64_t p4 = spawn_process((int64_t) &test_sync, argc4, argv4, 0, 1);
+    int64_t p5 = spawn_process((int64_t) &test_sync, argc5, argv5, 0, 1);
+
+    waitpid(p1);
+    waitpid(p2);
+    waitpid(p3);
+    waitpid(p4);
+    waitpid(p5);
+}

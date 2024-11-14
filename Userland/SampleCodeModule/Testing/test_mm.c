@@ -8,7 +8,7 @@ typedef struct MM_rq {
 } mm_rq;
 
 void test_mm(int argc, char ** argv) {
-  argv++;
+
   mm_rq mm_rqs[MAX_BLOCKS];
   uint8_t rq;
   uint32_t total;
@@ -20,7 +20,7 @@ void test_mm(int argc, char ** argv) {
     suicide();
   }
 
-  if ((max_memory = satoi(argv[0])) <= 0)   {
+  if ((max_memory = satoi(argv[1])) <= 0)   {
 
         print("test_mm: ERROR. Invalid max memory\n");
         suicide();
@@ -57,6 +57,7 @@ void test_mm(int argc, char ** argv) {
       if (mm_rqs[i].address)
         free(mm_rqs[i].address);
 
-    print("OK!\n");
+    print(argv[0]);
+    print(": OK!\n");
   }
 }

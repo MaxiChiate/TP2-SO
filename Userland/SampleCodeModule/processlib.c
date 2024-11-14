@@ -11,7 +11,15 @@ int64_t spawn_process(int64_t function_address, int argc, char ** argv, unsigned
 
     int64_t args[] = { function_address, (int64_t) argc, (int64_t) argv, (int64_t) priority, (int64_t) foreground };
 
-    return (int64_t) _int80(SYS_CREATE_PROCESS, args);
+
+    int64_t child_pid = (int64_t) _int80(SYS_CREATE_PROCESS, args);
+
+    if(child_pid <= 0)  {
+
+        print("Error trying to spawn process\n");
+    }
+    
+    return child_pid;
 }
 
 bool killp(int64_t pid)  {
@@ -60,9 +68,3 @@ void suicide()  {
 
     _int80(SYS_SUICIDE, NULL);
 }
-
-/* ps_t * ps()  {
-
-    _int80(0xAA);
-}
-*/
