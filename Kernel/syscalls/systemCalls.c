@@ -13,12 +13,6 @@ void timeManager(){
     printTextDefault(time, WHITE, BLACK);
 }
 
-void killOS(){
-    fillScreen(BLACK);
-    haltcpu();          //queda trabado acá y no puede hacer nada más
-
-}
-
 static unsigned long seed = 0x5A5A5A5A;
 
 unsigned long rand() {

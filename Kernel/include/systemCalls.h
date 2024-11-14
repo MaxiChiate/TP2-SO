@@ -18,9 +18,6 @@
 // Borra toda la pantalla:
     void sysClear();
 
-// Deja el programa detenido indefinidamente
-    void killOS();
-
 //Imprime el horario en pantalla
     void timeManager();
 
