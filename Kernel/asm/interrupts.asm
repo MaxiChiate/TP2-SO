@@ -249,3 +249,5 @@ _force_timertick_int:
 
 SECTION .rodata
     userland equ 0x400000
+
+section .note.GNU-stack

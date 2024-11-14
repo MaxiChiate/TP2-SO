@@ -14,3 +14,5 @@ timeParam:                  ;;en rax se tendria que poner el parámetro del tiem
     mov rsp, rbp
     pop rbp
     ret
+
+section .note.GNU-stack

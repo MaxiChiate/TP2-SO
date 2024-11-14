@@ -20,3 +20,5 @@ keyboard_handler:
     pop rbp
     ret
 
+
+section .note.GNU-stack

@@ -13,3 +13,5 @@ leave_region:
 
     mov byte [rdi], 0x00   
     ret
+
+section .note.GNU-stack

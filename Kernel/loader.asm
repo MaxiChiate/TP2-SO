@@ -10,3 +10,5 @@ hang:
 	cli
 	hlt	; halt machine should kernel return
 	jmp hang
+
+section .note.GNU-stack
