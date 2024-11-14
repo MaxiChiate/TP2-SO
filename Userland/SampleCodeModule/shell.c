@@ -3,21 +3,18 @@
 // Fd globales que solo sabe la shell:
 #include <../../../Kernel/include/process/globalfd.h>
 
-build_in_f build_in_functions[AVAILABLE_BUILDIN_F]={&help, &time, &clear, &div0, &invalidOpcode};
+build_in_f build_in_functions[AVAILABLE_BUILDIN_F]={&help, &clear};
 process_f  process_functions[AVAILABLE_PROCESS_F]={&mem,&loop, &ps, &block,&kill, &nice,&phylo, &cat, &filter, &wc};
 process_f  test_functions[AVAILABLE_TESTS]={&test_processes, &test_prio, &test_sync, &test_mm};
 
 
-char* build_in_names[AVAILABLE_BUILDIN_F+1]= {"help", "time", "clear", "div0", "invalidopcode", 0};
+char* build_in_names[AVAILABLE_BUILDIN_F+1]= {"help", "clear", 0};
 char* process_names[AVAILABLE_PROCESS_F+1]={"mem","loop", "ps", "block", "kill", "nice", "phylo", "cat", "filter", "wc",'\0'};
 char* test_names[AVAILABLE_TESTS+1]={"test_processes", "test_prio", "test_sync", "test_mm", '\0'};
 
 char* build_in_descriptions[AVAILABLE_BUILDIN_F+1]={
                             "Gives information about the available commands to execute",
-                            "Prints the RTC's time on the screen",
                             "Cleans the terminal",
-                            "Div by 0 and throws the exception",
-                            "Excecutes an invalid opcode and throws the exception",
                             '\0'
                             };
 char* process_descriptions[AVAILABLE_PROCESS_F+1]={
@@ -258,16 +255,5 @@ void help(int argc, char ** argv) {
     putEnter();
 }
 
-void time(int argc, char ** argv){
-    if (argc!= 1){
-        print("time: ERROR argument amount\n");
-        return;
-    }
-    time_getter();
-}
 
-void div0(int argc, char ** argv) {
-    int i = 1/0;
-    i++;
-}
 
