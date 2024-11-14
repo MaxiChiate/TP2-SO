@@ -73,6 +73,50 @@ int getChar() {
     return read > 0 ? s[0] : EOF;
 }
 
+int scan(int fd, char * buffer)  {
+
+    int64_t args[] = {fd, (int64_t) buffer};
+
+    return (int) _int80(SYS_READ_ALL, args);
+}
+
+int read_until(char * buff, unsigned int len, char end_character)  {
+
+    int i=0;
+    char c;    
+
+    while(true)     {
+
+        c = getChar();
+            
+        if(c == end_character || c == EOF || c == '\0')    {
+
+            buff[i] = '\0';
+            return i;
+        }
+
+        if(c==KEY_BACKSPACE )    {
+
+            if(i!=0)    {
+                
+                int pixelsToDelete = (buff[i-1] == KEY_TAB)? 3 : 1;
+                    
+                for(int j=0; j<pixelsToDelete; ++j) {
+
+                    putChar(KEY_BACKSPACE);
+                }
+                                        
+                buff[--i] = '\0';
+            }   
+        }
+        else if (i < len - 1)    {
+                        
+            buff[i++] = c;
+            putChar(buff[i-1]);
+        }
+    }
+}
+
 void putChar(char c)    {
 
     char s [2] = {c, '\0'};

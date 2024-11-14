@@ -28,3 +28,13 @@ int consume_stdin()   {
 
     return (int) _int80(SYS_CONSUME_STDIN, NULL);
 }
+
+int get_stdout_fd(int64_t pid)  {
+
+    return (int) _int80(SYS_GET_STDOUT_FD, &pid);
+}
+
+int get_stdin_fd(int64_t pid)  {
+
+    return (int) _int80(SYS_SET_STDIN_FD, &pid);
+}

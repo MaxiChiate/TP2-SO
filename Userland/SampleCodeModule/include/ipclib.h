@@ -6,6 +6,8 @@
     void pipe(int fd[2]);
     void set_stdout_fd(int64_t pid, int new_fd);
     void set_stdin_fd(int64_t pid, int new_fd);
+    int get_stdout_fd(int64_t pid);
+    int get_stdout_fd(int64_t pid);
     void close(int fd);
     int consume_stdin();
     

@@ -7,12 +7,14 @@
     #include <test_util.h>
     #include <semlib.h>
     #include <randlib.h>
+    #include <ipclib.h>
 
     #define ERROR_MESSAGE_FEW "ERROR: too few arguments\n"
     #define ERROR_MESSAGE_MANY "ERROR: too many arguments\n"
     #define SHELL_PID 1
     #define HLT_PID 2
 
+    #define BUFF_SIZE 256
 
     /*Physicial Memory Management*/
     void mem(int argc, char ** argv);

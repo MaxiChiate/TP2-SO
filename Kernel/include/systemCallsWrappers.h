@@ -23,6 +23,7 @@
 
     void write_wrapper(int64_t * args);
     void read_wrapper(int64_t * args);
+    void read_all_wrapper(int64_t * args);
     void open_wrapper(int64_t * args);
     void close_wrapper(int64_t * args);
     void pipe_wrapper(int64_t * args);
@@ -56,5 +57,7 @@
     void standard_write_wrapper(int64_t * args);
     void standard_read_wrapper(int64_t * args);
     void consume_stdin_wrapper(int64_t * args);
+    void get_stdout_fd_wrapper(int64_t * args);
+    void get_stdin_fd_wrapper(int64_t * args);
 
 #endif

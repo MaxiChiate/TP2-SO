@@ -4,9 +4,9 @@
 
 syscall_wrapper syscalls[SYSCALL_COUNT] = {
 	
-    &set_stdout_fd_wrapper, &set_stdin_fd_wrapper, &set_stdio_wrapper, &standard_write_wrapper, 
-	&standard_read_wrapper, &consume_stdin_wrapper,
-	&write_wrapper, &read_wrapper, &open_wrapper, &close_wrapper, &pipe_wrapper, &sysClear_wrapper, 
+    &set_stdout_fd_wrapper, &set_stdin_fd_wrapper, &get_stdout_fd_wrapper, &get_stdin_fd_wrapper, &set_stdio_wrapper, 
+	&standard_write_wrapper, &standard_read_wrapper, &consume_stdin_wrapper,
+	&write_wrapper, &read_wrapper, &read_all_wrapper, &open_wrapper, &close_wrapper, &pipe_wrapper, &sysClear_wrapper, 
     &rand_wrapper, &create_process_wrapper, &kill_process_by_pid_wrapper,
     &block_process_wrapper, &unblock_process_wrapper, &change_process_priority_wrapper,
     &waitpid_wrapper, &haltcpu_wrapper, &get_current_pid_wrapper, &give_up_cpu_wrapper,
@@ -37,6 +37,11 @@ void write_wrapper(int64_t *args) {
 void read_wrapper(int64_t *args) {
     
 	read((int) args[0], (char *) args[1], (int) args[2]);
+}
+
+void read_all_wrapper(int64_t * args)	{
+
+	read_all((int) args[0], (char*) args[1]);
 }
 
 void open_wrapper(int64_t * args) {
@@ -198,4 +203,14 @@ void standard_read_wrapper(int64_t * args)	{
 void consume_stdin_wrapper(int64_t * args)	{
 
 	consume_stdin();
+}
+
+void get_stdout_fd_wrapper(int64_t * args)	{
+
+	get_stdout_fd(args[0]);
+}
+    
+void get_stdin_fd_wrapper(int64_t * args)	{
+
+	get_stdin_fd(args[0]);
 }

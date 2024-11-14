@@ -365,6 +365,17 @@ void set_stdin_fd(int64_t pid, int new_fd)    {
     pcbs[get_index_by_pid(pid)].stdin_fileno = new_fd;
 }
 
+int get_stdout_fd(int64_t pid)    {
+
+    return pcbs[get_index_by_pid(pid)].stdout_fileno;
+}
+
+
+int get_stdin_fd(int64_t pid)    {
+
+    return pcbs[get_index_by_pid(pid)].stdin_fileno;
+}
+
 
 void set_stdio(int64_t pid, int fdin, int fdout)    {
 

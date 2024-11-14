@@ -109,6 +109,9 @@
     void set_stdout_fd(int64_t pid, int new_fd);
     void set_stdin_fd(int64_t pid, int new_fd);
 
+    int get_stdout_fd(int64_t pid);
+    int get_stdin_fd(int64_t pid);
+
     void set_stdio(int64_t pid, int fdin, int fdout);
 
     int standard_write(char * buf, int size);

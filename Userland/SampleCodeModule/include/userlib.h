@@ -12,6 +12,10 @@
 
     void print2(char * str, unsigned int dim);
 
+    int scan(int fd, char * buffer);
+
+    int read_until(char * buff, unsigned int len, char end_character);
+
     void puts(char * str);
 
     void print_ps(ps_t * ps);
