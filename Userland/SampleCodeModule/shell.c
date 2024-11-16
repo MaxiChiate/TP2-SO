@@ -37,14 +37,6 @@ void initShell()    {
     print(INIT_MESSAGE);
 }
 
-void putChar_shell(char c)    {
-
-    char s [2] = {c, '\0'};
-
-    int64_t args[] = {STDOUT_FILENO , (int64_t) s, 1};
-
-    _int80(SYS_WRITE, args);
-}
 
 static void new_line()  {
 
@@ -214,6 +206,15 @@ void getMenu(char * buffer, unsigned int buflen)  {
 
     putEnter();
 
+    for(int i=2; i<argc; i++)   {
+
+        if(argv[i] && argv[i][0] == PIPE_CHARACTER) {
+
+            print("Error: Shell doesn't support piping commands with args!\n");
+            return;
+        }
+    }
+
     if(argc > 0 && argv[1][0] == PIPE_CHARACTER) {
 
         // Comandos pipeados no reciben args!!
@@ -229,9 +230,29 @@ void getMenu(char * buffer, unsigned int buflen)  {
 
         int64_t pid1 = check_and_run_process(process_functions, process_names, 1, argv, function, true);
 
+        if(pid1 == 0)   {
+
+            close(fd[0]);
+            close(fd[1]);
+
+            print(INVALID_INPUT_MESSAGE);
+            return;
+        }
+
         set_stdio(fd[0], STDOUT_FILENO);
 
         int64_t pid2 = check_and_run_process(process_functions, process_names, 1, argv2, argv[2], true);
+
+        if(pid2 == 0)   {
+
+            killp(pid1); 
+
+            close(fd[0]);
+            close(fd[1]);
+
+            print(INVALID_INPUT_MESSAGE);
+            return;
+        }
 
         set_stdio(STDIN_FILENO, STDOUT_FILENO);
 
@@ -240,6 +261,8 @@ void getMenu(char * buffer, unsigned int buflen)  {
 
         waitpid(pid2);
         close(fd[0]);
+
+
 
         return;
     }

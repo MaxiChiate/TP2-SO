@@ -18,7 +18,6 @@
 
     int scan(int fd, char * buffer);
 
-    int read_until(char * buff, unsigned int len);
     int read_into_buffer(char * buff, unsigned int len);
 
     void puts(const char * str);

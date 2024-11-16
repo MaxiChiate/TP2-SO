@@ -29,7 +29,5 @@
     void getMenu(char * buffer, unsigned int buflen);
     void print_commands();
 
-// Imprimir char en pantalla forzado:
-    void putChar_shell(char c);
 
 #endif
