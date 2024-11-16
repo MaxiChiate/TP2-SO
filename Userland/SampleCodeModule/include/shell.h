@@ -10,12 +10,11 @@
     // #define OVERFLOW_MESSAGE "\nYou're trying to overflow the buffer, aren't you? By the way, that's an Unknown Command\n"
     #define OVERFLOW_MESSAGE "\n\nIncorrect argument format: maximum number of arguments is 3 with a length of 14 characters each\n\n"
 
-    #define SECTIONS 3
+    #define SECTIONS 2
 
-    #define AVAILABLE_FUNCTIONS ((AVAILABLE_BUILDIN_F)+(AVAILABLE_PROCESS_F)+(AVAILABLE_TESTS))
-    #define AVAILABLE_BUILDIN_F 3
-    #define AVAILABLE_PROCESS_F 10
-    #define AVAILABLE_TESTS     4
+    #define AVAILABLE_FUNCTIONS ((AVAILABLE_PROCESS_F)+(AVAILABLE_TESTS))
+    #define AVAILABLE_PROCESS_F 12
+    #define AVAILABLE_TESTS     5
 
     #define BACKGROUND_CHARACTER '&'
     #define PIPE_CHARACTER '|'
@@ -32,7 +31,8 @@
     void initShell();
     void read(char * buffer, unsigned int buflen);
     void getMenu(char * buffer, unsigned int buflen);
-    void help(int argc, char ** argv);
+    // void help(int argc, char ** argv);
+    void print_commands();
     void test_all(int argc, char ** argv);
 
 #endif

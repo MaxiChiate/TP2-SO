@@ -1,6 +1,7 @@
 #ifndef __APPS_H
 #define __APPS_H
 
+    #include <defs.h>
     #include <heaplib.h>
     #include <processlib.h>
     #include <userlib.h>
@@ -31,5 +32,7 @@
     void cat(int argc, char ** argv);
     void filter(int argc, char ** argv);
     void wc(int argc, char ** argv);
+
+    void help(int argc, char ** argv);
 
 #endif

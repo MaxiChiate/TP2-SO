@@ -13,4 +13,6 @@
     void test_sync(int argc, char ** argv);
     void test_mm(int argc, char ** argv);
 
+    void test_all(int argc, char ** argv);
+
 #endif
