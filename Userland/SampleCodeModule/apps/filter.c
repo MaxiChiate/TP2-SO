@@ -7,7 +7,7 @@ void filter(int argc, char ** argv) {
     char ans[BUFF_SIZE] = {'\0'};
 
     int j=0;
-    int length = read_until(buff, BUFF_SIZE, 0);
+    int length = read_into_buffer(buff, BUFF_SIZE);
 
     for(int i = 0; i < length; i++)  {
 

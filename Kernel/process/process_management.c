@@ -377,10 +377,10 @@ int get_stdin_fd(int64_t pid)    {
 }
 
 
-void set_stdio(int64_t pid, int fdin, int fdout)    {
+void set_stdio(int fdin, int fdout)    {
 
-    set_stdin_fd(pid, fdin);
-    set_stdout_fd(pid, fdout);
+    set_stdin_fd(get_current_pid(), fdin);
+    set_stdout_fd(get_current_pid(), fdout);
 }
 
 int standard_write(char * buf, int size)   {

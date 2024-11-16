@@ -112,7 +112,7 @@
     int get_stdout_fd(int64_t pid);
     int get_stdin_fd(int64_t pid);
 
-    void set_stdio(int64_t pid, int fdin, int fdout);
+    void set_stdio(int fdin, int fdout);
 
     int standard_write(char * buf, int size);
     int standard_read(char * buf, int size);

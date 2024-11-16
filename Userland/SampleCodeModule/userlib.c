@@ -1,18 +1,44 @@
 #include <userlib.h>
 
-void print(char * str)  {
+static int assert_id = -1;
+
+void assert(bool comparation, const char * optional_msg)    {
+
+    assert_id++;
+
+    if(!comparation)    {
+
+        char buff[5] = {'\0'};
+        itoa(assert_id, buff);
+        print("Error assertion ");
+        print(buff);
+        print(". ");
+        
+        if(optional_msg) {
+
+            print(optional_msg);
+        }
+        
+        putEnter();
+
+        suicide();
+    }
+}
+
+
+void print(const char * str)  {
 
     print2(str, strLength(str));
 }
 
-void print2(char * str, unsigned int dim)   {
+void print2(const char * str, unsigned int dim)   {
 
     int64_t args[] = {(int64_t) str, (int64_t) strLength(str)};
 
     _int80(SYS_STANDARD_WRITE, args);
 }
 
-void puts(char * str)   {
+void puts(const char * str)   {
 
     print(str);
     putEnter();
@@ -80,42 +106,65 @@ int scan(int fd, char * buffer)  {
     return (int) _int80(SYS_READ_ALL, args);
 }
 
-int read_until(char * buff, unsigned int len, char end_character)  {
+int read_until(char * buff, unsigned int len)  {
 
-    int i=0;
-    char c;    
+    int i = 0;
+    char c;
 
-    while(true)     {
+    while (true) {
 
         c = getChar();
-            
-        if(c == end_character || c == EOF || c == '\0')    {
 
+        if (c == EOF || c == '\0') {
             buff[i] = '\0';
             return i;
         }
 
-        if(c==KEY_BACKSPACE )    {
+        if (c == KEY_BACKSPACE) {
 
-            if(i!=0)    {
+            if (i != 0) {
+
+                int pixelsToDelete = (buff[i - 1] == KEY_TAB) ? 3 : 1;
                 
-                int pixelsToDelete = (buff[i-1] == KEY_TAB)? 3 : 1;
-                    
-                for(int j=0; j<pixelsToDelete; ++j) {
+                for (int j = 0; j < pixelsToDelete; ++j) {
 
-                    putChar(KEY_BACKSPACE);
+                    putChar_shell(KEY_BACKSPACE);
                 }
-                                        
+                
                 buff[--i] = '\0';
-            }   
-        }
-        else if (i < len - 1)    {
-                        
+            }
+        } else if (i < len - 1) {
+
             buff[i++] = c;
-            putChar(buff[i-1]);
+            putChar_shell(buff[i - 1]);
         }
     }
 }
+
+int read_into_buffer(char * buff, unsigned int len)  {
+
+    int i = 0;
+    char c;
+
+    while (true) {
+
+        c = getChar();
+
+        if (c == EOF || c == '\0') {
+            buff[i] = '\0';
+            return i;
+        }
+
+        if (c == KEY_BACKSPACE) {
+            if (i != 0) {
+                buff[--i] = '\0';
+            }
+        } else if (i < len - 1) {
+            buff[i++] = c;
+        }
+    }
+}
+
 
 void putChar(char c)    {
 
@@ -251,7 +300,7 @@ int stringTrimmerBySpace( char * origString, char * function_name, char ** argv,
     return argc;
 }
 
-unsigned int strLength( char * str) {
+unsigned int strLength(const char * str) {
     int i=0;
     while(str[i++]!='\0');
     return i-1;

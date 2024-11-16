@@ -159,9 +159,28 @@ void kernel_pipe(int fd1, int fd2, buffer_t buffer)   {
 
 void pipe(int fds[2])    {
 
-    if((fds != NULL) && ((fds[0] = next()) >= 0) && ((fds[1] = next()) >= 0))    {
+    if(fds)    {
 
-        kernel_pipe(fds[0], fds[1], buffer_init(BUFFER_SIZE));
+        fds[0] = open(R);
+
+        if(IN_RANGE(fds[0]))    {
+
+            buffer_t buff = descriptors[fds[0]].buffer;
+
+            if((fds[1] = kernel_open(W, next(), buff)) < 0)   {
+
+                close(fds[0]);
+                fds[0] = -1;
+                return;
+            }
+
+        // +1 ref, ya tenía un ref por el init
+            buffer_ref(buff);
+        }
+        else    {
+
+            fds[0] = -1;
+        }
     }
 }
 

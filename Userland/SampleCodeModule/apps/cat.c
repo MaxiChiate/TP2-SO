@@ -6,7 +6,7 @@ static char buff[BUFF_LEN];
 
 void cat(int argc, char ** argv){        
 
-    read_until(buff, BUFF_LEN, 0);
+    read_until(buff, BUFF_LEN);
 
     putEnter();
     print(buff);

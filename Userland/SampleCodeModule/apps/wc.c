@@ -6,7 +6,7 @@ void wc(int argc, char ** argv) {
     char ans[BUFF_SIZE] = {'\0'};
     int enter_counter = 0;
 
-    int length = read_until(ans, BUFF_SIZE, 0);
+    int length = read_into_buffer(ans, BUFF_SIZE);
 
     for(int i = 0; i < length; i++)  {
 

@@ -5,18 +5,23 @@
     #include <bool.h>
     #include <stdint.h>
     #include <../../../Kernel/include/systemCallDefs.h>
+    #include <processlib.h>
+    #include <shell.h>
 
     int64_t _int80(int id, int64_t * args);
 
-    void print(char * str);
+    void assert(bool comparation, const char * optional_msg);
 
-    void print2(char * str, unsigned int dim);
+    void print(const char * str);
+
+    void print2(const char * str, unsigned int dim);
 
     int scan(int fd, char * buffer);
 
-    int read_until(char * buff, unsigned int len, char end_character);
+    int read_until(char * buff, unsigned int len);
+    int read_into_buffer(char * buff, unsigned int len);
 
-    void puts(char * str);
+    void puts(const char * str);
 
     void print_ps(ps_t * ps);
 
@@ -54,7 +59,7 @@
 
 //  Strings:
 
-    unsigned int strLength( char * str);
+    unsigned int strLength(const char * str);
 
     unsigned int strEquals( char * s1,  char * s2);
 

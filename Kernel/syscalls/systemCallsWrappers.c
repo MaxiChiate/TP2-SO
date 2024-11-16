@@ -56,8 +56,7 @@ void close_wrapper(int64_t * args) {
 
 void pipe_wrapper(int64_t * args) {
 
-	int fildes[2] = {(unsigned int) args[0], (unsigned int) args[1]};
-	pipe(fildes);
+	pipe((int *) args[0]);
 }
 
 void sysClear_wrapper(int64_t *args) {
@@ -187,7 +186,7 @@ void set_stdin_fd_wrapper(int64_t * args)	{
 
 void set_stdio_wrapper(int64_t * args)	{
 
-	set_stdio(args[0], (int) args[1], (int) args[2]);
+	set_stdio((int) args[0], (int) args[1]);
 }
 
 void standard_write_wrapper(int64_t * args)	{
