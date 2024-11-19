@@ -7,13 +7,13 @@ void nice(int argc, char ** argv) {
     if (argc < 2) {
         print(ERROR_MESSAGE_FEW);
 
-    } else if (argc > 2) {
+    } else if (argc > 3) {
         print(ERROR_MESSAGE_MANY);
 
     } else {
 
-        int64_t pid = satoi(argv[0]);
-        int new_priority = satoi(argv[1]);
+        int64_t pid = satoi(argv[1]);
+        int new_priority = satoi(argv[2]);
 
         if (!IN_RANGE(new_priority, 0, 3)) {
             print("Priority ");
